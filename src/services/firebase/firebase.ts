@@ -1,6 +1,11 @@
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import { initializeApp, type FirebaseOptions } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  browserPopupRedirectResolver,
+  indexedDBLocalPersistence,
+  initializeAuth,
+} from 'firebase/auth';
 import {
   initializeFirestore,
   persistentLocalCache,
@@ -27,7 +32,11 @@ export const app = initializeApp(firebaseConfig);
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
 });
-export const auth = getAuth(app);
+// Keep the session on this device until the user signs out: IndexedDB first, localStorage as fallback.
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver,
+});
 
 void isSupported().then((supported) => {
   if (supported && firebaseConfig.measurementId) getAnalytics(app);

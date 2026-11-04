@@ -3,11 +3,13 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import '@fontsource-variable/inter';
 import { captureInstallPrompt } from '@/app/installPrompt';
+import { requestPersistentStorage } from '@/app/persistentStorage';
 import { store } from '@/app/store';
 import { App } from './App';
 import './index.css';
 
 captureInstallPrompt();
+void requestPersistentStorage();
 
 const container = document.getElementById('root');
 if (!container) throw new Error('Root element #root is missing from index.html.');

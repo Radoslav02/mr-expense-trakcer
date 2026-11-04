@@ -1,11 +1,38 @@
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
+import { loadEnv, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vitest/config';
 
-export default defineConfig({
+/**
+ * Firebase's sign-in handler (proxied from /__/auth/* in vercel.json) reads /__/firebase/init.json
+ * from the app's own domain. Firebase Hosting normally serves that file; on Vercel we emit it at
+ * build time from the same VITE_FIREBASE_* variables the app uses.
+ */
+const firebaseInitJson = (env: Record<string, string>): Plugin => ({
+  name: 'firebase-init-json',
+  apply: 'build',
+  generateBundle() {
+    this.emitFile({
+      type: 'asset',
+      fileName: '__/firebase/init.json',
+      source: JSON.stringify({
+        apiKey: env.VITE_FIREBASE_API_KEY,
+        authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
+        projectId: env.VITE_FIREBASE_PROJECT_ID,
+        storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+        appId: env.VITE_FIREBASE_APP_ID,
+        measurementId: env.VITE_FIREBASE_MEASUREMENT_ID,
+      }),
+    });
+  },
+});
+
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    firebaseInitJson(loadEnv(mode, process.cwd(), 'VITE_')),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png'],
@@ -72,4 +99,4 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.test.ts'],
   },
-});
+}));

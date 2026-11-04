@@ -11,6 +11,8 @@ const ERROR_MESSAGES: Readonly<Record<string, string>> = {
   'auth/popup-blocked': 'Your browser blocked the Google sign-in popup. Allow popups and retry.',
   'auth/network-request-failed': 'Network error. Check your connection and retry.',
   'auth/operation-not-allowed': 'This sign-in method is not enabled in Firebase yet.',
+  'auth/unauthorized-domain':
+    'Sign-in isn’t allowed from this address yet. Add it under Firebase → Authentication → Settings → Authorized domains.',
   'permission-denied':
     'Firestore refused access. Publish the rules from firestore.rules in the Firebase console, then try again.',
   unavailable: 'The server is unreachable. Check your connection and retry.',

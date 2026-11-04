@@ -92,21 +92,26 @@ Vite; build command `npm run build`, output `dist`.
 
 ### 2. Environment variables
 
-In Vercel → Project → Settings → Environment Variables, add every key from `.env`.
-**One value is different:** set `VITE_FIREBASE_AUTH_DOMAIN` to your Vercel domain, for example
-`mr-expenses.vercel.app`, not `…firebaseapp.com`. Redeploy after changing variables (Vite
-reads them at build time).
+In Vercel → Project → Settings → Environment Variables, add every key from `.env` with the
+same values. Keep `VITE_FIREBASE_AUTH_DOMAIN` as `<project-id>.firebaseapp.com`. Redeploy after
+changing variables, because Vite reads them at build time.
+
+> Advanced, for Google sign-in inside the installed iPhone app: set `VITE_FIREBASE_AUTH_DOMAIN` to
+> your Vercel domain. This only works after the Firebase project has a Hosting site (run
+> `npx firebase-tools deploy --only hosting` once), because the proxied `/__/auth/*` pages
+> depend on it. Then complete step 3.2.
 
 ### 3. Allow the domain in Firebase and Google
 
-1. Firebase console → Authentication → Settings → **Authorized domains** → add
-   `mr-expenses.vercel.app`.
+1. Firebase console → Authentication → Settings → **Authorized domains** → add your Vercel
+   domain (for example `mr-expense-trakcer.vercel.app`). **Without this, Google sign-in fails
+   with `auth/unauthorized-domain`.**
 2. Google Cloud console → APIs & Services → Credentials → the OAuth 2.0 client named
    *Web client (auto created by Google Service)* → **Authorized redirect URIs** → add
    `https://mr-expenses.vercel.app/__/auth/handler` → Save. It can take a few minutes
    to take effect.
 
-Email/password sign-in works without step 3.2. Only Google sign-in needs it.
+Step 3.2 is only needed for the advanced setup above.
 
 ### 4. Security rules
 
