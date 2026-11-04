@@ -1,0 +1,18 @@
+.auth-shell__panel {
+  animation: auth-panel-in 260ms var(--ease-out);
+}
+
+.auth-shell__panel a {
+  @apply rounded font-medium text-accent underline-offset-4 hover:underline;
+}
+
+@keyframes auth-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.auth-shell {
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+}

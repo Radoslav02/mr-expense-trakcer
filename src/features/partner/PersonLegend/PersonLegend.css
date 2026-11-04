@@ -1,0 +1,3 @@
+.person-legend__swatch {
+  @apply inline-block h-2.5 w-2.5 rounded-sm;
+}

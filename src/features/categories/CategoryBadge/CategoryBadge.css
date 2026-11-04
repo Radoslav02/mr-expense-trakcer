@@ -1,0 +1,8 @@
+.category-badge {
+  color: color-mix(in srgb, var(--category-color) 55%, rgb(var(--color-ink)));
+  background-color: color-mix(in srgb, var(--category-color) 12%, transparent);
+}
+
+.category-badge__dot {
+  background-color: var(--category-color);
+}

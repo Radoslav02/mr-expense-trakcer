@@ -1,0 +1,18 @@
+.shared-activity__option {
+  @apply h-7 rounded-md px-3 text-xs font-medium text-ink-muted;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.shared-activity__option:hover {
+  @apply text-ink;
+}
+
+.shared-activity__option.is-selected {
+  @apply bg-surface text-ink shadow-card;
+}
+
+.shared-activity__row + .shared-activity__row {
+  @apply border-t border-line;
+}

@@ -1,0 +1,18 @@
+.appearance-settings__option {
+  @apply flex h-8 cursor-pointer items-center gap-2 rounded-md px-3.5 text-sm font-medium text-ink-muted;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.appearance-settings__option:hover {
+  @apply text-ink;
+}
+
+.appearance-settings__option.is-selected {
+  @apply bg-surface text-ink shadow-card;
+}
+
+.appearance-settings__option:has(input:focus-visible) {
+  @apply ring-2 ring-accent;
+}

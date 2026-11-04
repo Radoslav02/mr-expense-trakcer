@@ -1,0 +1,23 @@
+.icon-picker__option {
+  @apply flex h-9 cursor-pointer items-center justify-center rounded-lg border border-line text-ink-muted;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    transform 140ms var(--ease-out);
+}
+
+.icon-picker__option:hover {
+  @apply bg-sunken text-ink;
+}
+
+.icon-picker__option:active {
+  transform: scale(0.94);
+}
+
+.icon-picker__option.is-selected {
+  @apply border-2 bg-sunken;
+}
+
+.icon-picker__option:has(input:focus-visible) {
+  @apply ring-2 ring-accent ring-offset-2 ring-offset-surface;
+}

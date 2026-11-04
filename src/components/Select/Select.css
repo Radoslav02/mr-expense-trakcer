@@ -1,0 +1,10 @@
+.select {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+
+.select option {
+  @apply bg-surface text-ink;
+}

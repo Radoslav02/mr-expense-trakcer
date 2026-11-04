@@ -1,0 +1,1 @@
+export { TrendComparisonChart } from './TrendComparisonChart';

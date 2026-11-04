@@ -1,0 +1,1 @@
+export { CategoryComparison } from './CategoryComparison';

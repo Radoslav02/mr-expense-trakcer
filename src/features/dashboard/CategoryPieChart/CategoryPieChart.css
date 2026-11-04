@@ -1,0 +1,12 @@
+.category-pie-chart .recharts-sector {
+  transition: opacity 150ms ease;
+}
+
+.category-pie-chart .recharts-pie:hover .recharts-sector:not(:hover) {
+  opacity: 0.55;
+}
+
+.category-pie-chart .recharts-wrapper,
+.category-pie-chart .recharts-surface {
+  outline: none;
+}

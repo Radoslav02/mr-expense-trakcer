@@ -1,0 +1,24 @@
+.input__icon,
+.input__trailing {
+  @apply pointer-events-none absolute inset-y-0 flex items-center;
+}
+
+.input__icon {
+  @apply left-3;
+}
+
+.input__icon svg {
+  @apply h-4 w-4;
+}
+
+.input__trailing {
+  @apply right-3 font-medium;
+}
+
+.input input[type='date']::-webkit-calendar-picker-indicator {
+  @apply cursor-pointer opacity-60;
+}
+
+.dark .input input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}

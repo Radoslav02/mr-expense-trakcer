@@ -1,0 +1,3 @@
+.expenses-page {
+  animation: page-in 220ms var(--ease-out);
+}

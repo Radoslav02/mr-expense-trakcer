@@ -1,0 +1,9 @@
+.sidebar__link {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.sidebar__link[aria-current='page'] svg {
+  @apply text-accent;
+}

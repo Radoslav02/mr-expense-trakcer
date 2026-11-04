@@ -1,0 +1,9 @@
+.category-icon {
+  color: var(--category-color);
+  background-color: color-mix(in srgb, var(--category-color) 14%, transparent);
+}
+
+.dark .category-icon {
+  background-color: color-mix(in srgb, var(--category-color) 22%, transparent);
+  color: color-mix(in srgb, var(--category-color) 70%, white);
+}

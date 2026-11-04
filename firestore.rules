@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function hasEmail() {
+      return signedIn() && request.auth.token.email != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    // A user opts in to sharing by writing their partner's email on their own profile doc.
+    function isPartnerOf(userId) {
+      return hasEmail()
+        && get(/databases/$(database)/documents/users/$(userId)).data.get('partnerEmail', '')
+           == request.auth.token.email.lower();
+    }
+
+    match /users/{userId}/{document=**} {
+      allow read, write: if isOwner(userId);
+      allow read: if isPartnerOf(userId);
+    }
+
+    // Doc id = invitee's lowercased email. Tells the invitee which uid shared with them.
+    match /partnerInvites/{email} {
+      allow read: if (hasEmail() && request.auth.token.email.lower() == email)
+        || (signedIn() && resource.data.uid == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow update: if signedIn()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+  }
+}

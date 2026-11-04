@@ -1,0 +1,15 @@
+.install-steps li {
+  @apply flex flex-wrap items-center gap-1.5;
+}
+
+.install-steps strong {
+  @apply font-medium text-ink;
+}
+
+.install-steps__n {
+  @apply mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-sunken text-xs font-semibold text-ink;
+}
+
+.install-steps__icon {
+  @apply inline h-4 w-4 text-accent;
+}

@@ -1,0 +1,1 @@
+export { PersonLegend } from './PersonLegend';

@@ -1,0 +1,3 @@
+.expense-list-skeleton__row + .expense-list-skeleton__row {
+  @apply border-t border-line;
+}

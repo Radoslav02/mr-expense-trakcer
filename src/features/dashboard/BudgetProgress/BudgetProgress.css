@@ -1,0 +1,19 @@
+.budget-progress__fill {
+  width: calc(var(--progress) * 100%);
+  min-width: 0.5rem;
+  transition:
+    width 500ms var(--ease-out),
+    background-color 200ms ease;
+}
+
+.budget-progress__fill.is-healthy {
+  background-color: rgb(var(--color-positive));
+}
+
+.budget-progress__fill.is-warning {
+  background-color: rgb(var(--color-warning));
+}
+
+.budget-progress__fill.is-exceeded {
+  background-color: rgb(var(--color-danger));
+}

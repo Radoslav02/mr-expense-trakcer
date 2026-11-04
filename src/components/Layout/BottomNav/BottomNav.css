@@ -1,0 +1,13 @@
+.bottom-nav {
+  -webkit-backdrop-filter: saturate(1.6) blur(12px);
+  backdrop-filter: saturate(1.6) blur(12px);
+}
+
+.bottom-nav__link {
+  transition: color 150ms ease;
+}
+
+.bottom-nav__link:active svg {
+  transform: scale(0.92);
+  transition: transform 120ms var(--ease-out);
+}

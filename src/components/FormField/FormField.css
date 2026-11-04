@@ -1,0 +1,38 @@
+.form-field__error {
+  animation: field-error-in 180ms var(--ease-out);
+}
+
+@keyframes field-error-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+.control {
+  @apply h-10 w-full rounded-lg border border-line bg-surface px-3 text-[0.9375rem] text-ink;
+  @apply placeholder:text-ink-subtle;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.control:hover:not(:disabled) {
+  @apply border-ink-subtle/50;
+}
+
+.control:focus-visible {
+  @apply border-accent ring-[3px] ring-accent/20 ring-offset-0;
+}
+
+.control[aria-invalid='true'] {
+  @apply border-danger;
+}
+
+.control[aria-invalid='true']:focus-visible {
+  @apply ring-danger/20;
+}
+
+.control:disabled {
+  @apply cursor-not-allowed bg-sunken opacity-70;
+}

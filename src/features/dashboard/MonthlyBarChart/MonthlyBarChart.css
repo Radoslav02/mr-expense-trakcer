@@ -1,0 +1,35 @@
+.monthly-bar-chart__bar {
+  fill: rgb(var(--color-accent) / 0.28);
+  transition: fill 150ms ease;
+}
+
+.monthly-bar-chart__bar.is-active {
+  fill: rgb(var(--color-accent));
+}
+
+.monthly-bar-chart__bar:hover {
+  fill: rgb(var(--color-accent) / 0.5);
+}
+
+.monthly-bar-chart__bar.is-active:hover {
+  fill: rgb(var(--color-accent-hover));
+}
+
+.monthly-bar-chart__grid line {
+  stroke: rgb(var(--color-line));
+}
+
+.monthly-bar-chart__cursor {
+  fill: rgb(var(--color-sunken));
+}
+
+.monthly-bar-chart .recharts-cartesian-axis-tick-value {
+  fill: rgb(var(--color-ink-subtle));
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.monthly-bar-chart .recharts-wrapper,
+.monthly-bar-chart .recharts-surface {
+  outline: none;
+}

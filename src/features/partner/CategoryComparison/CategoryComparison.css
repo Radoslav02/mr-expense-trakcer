@@ -1,0 +1,19 @@
+.category-comparison__track {
+  @apply block h-2 overflow-hidden rounded-full bg-sunken;
+}
+
+.category-comparison__bar {
+  display: block;
+  height: 100%;
+  width: calc(var(--bar) * 100%);
+  border-radius: inherit;
+  transition: width 450ms var(--ease-out);
+}
+
+.category-comparison__bar.is-me {
+  background-color: rgb(var(--color-accent));
+}
+
+.category-comparison__bar.is-partner {
+  background-color: rgb(var(--color-partner));
+}

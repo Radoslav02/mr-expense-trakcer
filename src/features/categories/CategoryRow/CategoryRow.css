@@ -1,0 +1,15 @@
+.category-row + .category-row {
+  @apply border-t border-line;
+}
+
+@media (hover: hover) and (min-width: 640px) {
+  .category-row__actions {
+    opacity: 0.55;
+    transition: opacity 150ms ease;
+  }
+
+  .category-row:hover .category-row__actions,
+  .category-row:focus-within .category-row__actions {
+    opacity: 1;
+  }
+}

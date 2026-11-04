@@ -1,0 +1,1 @@
+export { MonthlyBarChart } from './MonthlyBarChart';

@@ -1,0 +1,26 @@
+.trend-comparison__me .recharts-rectangle {
+  fill: rgb(var(--color-accent));
+}
+
+.trend-comparison__partner .recharts-rectangle {
+  fill: rgb(var(--color-partner));
+}
+
+.trend-comparison__grid line {
+  stroke: rgb(var(--color-line));
+}
+
+.trend-comparison__cursor {
+  fill: rgb(var(--color-sunken));
+}
+
+.trend-comparison .recharts-cartesian-axis-tick-value {
+  fill: rgb(var(--color-ink-subtle));
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.trend-comparison .recharts-wrapper,
+.trend-comparison .recharts-surface {
+  outline: none;
+}

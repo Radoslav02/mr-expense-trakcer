@@ -1,0 +1,9 @@
+.loader {
+  animation: loader-reveal 200ms var(--ease-out) 150ms both;
+}
+
+@keyframes loader-reveal {
+  from {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,27 @@
+.together-page {
+  animation: page-in 220ms var(--ease-out);
+}
+
+.together-page__live-dot {
+  @apply relative inline-block h-2 w-2 rounded-full bg-positive;
+}
+
+.together-page__live-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: live-pulse 2s var(--ease-out) infinite;
+}
+
+@keyframes live-pulse {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}

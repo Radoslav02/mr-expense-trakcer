@@ -1,0 +1,29 @@
+.expense-item + .expense-item {
+  @apply border-t border-line;
+}
+
+.expense-item__main {
+  transition: background-color 150ms ease;
+}
+
+.expense-item__main:hover {
+  @apply bg-sunken/60;
+}
+
+.expense-item__main:focus-visible {
+  @apply ring-inset ring-offset-0;
+}
+
+@media (hover: hover) {
+  .expense-item__delete {
+    opacity: 0;
+    transition:
+      opacity 150ms ease,
+      color 150ms ease;
+  }
+
+  .expense-item:hover .expense-item__delete,
+  .expense-item__delete:focus-visible {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,21 @@
+.color-picker__swatch {
+  @apply flex h-8 w-8 cursor-pointer items-center justify-center rounded-full;
+  background-color: var(--swatch);
+  transition:
+    transform 140ms var(--ease-out),
+    box-shadow 150ms ease;
+}
+
+.color-picker__swatch:active {
+  transform: scale(0.92);
+}
+
+.color-picker__swatch.is-selected {
+  box-shadow:
+    0 0 0 2px rgb(var(--color-surface)),
+    0 0 0 4px var(--swatch);
+}
+
+.color-picker__swatch:has(input:focus-visible) {
+  @apply ring-2 ring-accent ring-offset-2 ring-offset-surface;
+}

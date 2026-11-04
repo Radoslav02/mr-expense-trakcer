@@ -1,0 +1,1 @@
+export { SharedActivity } from './SharedActivity';

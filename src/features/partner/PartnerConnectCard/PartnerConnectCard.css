@@ -1,0 +1,14 @@
+.partner-connect__note strong {
+  @apply font-medium text-ink;
+}
+
+.partner-connect__incoming {
+  animation: partner-incoming-in 220ms var(--ease-out);
+}
+
+@keyframes partner-incoming-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

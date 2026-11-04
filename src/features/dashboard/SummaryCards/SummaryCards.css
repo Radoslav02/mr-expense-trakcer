@@ -1,0 +1,5 @@
+.summary-cards__stat {
+  box-shadow:
+    -1px 0 0 rgb(var(--color-line)),
+    0 -1px 0 rgb(var(--color-line));
+}
