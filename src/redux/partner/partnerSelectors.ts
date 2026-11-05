@@ -1,10 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@/app/store';
-import { UNCATEGORIZED_COLOR } from '@/constants/categories';
+import { OTHER_CATEGORY_ID, UNCATEGORIZED_COLOR } from '@/constants/categories';
 import { MONTHS_IN_TREND } from '@/constants/expenses';
 import { selectAuthUser } from '@/redux/auth/authSelectors';
 import { selectCategories } from '@/redux/categories/categoriesSelectors';
-import { selectExpenses } from '@/redux/expenses/expensesSelectors';
+import { selectExpenses, selectMySpending } from '@/redux/expenses/expensesSelectors';
 import { selectCurrency } from '@/redux/settings/settingsSelectors';
 import {
   buildSharedFeed,
@@ -15,7 +15,7 @@ import {
   splitSpending,
 } from '@/utils/comparison';
 import { lastMonthKeys } from '@/utils/dates';
-import { splitBalance } from '@/utils/split';
+import { categoryMapper, personalExpenses, splitBalance } from '@/utils/split';
 import { expensesInMonth, sumAmounts, totalsByCategory, totalsByMonth } from '@/utils/expenses';
 
 const FALLBACK_CATEGORY = { name: 'Uncategorized', color: UNCATEGORIZED_COLOR };
@@ -32,6 +32,17 @@ export const selectPartnerMutating = (state: RootState) =>
   state.partner.mutationStatus === 'loading';
 const selectPartnerExpenses = (state: RootState) => state.partner.expenses;
 const selectPartnerCategories = (state: RootState) => state.partner.categories;
+
+/** What my partner actually spends: their part of split expenses, including ones I paid for. */
+const selectPartnerSpending = createSelector(
+  [selectPartnerExpenses, selectExpenses, selectCategories, selectPartnerCategories],
+  (theirs, mine, myCategories, theirCategories) =>
+    personalExpenses(
+      theirs,
+      mine,
+      categoryMapper(myCategories, theirCategories, OTHER_CATEGORY_ID),
+    ),
+);
 
 export const selectLinkStatus = createSelector(
   [selectPartnerEmail, selectIncomingInvite],
@@ -58,7 +69,7 @@ export const selectCurrencyMismatch = createSelector(
 );
 
 export const selectSpendingSplit = createSelector(
-  [selectExpenses, selectPartnerExpenses, selectMonthArg],
+  [selectMySpending, selectPartnerSpending, selectMonthArg],
   (mine, theirs, month) => {
     const myMonth = expensesInMonth(mine, month);
     const theirMonth = expensesInMonth(theirs, month);
@@ -72,9 +83,9 @@ export const selectSpendingSplit = createSelector(
 
 export const selectCategoryComparison = createSelector(
   [
-    selectExpenses,
+    selectMySpending,
     selectCategories,
-    selectPartnerExpenses,
+    selectPartnerSpending,
     selectPartnerCategories,
     selectMonthArg,
   ],
@@ -86,7 +97,7 @@ export const selectCategoryComparison = createSelector(
 );
 
 export const selectTrendComparison = createSelector(
-  [selectExpenses, selectPartnerExpenses, selectMonthArg],
+  [selectMySpending, selectPartnerSpending, selectMonthArg],
   (mine, theirs, month) => {
     const months = lastMonthKeys(month, MONTHS_IN_TREND);
     return compareTrends(totalsByMonth(mine, months), totalsByMonth(theirs, months));

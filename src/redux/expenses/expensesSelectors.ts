@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@/app/store';
-import { UNCATEGORIZED_COLOR } from '@/constants/categories';
+import { OTHER_CATEGORY_ID, UNCATEGORIZED_COLOR } from '@/constants/categories';
 import { MONTHS_IN_TREND } from '@/constants/expenses';
 import { selectCategories } from '@/redux/categories/categoriesSelectors';
 import { selectMonthlyBudget } from '@/redux/settings/settingsSelectors';
@@ -17,6 +17,7 @@ import {
   totalsByCategory,
   totalsByMonth,
 } from '@/utils/expenses';
+import { categoryMapper, personalExpenses } from '@/utils/split';
 
 export const selectExpenses = (state: RootState) => state.expenses.items;
 export const selectExpensesStatus = (state: RootState) => state.expenses.status;
@@ -26,9 +27,29 @@ export const selectExpensesMutating = (state: RootState) =>
   state.expenses.mutationStatus === 'loading';
 
 const selectMonthArg = (_state: RootState, month: string) => month;
+const selectPartnerExpenses = (state: RootState) => state.partner.expenses;
+const selectPartnerCategories = (state: RootState) => state.partner.categories;
+
+/** Raw expense documents by id, for editing and deleting the stored record. */
+export const selectExpenseRecords = createSelector(
+  [selectExpenses],
+  (expenses): Readonly<Record<string, (typeof expenses)[number]>> =>
+    Object.fromEntries(expenses.map((expense) => [expense.id, expense])),
+);
+
+/** What I actually spend: my part of split expenses, including ones my partner paid for. */
+export const selectMySpending = createSelector(
+  [selectExpenses, selectPartnerExpenses, selectPartnerCategories, selectCategories],
+  (mine, theirs, theirCategories, myCategories) =>
+    personalExpenses(
+      mine,
+      theirs,
+      categoryMapper(theirCategories, myCategories, OTHER_CATEGORY_ID),
+    ),
+);
 
 export const selectFilteredExpenses = createSelector(
-  [selectExpenses, selectExpenseFilters],
+  [selectMySpending, selectExpenseFilters],
   filterExpenses,
 );
 
@@ -50,7 +71,7 @@ export const selectExpenseCountsByCategory = createSelector([selectExpenses], (e
 );
 
 export const selectMonthSummary = createSelector(
-  [selectExpenses, selectMonthArg],
+  [selectMySpending, selectMonthArg],
   (expenses, month) => {
     const current = expensesInMonth(expenses, month);
     const total = sumAmounts(current);
@@ -68,7 +89,7 @@ export const selectMonthSummary = createSelector(
 );
 
 export const selectCategoryTotalsForMonth = createSelector(
-  [selectExpenses, selectCategories, selectMonthArg],
+  [selectMySpending, selectCategories, selectMonthArg],
   (expenses, categories, month) =>
     totalsByCategory(expensesInMonth(expenses, month), categories, {
       name: 'Uncategorized',
@@ -77,7 +98,7 @@ export const selectCategoryTotalsForMonth = createSelector(
 );
 
 export const selectMonthlyTrend = createSelector(
-  [selectExpenses, selectMonthArg],
+  [selectMySpending, selectMonthArg],
   (expenses, month) => totalsByMonth(expenses, lastMonthKeys(month, MONTHS_IN_TREND)),
 );
 

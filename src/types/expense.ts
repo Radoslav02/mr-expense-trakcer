@@ -12,9 +12,21 @@ export interface Expense {
   partnerShare?: number;
   createdAt: string;
   updatedAt: string;
+  /**
+   * Set only on derived entries for a split expense, where `amount` is this person's part.
+   * Never stored.
+   */
+  shared?: SharedPortion;
 }
 
-export type ExpenseInput = Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>;
+export interface SharedPortion {
+  /** The full price of the split expense. */
+  total: number;
+  /** True when the other person paid and this entry is the part owed to them. */
+  paidByOther: boolean;
+}
+
+export type ExpenseInput = Omit<Expense, 'id' | 'createdAt' | 'updatedAt' | 'shared'>;
 
 export const ALL = 'all';
 export type AllOption = typeof ALL;

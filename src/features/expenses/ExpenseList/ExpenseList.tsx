@@ -2,9 +2,10 @@ import { useAppSelector } from '@/app/hooks';
 import { Card } from '@/components/Card';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import { selectCategoryMap } from '@/redux/categories/categoriesSelectors';
+import { selectExpenseRecords } from '@/redux/expenses/expensesSelectors';
+import { selectPersonNames } from '@/redux/partner/partnerSelectors';
 import type { Expense, ExpenseDayGroup } from '@/types/expense';
 import { formatDayHeading } from '@/utils/dates';
-import { isSplit, ownShare } from '@/utils/split';
 import { ExpenseItem } from '../ExpenseItem';
 import './ExpenseList.css';
 
@@ -16,7 +17,11 @@ interface ExpenseListProps {
 
 export const ExpenseList = ({ groups, onEdit, onDelete }: ExpenseListProps) => {
   const categories = useAppSelector(selectCategoryMap);
+  const records = useAppSelector(selectExpenseRecords);
+  const partnerName = useAppSelector(selectPersonNames).partner;
   const { format } = useCurrencyFormatter();
+  // List entries for split expenses carry only the user's part; edit and delete the stored record.
+  const original = (expense: Expense) => records[expense.id] ?? expense;
 
   return (
     <div className="expense-list flex flex-col gap-6">
@@ -36,9 +41,10 @@ export const ExpenseList = ({ groups, onEdit, onDelete }: ExpenseListProps) => {
                   expense={expense}
                   category={categories[expense.categoryId]}
                   formattedAmount={format(expense.amount)}
-                  formattedShare={isSplit(expense) ? format(ownShare(expense)) : undefined}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
+                  formattedTotal={expense.shared ? format(expense.shared.total) : undefined}
+                  partnerName={partnerName}
+                  onEdit={(item) => onEdit(original(item))}
+                  onDelete={(item) => onDelete(original(item))}
                 />
               ))}
             </ul>

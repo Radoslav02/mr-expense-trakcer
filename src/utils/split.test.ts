@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Expense } from '@/types/expense';
-import { halfOf, isSplit, ownShare, splitBalance } from './split';
+import { categoryMapper, halfOf, isSplit, ownShare, personalExpenses, splitBalance } from './split';
+import { sumAmounts } from './expenses';
 import { validateExpense, type ExpenseFormValues } from './validation';
 
 const makeExpense = (overrides: Partial<Expense>): Expense => ({
@@ -30,6 +31,43 @@ describe('split utils', () => {
       [makeExpense({ amount: 300, partnerShare: 150 })],
     );
     expect(balance).toEqual({ owedToMe: 60.1, iOwe: 150, net: -89.9, meCount: 2, partnerCount: 1 });
+  });
+});
+
+describe('personalExpenses', () => {
+  const mine = [
+    makeExpense({ id: 'groceries', amount: 2000, partnerShare: 1000, categoryId: 'my-food' }),
+    makeExpense({ id: 'coffee', amount: 300, categoryId: 'my-food' }),
+  ];
+  const theirs = [
+    makeExpense({ id: 'rent', amount: 50000, partnerShare: 25000, categoryId: 'their-home' }),
+    makeExpense({ id: 'shoes', amount: 8000, categoryId: 'their-clothes' }),
+  ];
+  const cat = (id: string, name: string) => ({ id, name, color: '#000', isDefault: false });
+  const myCategories = [cat('my-food', 'Food'), cat('my-home', 'Home'), cat('other', 'Other')];
+  const theirCategories = [cat('their-home', 'home'), cat('their-clothes', 'Clothes')];
+
+  it('halves my split expenses and adds my half of theirs', () => {
+    const view = personalExpenses(
+      mine,
+      theirs,
+      categoryMapper(theirCategories, myCategories, 'other'),
+    );
+    expect(view.map((e) => [e.id, e.amount, e.categoryId])).toEqual([
+      ['groceries', 1000, 'my-food'],
+      ['coffee', 300, 'my-food'],
+      ['shared:rent', 25000, 'my-home'],
+    ]);
+    expect(view[0].shared).toEqual({ total: 2000, paidByOther: false });
+    expect(view[2].shared).toEqual({ total: 50000, paidByOther: true });
+    expect(view[2].partnerShare).toBeUndefined();
+    expect(sumAmounts(view)).toBe(26300);
+  });
+
+  it('falls back to the Other category when no name matches', () => {
+    const map = categoryMapper(myCategories, theirCategories, 'other');
+    expect(map('my-food')).toBe('my-food');
+    expect(categoryMapper(myCategories, myCategories, 'other')('missing')).toBe('other');
   });
 });
 
