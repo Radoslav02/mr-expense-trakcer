@@ -28,6 +28,7 @@ const isPaymentMethod = (value: unknown): value is PaymentMethod =>
 const toExpense = (snapshot: QueryDocumentSnapshot): Expense => {
   const data = snapshot.data();
   const note = readString(data, 'note');
+  const partnerShare = readNumber(data, 'partnerShare');
   return {
     id: snapshot.id,
     title: readString(data, 'title'),
@@ -36,6 +37,7 @@ const toExpense = (snapshot: QueryDocumentSnapshot): Expense => {
     date: toDateKey(data.date),
     ...(note ? { note } : {}),
     paymentMethod: isPaymentMethod(data.paymentMethod) ? data.paymentMethod : 'other',
+    ...(partnerShare && partnerShare > 0 ? { partnerShare } : {}),
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
   };
@@ -48,11 +50,17 @@ const toFirestorePayload = (input: ExpenseInput) => ({
   date: dateKeyToTimestamp(input.date),
   note: input.note?.trim() ?? '',
   paymentMethod: input.paymentMethod,
+  partnerShare: input.partnerShare ?? 0,
 });
 
 const normalizeInput = (input: ExpenseInput): ExpenseInput => {
   const note = input.note?.trim();
-  return { ...input, title: input.title.trim(), ...(note ? { note } : { note: undefined }) };
+  return {
+    ...input,
+    title: input.title.trim(),
+    note: note || undefined,
+    partnerShare: input.partnerShare && input.partnerShare > 0 ? input.partnerShare : undefined,
+  };
 };
 
 const expensesQuery = (uid: string) =>

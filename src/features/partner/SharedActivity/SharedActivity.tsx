@@ -10,6 +10,7 @@ import { selectPersonNames, selectSharedFeed } from '@/redux/partner/partnerSele
 import type { Person } from '@/types/partner';
 import { cn } from '@/utils/cn';
 import { formatDayHeading } from '@/utils/dates';
+import { isSplit } from '@/utils/split';
 import { PersonAvatar } from '../PersonAvatar';
 import './SharedActivity.css';
 
@@ -93,8 +94,15 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
                   <span className="shrink-0">{formatDayHeading(expense.date)}</span>
                 </p>
               </div>
-              <span className="tabular shrink-0 text-[0.9375rem] font-semibold text-ink">
-                {format(expense.amount)}
+              <span className="shrink-0 text-right">
+                <span className="tabular block text-[0.9375rem] font-semibold text-ink">
+                  {format(expense.amount)}
+                </span>
+                {isSplit(expense) && (
+                  <span className="mt-0.5 block text-[0.75rem] font-medium text-partner">
+                    Split
+                  </span>
+                )}
               </span>
             </li>
           ))}

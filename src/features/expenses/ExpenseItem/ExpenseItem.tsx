@@ -12,6 +12,8 @@ interface ExpenseItemProps {
   expense: Expense;
   category?: Category;
   formattedAmount: string;
+  /** Set when the expense is split: the part the user carries. */
+  formattedShare?: string;
   onEdit: (expense: Expense) => void;
   onDelete: (expense: Expense) => void;
 }
@@ -20,6 +22,7 @@ export const ExpenseItem = ({
   expense,
   category,
   formattedAmount,
+  formattedShare,
   onEdit,
   onDelete,
 }: ExpenseItemProps) => (
@@ -28,7 +31,7 @@ export const ExpenseItem = ({
       type="button"
       onClick={() => onEdit(expense)}
       className="expense-item__main flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left sm:px-5"
-      aria-label={`Edit ${expense.title}, ${formattedAmount}`}
+      aria-label={`Edit ${expense.title}, ${formattedAmount}${formattedShare ? `, split, your share ${formattedShare}` : ''}`}
     >
       <CategoryIcon icon={category?.icon} color={category?.color ?? UNCATEGORIZED_COLOR} />
       <span className="min-w-0 flex-1">
@@ -50,8 +53,18 @@ export const ExpenseItem = ({
           )}
         </span>
       </span>
-      <span className="tabular shrink-0 text-[0.9375rem] font-semibold text-ink">
-        {formattedAmount}
+      <span className="shrink-0 text-right">
+        <span className="tabular block text-[0.9375rem] font-semibold text-ink">
+          {formattedAmount}
+        </span>
+        {formattedShare && (
+          <span className="mt-0.5 flex items-center justify-end gap-1.5 text-[0.75rem] text-ink-subtle">
+            <span className="rounded bg-partner-soft px-1.5 py-px font-medium text-partner">
+              Split
+            </span>
+            <span className="tabular">yours {formattedShare}</span>
+          </span>
+        )}
       </span>
     </button>
     <Button

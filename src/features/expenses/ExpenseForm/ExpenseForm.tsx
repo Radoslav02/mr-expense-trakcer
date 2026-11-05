@@ -14,8 +14,10 @@ import {
 import { useExpenseForm } from '@/hooks/useExpenseForm';
 import { selectSortedCategories } from '@/redux/categories/categoriesSelectors';
 import { selectExpensesMutating } from '@/redux/expenses/expensesSelectors';
+import { selectLinkStatus, selectPersonNames } from '@/redux/partner/partnerSelectors';
 import { selectCurrency } from '@/redux/settings/settingsSelectors';
 import type { Expense } from '@/types/expense';
+import { SplitField } from '../SplitField';
 import './ExpenseForm.css';
 
 interface ExpenseFormProps {
@@ -36,6 +38,8 @@ export const ExpenseForm = ({ open, expense, onClose }: ExpenseFormProps) => {
   const categories = useAppSelector(selectSortedCategories);
   const currency = useAppSelector(selectCurrency);
   const saving = useAppSelector(selectExpensesMutating);
+  const connected = useAppSelector(selectLinkStatus) === 'connected';
+  const partnerName = useAppSelector(selectPersonNames).partner;
 
   const categoryOptions = useMemo(
     () => categories.map((category) => ({ value: category.id, label: category.name })),
@@ -105,6 +109,15 @@ export const ExpenseForm = ({ open, expense, onClose }: ExpenseFormProps) => {
           options={PAYMENT_OPTIONS}
           onChange={(event) => setField('paymentMethod', event.target.value)}
         />
+        {(connected || values.split) && (
+          <SplitField
+            values={values}
+            errors={errors}
+            setField={setField}
+            partnerName={partnerName}
+            currency={currency}
+          />
+        )}
         <div className="sm:col-span-2">
           <TextArea
             label="Note"

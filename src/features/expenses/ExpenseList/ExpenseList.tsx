@@ -4,6 +4,7 @@ import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import { selectCategoryMap } from '@/redux/categories/categoriesSelectors';
 import type { Expense, ExpenseDayGroup } from '@/types/expense';
 import { formatDayHeading } from '@/utils/dates';
+import { isSplit, ownShare } from '@/utils/split';
 import { ExpenseItem } from '../ExpenseItem';
 import './ExpenseList.css';
 
@@ -35,6 +36,7 @@ export const ExpenseList = ({ groups, onEdit, onDelete }: ExpenseListProps) => {
                   expense={expense}
                   category={categories[expense.categoryId]}
                   formattedAmount={format(expense.amount)}
+                  formattedShare={isSplit(expense) ? format(ownShare(expense)) : undefined}
                   onEdit={onEdit}
                   onDelete={onDelete}
                 />

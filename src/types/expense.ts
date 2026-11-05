@@ -8,6 +8,8 @@ export interface Expense {
   date: string;
   note?: string;
   paymentMethod: PaymentMethod;
+  /** Amount the partner owes for this expense. Absent when the expense isn't split. */
+  partnerShare?: number;
   createdAt: string;
   updatedAt: string;
 }

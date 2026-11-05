@@ -8,6 +8,7 @@ import { addExpense, editExpense } from '@/redux/expenses/expensesThunks';
 import { ALL, type Expense, type ExpenseInput, type PaymentMethod } from '@/types/expense';
 import { roundMoney } from '@/utils/currency';
 import { currentMonthKey, monthBounds, todayKey } from '@/utils/dates';
+import { halfOf } from '@/utils/split';
 import {
   hasErrors,
   parseAmount,
@@ -23,31 +24,51 @@ const isPaymentMethod = (value: string): value is PaymentMethod =>
 const defaultDateFor = (month: string): string =>
   month === currentMonthKey() ? todayKey() : monthBounds(month).start;
 
-const toFormValues = (
-  expense: Expense | null,
-  fallback: Omit<ExpenseFormValues, 'title' | 'amount' | 'note'>,
-): ExpenseFormValues =>
-  expense
-    ? {
-        title: expense.title,
-        amount: String(expense.amount),
-        categoryId: expense.categoryId,
-        date: expense.date,
-        note: expense.note ?? '',
-        paymentMethod: expense.paymentMethod,
-      }
-    : { title: '', amount: '', note: '', ...fallback };
+type FormDefaults = Pick<ExpenseFormValues, 'categoryId' | 'date' | 'paymentMethod'>;
 
-const toInput = (values: ExpenseFormValues): ExpenseInput => ({
-  title: values.title.trim(),
-  amount: roundMoney(parseAmount(values.amount)),
-  categoryId: values.categoryId,
-  date: values.date,
-  note: values.note.trim() || undefined,
-  paymentMethod: isPaymentMethod(values.paymentMethod)
-    ? values.paymentMethod
-    : DEFAULT_PAYMENT_METHOD,
-});
+const NO_SPLIT = { split: false, splitMode: 'even', partnerShare: '' } as const;
+
+const toFormValues = (expense: Expense | null, fallback: FormDefaults): ExpenseFormValues => {
+  if (!expense) return { title: '', amount: '', note: '', ...NO_SPLIT, ...fallback };
+  const share = expense.partnerShare;
+  return {
+    title: expense.title,
+    amount: String(expense.amount),
+    categoryId: expense.categoryId,
+    date: expense.date,
+    note: expense.note ?? '',
+    paymentMethod: expense.paymentMethod,
+    ...(share
+      ? {
+          split: true,
+          splitMode: share === halfOf(expense.amount) ? 'even' : 'custom',
+          partnerShare: String(share),
+        }
+      : NO_SPLIT),
+  };
+};
+
+const partnerShareOf = (values: ExpenseFormValues, amount: number): number | undefined => {
+  if (!values.split) return undefined;
+  return values.splitMode === 'even'
+    ? halfOf(amount)
+    : roundMoney(parseAmount(values.partnerShare));
+};
+
+const toInput = (values: ExpenseFormValues): ExpenseInput => {
+  const amount = roundMoney(parseAmount(values.amount));
+  return {
+    title: values.title.trim(),
+    amount,
+    categoryId: values.categoryId,
+    date: values.date,
+    note: values.note.trim() || undefined,
+    paymentMethod: isPaymentMethod(values.paymentMethod)
+      ? values.paymentMethod
+      : DEFAULT_PAYMENT_METHOD,
+    partnerShare: partnerShareOf(values, amount),
+  };
+};
 
 export const useExpenseForm = (open: boolean, expense: Expense | null, onSaved: () => void) => {
   const dispatch = useAppDispatch();

@@ -1,0 +1,43 @@
+.split-field {
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.split-field.is-on {
+  @apply border-partner/40 bg-partner-soft/40;
+}
+
+.split-field__switch {
+  @apply relative h-6 w-10 shrink-0 cursor-pointer appearance-none rounded-full bg-line;
+  transition: background-color 150ms ease;
+}
+
+.split-field__switch::after {
+  @apply absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-surface shadow-card;
+  content: '';
+  transition: transform 200ms var(--ease-out);
+}
+
+.split-field__switch:checked {
+  @apply bg-partner;
+}
+
+.split-field__switch:checked::after {
+  transform: translateX(1rem);
+}
+
+.split-field__option {
+  @apply h-8 rounded-md px-3 text-xs font-medium text-ink-muted;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.split-field__option:hover {
+  @apply text-ink;
+}
+
+.split-field__option.is-selected {
+  @apply bg-surface text-ink shadow-card;
+}

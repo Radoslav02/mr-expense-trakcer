@@ -93,6 +93,9 @@ describe('validateExpense', () => {
       date: 'nope',
       note: '',
       paymentMethod: 'card',
+      split: false,
+      splitMode: 'even',
+      partnerShare: '',
     });
     expect(Object.keys(errors).sort()).toEqual(['amount', 'categoryId', 'date', 'title']);
   });

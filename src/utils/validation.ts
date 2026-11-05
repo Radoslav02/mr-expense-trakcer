@@ -8,7 +8,12 @@ export interface ExpenseFormValues {
   date: string;
   note: string;
   paymentMethod: string;
+  split: boolean;
+  splitMode: SplitMode;
+  partnerShare: string;
 }
+
+export type SplitMode = 'even' | 'custom';
 
 export type FormErrors<T> = Partial<Record<keyof T, string>>;
 
@@ -29,6 +34,14 @@ export const validateExpense = (values: ExpenseFormValues): FormErrors<ExpenseFo
 
   if (!isValidDateKey(values.date)) errors.date = 'Pick a valid date.';
   if (!values.categoryId) errors.categoryId = 'Choose a category.';
+  if (values.split && values.splitMode === 'custom') {
+    const share = parseAmount(values.partnerShare);
+    if (!values.partnerShare.trim()) errors.partnerShare = 'Enter your partner’s share.';
+    else if (!Number.isFinite(share) || share <= 0)
+      errors.partnerShare = 'Share must be greater than 0.';
+    else if (!errors.amount && share > amount)
+      errors.partnerShare = 'Share can’t be more than the amount.';
+  }
   if (values.note.length > NOTE_MAX_LENGTH)
     errors.note = `Keep notes under ${NOTE_MAX_LENGTH} characters.`;
 
