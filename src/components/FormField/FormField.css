@@ -36,3 +36,13 @@
 .control:disabled {
   @apply cursor-not-allowed bg-sunken opacity-70;
 }
+
+/*
+ * Mobile browsers zoom the page when a focused field's text is smaller than 16px.
+ * Keep fields at 16px on phones and touch screens so focusing one never zooms.
+ */
+@media (max-width: 1023px), (pointer: coarse) {
+  .control {
+    font-size: 1rem;
+  }
+}

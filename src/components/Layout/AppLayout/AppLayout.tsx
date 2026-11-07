@@ -21,7 +21,7 @@ export const AppLayout = () => {
         <Header />
         <main
           id="main"
-          className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-12 lg:pt-8"
+          className="mx-auto max-w-6xl px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-6 sm:px-6 lg:px-8 lg:pb-12 lg:pt-8"
         >
           <Outlet />
         </main>

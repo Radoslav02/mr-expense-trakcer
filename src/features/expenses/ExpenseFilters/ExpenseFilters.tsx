@@ -29,7 +29,7 @@ export const ExpenseFilters = () => {
   );
 
   return (
-    <div className="expense-filters flex flex-col gap-3 lg:flex-row lg:items-center">
+    <div className="expense-filters flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
       <MonthPicker value={filters.month} onChange={(month) => setFilter('month', month)} />
       <Input
         label="Search expenses"
@@ -39,16 +39,16 @@ export const ExpenseFilters = () => {
         value={filters.search}
         onChange={(event) => setFilter('search', event.target.value)}
         leadingIcon={<Search />}
-        wrapperClassName="lg:flex-1"
+        wrapperClassName="min-w-0 lg:flex-1"
       />
-      <div className="grid grid-cols-2 gap-3 lg:flex">
+      <div className="grid min-w-0 grid-cols-2 gap-3 lg:flex lg:shrink-0">
         <Select
           label="Category"
           hideLabel
           value={filters.categoryId}
           options={categoryOptions}
           onChange={(event) => setFilter('categoryId', event.target.value)}
-          wrapperClassName="lg:w-44"
+          wrapperClassName="min-w-0 lg:w-44"
         />
         <Select
           label="Payment method"
@@ -56,7 +56,7 @@ export const ExpenseFilters = () => {
           value={filters.paymentMethod}
           options={PAYMENT_FILTER_OPTIONS}
           onChange={(event) => setFilter('paymentMethod', event.target.value as PaymentMethod)}
-          wrapperClassName="lg:w-40"
+          wrapperClassName="min-w-0 lg:w-40"
         />
       </div>
       {hasActiveFilters && (

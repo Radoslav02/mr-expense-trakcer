@@ -53,12 +53,26 @@
 
   html {
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    /* No double-tap zoom on taps; pinch zoom still works. */
+    touch-action: manipulation;
   }
 
   body {
     @apply bg-canvas font-sans text-[0.9375rem] leading-6 text-ink antialiased;
     font-feature-settings: 'cv11', 'ss03';
+    /* Nothing should ever push the page sideways on a phone. `clip` keeps sticky headers working. */
+    overflow-x: clip;
+  }
+
+  /* Same 16px rule as `.control`, for any raw text field outside the shared components. */
+  @media (max-width: 1023px), (pointer: coarse) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+    select,
+    textarea {
+      font-size: max(1rem, 16px);
+    }
   }
 
   h1,

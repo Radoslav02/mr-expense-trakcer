@@ -81,19 +81,19 @@ export const ExpensesPage = () => {
           </Button>
         }
       />
-      <div className="flex flex-col gap-5">
+      <div className="flex min-w-0 flex-col gap-5">
         <ExpenseFilters />
         {error && <InlineError message={error} onRetry={() => void dispatch(loadExpenses())} />}
         {!loading && filtered.length > 0 && (
           <p
             aria-live="polite"
-            className="flex items-baseline justify-between border-b border-line pb-3 text-sm text-ink-muted"
+            className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line pb-3 text-sm text-ink-muted"
           >
             <span>
               {filtered.length} {filtered.length === 1 ? 'expense' : 'expenses'}
               {hasActiveFilters && ' match'}
             </span>
-            <span>
+            <span className="whitespace-nowrap">
               Total{' '}
               <span className="tabular ml-1 text-base font-semibold text-ink">{format(total)}</span>
             </span>

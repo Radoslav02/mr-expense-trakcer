@@ -22,3 +22,12 @@
 .dark .input input[type='date']::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
+
+/* Native date fields center their value and keep an intrinsic width on mobile. */
+.input input[type='date'] {
+  @apply min-w-0 text-left;
+}
+
+.input input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+}

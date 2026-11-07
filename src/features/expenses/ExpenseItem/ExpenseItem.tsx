@@ -45,30 +45,38 @@ export const ExpenseItem = ({
           {expense.title}
         </span>
         <span className="mt-0.5 flex min-w-0 items-center gap-2 text-[0.8125rem] text-ink-subtle">
-          <CategoryBadge category={category} className="hidden sm:inline-flex" />
-          <span className="sm:hidden">{category?.name ?? 'Uncategorized'}</span>
-          <span aria-hidden="true">·</span>
-          <span className="shrink-0">{PAYMENT_METHOD_LABELS[expense.paymentMethod]}</span>
+          <CategoryBadge category={category} className="hidden min-w-0 sm:inline-flex" />
+          <span className="min-w-0 truncate sm:hidden">{category?.name ?? 'Uncategorized'}</span>
+          <span aria-hidden="true" className="shrink-0">
+            ·
+          </span>
+          <span className="shrink-0 whitespace-nowrap">
+            {PAYMENT_METHOD_LABELS[expense.paymentMethod]}
+          </span>
           {expense.note && (
             <>
-              <span aria-hidden="true" className="hidden md:inline">
+              <span aria-hidden="true" className="hidden shrink-0 md:inline">
                 ·
               </span>
-              <span className="hidden truncate md:inline">{expense.note}</span>
+              <span className="hidden min-w-0 truncate md:inline">{expense.note}</span>
             </>
           )}
         </span>
       </span>
-      <span className="shrink-0 text-right">
-        <span className="tabular block text-[0.9375rem] font-semibold text-ink">
+      <span className="flex max-w-[50%] shrink-0 flex-col items-end text-right">
+        <span className="tabular whitespace-nowrap text-[0.9375rem] font-semibold text-ink">
           {formattedAmount}
         </span>
         {splitLabel && (
-          <span className="mt-0.5 flex items-center justify-end gap-1.5 text-[0.75rem] text-ink-subtle">
-            <span className="rounded bg-partner-soft px-1.5 py-px font-medium text-partner">
+          <span className="mt-0.5 flex max-w-full items-center justify-end gap-1.5 text-[0.75rem] text-ink-subtle">
+            <span className="shrink-0 rounded bg-partner-soft px-1.5 py-px font-medium text-partner">
               Split
             </span>
-            <span className="tabular">{splitLabel}</span>
+            {/* Phones get the short form; the full sentence is in the row's accessible name. */}
+            <span className="tabular truncate sm:hidden">
+              {paidByPartner ? `${partnerName} paid` : `of ${formattedTotal}`}
+            </span>
+            <span className="tabular hidden truncate sm:inline">{splitLabel}</span>
           </span>
         )}
       </span>

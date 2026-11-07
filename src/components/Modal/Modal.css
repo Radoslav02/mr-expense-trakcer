@@ -2,6 +2,14 @@
   animation: modal-in 220ms var(--ease-out);
 }
 
+/* The dialog itself only takes focus as a landing spot; don't ring it. */
+.modal:focus,
+.modal:focus-visible {
+  outline: none;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+}
+
 .modal::backdrop {
   background: rgb(10 12 11 / 0.45);
   -webkit-backdrop-filter: blur(2px);

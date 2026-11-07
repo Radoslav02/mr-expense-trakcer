@@ -30,7 +30,7 @@ export const MonthPicker = ({ value, onChange, allowFuture = false }: MonthPicke
       </Button>
       <span
         aria-live="polite"
-        className="tabular min-w-[8.5rem] px-2 text-center text-sm font-medium text-ink"
+        className="tabular min-w-[8.5rem] flex-1 whitespace-nowrap px-2 text-center text-sm font-medium text-ink"
       >
         {formatMonthLabel(value)}
       </span>
