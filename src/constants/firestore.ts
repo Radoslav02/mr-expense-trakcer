@@ -2,7 +2,16 @@ export const COLLECTIONS = {
   users: 'users',
   categories: 'categories',
   expenses: 'expenses',
+  /** Owner-only: partners can't read these. */
+  privateCategories: 'privateCategories',
+  privateExpenses: 'privateExpenses',
+  recurring: 'recurring',
+  private: 'private',
   partnerInvites: 'partnerInvites',
+} as const;
+
+export const PRIVATE_DOCS = {
+  finance: 'finance',
 } as const;
 
 export const PROFILE_FIELDS = {

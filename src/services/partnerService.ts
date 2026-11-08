@@ -12,8 +12,8 @@ import type { Expense } from '@/types/expense';
 import type { PartnerData, PartnerLink, PartnerProfile } from '@/types/partner';
 import type { AuthUser } from '@/types/user';
 import { normalizeEmail } from '@/utils/comparison';
-import { subscribeToCategories } from './categoriesService';
-import { subscribeToExpenses } from './expensesService';
+import { subscribeToSharedCategories } from './categoriesService';
+import { subscribeToSharedExpenses } from './expensesService';
 import { combineLatest } from './firebase/combineLatest';
 import { readString } from './firebase/converters';
 import { db } from './firebase/firebase';
@@ -65,8 +65,8 @@ export const subscribeToPartnerData = (
 ): Unsubscribe =>
   combineLatest<{ expenses: Expense[]; categories: Category[]; currency: string }>(
     {
-      expenses: (emit) => subscribeToExpenses(partnerUid, emit, onError),
-      categories: (emit) => subscribeToCategories(partnerUid, emit, onError),
+      expenses: (emit) => subscribeToSharedExpenses(partnerUid, emit, onError),
+      categories: (emit) => subscribeToSharedCategories(partnerUid, emit, onError),
       currency: (emit) =>
         subscribeToSettings(partnerUid, (settings) => emit(settings.currency), onError),
     },

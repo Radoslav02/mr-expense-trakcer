@@ -1,0 +1,37 @@
+.visibility-field__option {
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.visibility-field__option:hover {
+  @apply bg-sunken/60;
+}
+
+.visibility-field__option.is-selected {
+  @apply border-partner/50 bg-partner-soft/50;
+}
+
+.visibility-field__option.is-selected.is-private {
+  @apply border-ink-subtle/50 bg-sunken;
+}
+
+.visibility-field__icon {
+  @apply text-ink-subtle;
+}
+
+.visibility-field__icon svg {
+  @apply h-4 w-4;
+}
+
+.visibility-field__option.is-selected .visibility-field__icon {
+  @apply text-partner;
+}
+
+.visibility-field__option.is-selected.is-private .visibility-field__icon {
+  @apply text-ink;
+}
+
+.visibility-field__option:focus-visible {
+  @apply ring-offset-0;
+}

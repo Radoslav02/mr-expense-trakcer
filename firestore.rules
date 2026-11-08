@@ -20,9 +20,24 @@ service cloud.firestore {
            == request.auth.token.email.lower();
     }
 
-    match /users/{userId}/{document=**} {
+    match /users/{userId} {
       allow read, write: if isOwner(userId);
       allow read: if isPartnerOf(userId);
+
+      // Everything under a user is owner-only by default: private expenses and categories,
+      // recurring templates and the private finance doc (income).
+      match /{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Only shared data is visible to the partner.
+      match /categories/{categoryId} {
+        allow read: if isPartnerOf(userId);
+      }
+
+      match /expenses/{expenseId} {
+        allow read: if isPartnerOf(userId);
+      }
     }
 
     // Doc id = invitee's lowercased email. Tells the invitee which uid shared with them.

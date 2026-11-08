@@ -5,7 +5,7 @@ import {
   createExpense,
   deleteExpense,
   fetchExpenses,
-  subscribeToExpenses,
+  subscribeToMyExpenses,
   updateExpense,
 } from '@/services/expensesService';
 import type { Expense, ExpenseInput } from '@/types/expense';
@@ -49,9 +49,9 @@ export const editExpense = createAppAsyncThunk(
 
 export const removeExpense = createAppAsyncThunk(
   'expenses/remove',
-  async (expenseId: string, { getState, rejectWithValue }) => {
+  async (expense: Expense, { getState, rejectWithValue }) => {
     try {
-      return await deleteExpense(requireUid(getState()), expenseId);
+      return await deleteExpense(requireUid(getState()), expense);
     } catch (error) {
       return rejectWithValue(getErrorMessage(error, 'Could not delete the expense.'));
     }
@@ -64,7 +64,7 @@ export const expensesSyncFailed = createAction<string>('expenses/syncFailed');
 export const startExpensesSync =
   (uid: string): AppThunk<() => void> =>
   (dispatch) =>
-    subscribeToExpenses(
+    subscribeToMyExpenses(
       uid,
       (data) => dispatch(expensesSynced(data)),
       (error) => dispatch(expensesSyncFailed(getErrorMessage(error, 'Could not load expenses.'))),

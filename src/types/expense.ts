@@ -10,6 +10,12 @@ export interface Expense {
   paymentMethod: PaymentMethod;
   /** Amount the partner owes for this expense. Absent when the expense isn't split. */
   partnerShare?: number;
+  /** Stored in the owner-only collection: the partner can't see it at all. */
+  isPrivate?: boolean;
+  /** Set when the expense was added by a monthly recurring expense. */
+  recurringId?: string;
+  /** Who last changed it, when that was the partner rather than the owner. */
+  editedBy?: string;
   createdAt: string;
   updatedAt: string;
   /**
@@ -26,7 +32,27 @@ export interface SharedPortion {
   paidByOther: boolean;
 }
 
-export type ExpenseInput = Omit<Expense, 'id' | 'createdAt' | 'updatedAt' | 'shared'>;
+export type ExpenseInput = Omit<Expense, 'id' | 'createdAt' | 'updatedAt' | 'shared' | 'editedBy'>;
+
+/** A monthly template that adds an expense on `dayOfMonth` every month. */
+export interface RecurringExpense {
+  id: string;
+  title: string;
+  amount: number;
+  categoryId: string;
+  paymentMethod: PaymentMethod;
+  note?: string;
+  partnerShare?: number;
+  isPrivate?: boolean;
+  /** 1–31; months without that day use their last day. */
+  dayOfMonth: number;
+  /** The latest month (yyyy-MM) an expense was added for. */
+  lastMonth: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type RecurringInput = Omit<RecurringExpense, 'id' | 'lastMonth' | 'createdAt' | 'updatedAt'>;
 
 export const ALL = 'all';
 export type AllOption = typeof ALL;

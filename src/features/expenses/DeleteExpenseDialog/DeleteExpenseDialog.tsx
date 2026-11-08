@@ -22,7 +22,7 @@ export const DeleteExpenseDialog = ({ expense, onClose }: DeleteExpenseDialogPro
   const handleConfirm = async () => {
     if (!expense) return;
     try {
-      await dispatch(removeExpense(expense.id)).unwrap();
+      await dispatch(removeExpense(expense)).unwrap();
       toast.success('Expense deleted.');
       onClose();
     } catch (message) {

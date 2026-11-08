@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Lock, Repeat, Trash2 } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { PAYMENT_METHOD_LABELS } from '@/constants/expenses';
 import { UNCATEGORIZED_COLOR } from '@/constants/categories';
@@ -40,17 +40,29 @@ export const ExpenseItem = ({
   const content: ReactNode = (
     <>
       <CategoryIcon icon={category?.icon} color={category?.color ?? UNCATEGORIZED_COLOR} />
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-[0.9375rem] font-medium text-ink">
-          {expense.title}
+      {/* overflow-hidden: nothing on the left may ever paint over the amount column. */}
+      <span className="min-w-0 flex-1 overflow-hidden">
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate text-[0.9375rem] font-medium text-ink">{expense.title}</span>
+          {expense.isPrivate && (
+            <Lock aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-ink-subtle" />
+          )}
+          {expense.recurringId && (
+            <Repeat aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-ink-subtle" />
+          )}
         </span>
         <span className="mt-0.5 flex min-w-0 items-center gap-2 text-[0.8125rem] text-ink-subtle">
+          {splitLabel && (
+            <span className="shrink-0 rounded bg-partner-soft px-1.5 py-px text-[0.75rem] font-medium text-partner">
+              Split
+            </span>
+          )}
           <CategoryBadge category={category} className="hidden min-w-0 sm:inline-flex" />
           <span className="min-w-0 truncate sm:hidden">{category?.name ?? 'Uncategorized'}</span>
-          <span aria-hidden="true" className="shrink-0">
+          <span aria-hidden="true" className="hidden shrink-0 min-[400px]:inline">
             ·
           </span>
-          <span className="shrink-0 whitespace-nowrap">
+          <span className="hidden shrink-0 whitespace-nowrap min-[400px]:inline">
             {PAYMENT_METHOD_LABELS[expense.paymentMethod]}
           </span>
           {expense.note && (
@@ -63,27 +75,26 @@ export const ExpenseItem = ({
           )}
         </span>
       </span>
-      <span className="flex max-w-[50%] shrink-0 flex-col items-end text-right">
-        <span className="tabular whitespace-nowrap text-[0.9375rem] font-semibold text-ink">
+      <span className="shrink-0 text-right">
+        <span className="tabular block whitespace-nowrap text-[0.9375rem] font-semibold text-ink">
           {formattedAmount}
         </span>
         {splitLabel && (
-          <span className="mt-0.5 flex max-w-full items-center justify-end gap-1.5 text-[0.75rem] text-ink-subtle">
-            <span className="shrink-0 rounded bg-partner-soft px-1.5 py-px font-medium text-partner">
-              Split
-            </span>
-            {/* Phones get the short form; the full sentence is in the row's accessible name. */}
-            <span className="tabular truncate sm:hidden">
-              {paidByPartner ? `${partnerName} paid` : `of ${formattedTotal}`}
-            </span>
-            <span className="tabular hidden truncate sm:inline">{splitLabel}</span>
+          <span className="tabular mt-0.5 block whitespace-nowrap text-[0.75rem] text-ink-subtle">
+            {paidByPartner ? (
+              <>
+                {partnerName} paid<span className="hidden sm:inline"> {formattedTotal}</span>
+              </>
+            ) : (
+              `of ${formattedTotal}`
+            )}
           </span>
         )}
       </span>
     </>
   );
 
-  const description = `${expense.title}, your part ${formattedAmount}${splitLabel ? `, ${splitLabel}` : ''}`;
+  const description = `${expense.title}, your part ${formattedAmount}${splitLabel ? `, ${splitLabel}` : ''}${expense.isPrivate ? ', private' : ''}${expense.recurringId ? ', repeats monthly' : ''}`;
 
   if (paidByPartner) {
     return (

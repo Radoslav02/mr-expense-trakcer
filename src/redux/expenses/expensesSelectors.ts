@@ -28,7 +28,10 @@ export const selectExpensesMutating = (state: RootState) =>
 
 const selectMonthArg = (_state: RootState, month: string) => month;
 const selectPartnerExpenses = (state: RootState) => state.partner.expenses;
-const selectPartnerCategories = (state: RootState) => state.partner.categories;
+const selectPartnerCategoryDocs = (state: RootState) => state.partner.categories;
+const selectPartnerCategories = createSelector([selectPartnerCategoryDocs], (categories) =>
+  categories.filter((category) => !category.deleted),
+);
 
 /** Raw expense documents by id, for editing and deleting the stored record. */
 export const selectExpenseRecords = createSelector(
@@ -40,6 +43,21 @@ export const selectExpenseRecords = createSelector(
 /** What I actually spend: my part of split expenses, including ones my partner paid for. */
 export const selectMySpending = createSelector(
   [selectExpenses, selectPartnerExpenses, selectPartnerCategories, selectCategories],
+  (mine, theirs, theirCategories, myCategories) =>
+    personalExpenses(
+      mine,
+      theirs,
+      categoryMapper(theirCategories, myCategories, OTHER_CATEGORY_ID),
+    ),
+);
+
+/** My expenses my partner can see: what the Together tab compares, so both sides match. */
+export const selectMySharedExpenses = createSelector([selectExpenses], (expenses) =>
+  expenses.filter((expense) => !expense.isPrivate),
+);
+
+export const selectMySharedSpending = createSelector(
+  [selectMySharedExpenses, selectPartnerExpenses, selectPartnerCategories, selectCategories],
   (mine, theirs, theirCategories, myCategories) =>
     personalExpenses(
       mine,
