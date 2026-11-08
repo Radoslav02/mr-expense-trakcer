@@ -1,4 +1,5 @@
-import { Plus, ReceiptText, SearchX } from 'lucide-react';
+import { useState } from 'react';
+import { FileDown, Plus, ReceiptText, SearchX } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
@@ -9,6 +10,7 @@ import { ExpenseFilters } from '@/features/expenses/ExpenseFilters';
 import { ExpenseForm } from '@/features/expenses/ExpenseForm';
 import { ExpenseList } from '@/features/expenses/ExpenseList';
 import { ExpenseListSkeleton } from '@/features/expenses/ExpenseListSkeleton';
+import { ExportExpensesModal } from '@/features/expenses/ExportExpensesModal';
 import { RecurringList } from '@/features/expenses/RecurringList';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import { useExpenseDialogs } from '@/hooks/useExpenseDialogs';
@@ -35,6 +37,7 @@ export const ExpensesPage = () => {
   const { filters, hasActiveFilters, resetFilters } = useExpenseFilters();
   const { format } = useCurrencyFormatter();
   const dialogs = useExpenseDialogs();
+  const [exporting, setExporting] = useState(false);
   const { t } = useI18n();
   const page = t.expenses.page;
   const loading = status === 'idle' || status === 'loading';
@@ -80,9 +83,14 @@ export const ExpensesPage = () => {
         title={t.expenses.title}
         description={t.expenses.description}
         actions={
-          <Button icon={<Plus />} onClick={dialogs.openCreate}>
-            {t.expenses.add}
-          </Button>
+          <>
+            <Button variant="secondary" icon={<FileDown />} onClick={() => setExporting(true)}>
+              {t.expenses.export.button}
+            </Button>
+            <Button icon={<Plus />} onClick={dialogs.openCreate}>
+              {t.expenses.add}
+            </Button>
+          </>
         }
       />
       <div className="flex min-w-0 flex-col gap-5">
@@ -113,6 +121,7 @@ export const ExpensesPage = () => {
         onClose={dialogs.closeForm}
       />
       <DeleteExpenseDialog expense={dialogs.pendingDelete} onClose={dialogs.closeDelete} />
+      <ExportExpensesModal open={exporting} onClose={() => setExporting(false)} />
     </div>
   );
 };
