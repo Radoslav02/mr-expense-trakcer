@@ -3,7 +3,7 @@ import { getMessages } from '@/i18n';
 import { sessionCleared } from '@/redux/auth/authThunks';
 import { removeCategory } from '@/redux/categories/categoriesThunks';
 import { ALL, type ExpenseFilters } from '@/types/expense';
-import { currentMonthKey } from '@/utils/dates';
+import { currentMonthKey, currentYearKey, weekStartKey } from '@/utils/dates';
 import type { ExpensesState } from './expensesTypes';
 import {
   addExpense,
@@ -15,7 +15,10 @@ import {
 } from './expensesThunks';
 
 const defaultFilters = (): ExpenseFilters => ({
+  period: 'month',
+  week: weekStartKey(),
   month: currentMonthKey(),
+  year: currentYearKey(),
   categoryId: ALL,
   paymentMethod: ALL,
   search: '',
@@ -37,7 +40,9 @@ const expensesSlice = createSlice({
       state.filters = { ...state.filters, ...action.payload };
     },
     filtersReset: (state) => {
-      state.filters = { ...defaultFilters(), month: state.filters.month };
+      // Clearing filters keeps where you are in time.
+      const { period, week, month, year } = state.filters;
+      state.filters = { ...defaultFilters(), period, week, month, year };
     },
   },
   extraReducers: (builder) => {

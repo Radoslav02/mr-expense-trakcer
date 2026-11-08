@@ -22,7 +22,7 @@ import {
   selectFilteredTotal,
 } from '@/redux/expenses/expensesSelectors';
 import { loadExpenses } from '@/redux/expenses/expensesThunks';
-import { formatMonthLabel } from '@/utils/dates';
+import { periodLabel } from '@/utils/expenses';
 import './ExpensesPage.css';
 
 export const ExpensesPage = () => {
@@ -63,7 +63,7 @@ export const ExpensesPage = () => {
     return (
       <EmptyState
         icon={<ReceiptText />}
-        title={page.emptyTitle(formatMonthLabel(filters.month))}
+        title={page.emptyTitle(periodLabel(filters))}
         description={page.emptyDescription}
         action={
           <Button icon={<Plus />} onClick={dialogs.openCreate}>

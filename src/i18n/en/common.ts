@@ -52,6 +52,8 @@ export const common = {
     shortMonth: 'MMM',
     dayHeading: 'EEEE, d MMMM',
     shortDate: 'd MMM yyyy',
+    /** Day and short month, for week ranges: "3 Nov". */
+    dayMonth: 'd MMM',
     /**
      * Month names to use right after a day number, when the language inflects them there
      * (Serbian: "5. novembra"). `null` keeps the locale's own month names.

@@ -19,7 +19,7 @@ export const expenses = {
     total: 'Total',
     noMatchTitle: 'No expenses match these filters',
     noMatchDescription:
-      'Try a different search term or clear the filters to see everything this month.',
+      'Try a different search term or clear the filters to see everything in this period.',
     emptyTitle: (month: string) => `Nothing recorded for ${month}`,
     emptyDescription:
       'Add what you spend as it happens. Each expense lands in the overview right away.',
@@ -33,6 +33,16 @@ export const expenses = {
     paymentMethod: 'Payment method',
     anyPayment: 'Any payment',
     clear: 'Clear filters',
+    period: 'Period',
+    thisWeek: 'This week',
+    thisMonth: 'This month',
+    thisYear: 'This year',
+    previousPeriod: 'Previous period',
+    nextPeriod: 'Next period',
+    open: 'Filters',
+    openWithCount: (count: number) => `Filters, ${count} active`,
+    title: 'Filters',
+    done: 'Show results',
   },
   form: {
     recurringDescription:

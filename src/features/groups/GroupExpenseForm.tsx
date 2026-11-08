@@ -233,8 +233,10 @@ export const GroupExpenseForm = ({
                   aria-pressed={mode === value}
                   onClick={() => setMode(value)}
                   className={cn(
-                    'h-8 rounded-md px-3 text-xs font-medium text-ink-muted transition-colors',
-                    mode === value && 'bg-accent text-accent-ink shadow-card',
+                    'h-8 rounded-md px-3 text-xs font-medium transition-colors',
+                    mode === value
+                      ? 'bg-accent text-accent-ink shadow-card'
+                      : 'text-ink-muted hover:text-ink',
                   )}
                 >
                   {value === 'equal' ? g.expenseForm.equally : g.expenseForm.exact}

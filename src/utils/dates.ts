@@ -1,5 +1,9 @@
 import {
   addMonths,
+  addWeeks,
+  addYears,
+  endOfWeek,
+  startOfWeek,
   differenceInCalendarDays,
   endOfMonth,
   format,
@@ -76,6 +80,39 @@ export const daysCountedInMonth = (monthKey: string, today: Date = new Date()): 
 export const monthBounds = (monthKey: string): { start: string; end: string } => {
   const start = startOfMonth(monthStart(monthKey));
   return { start: toDateKey(start), end: toDateKey(endOfMonth(start)) };
+};
+
+const WEEK_OPTIONS = { weekStartsOn: 1 } as const;
+
+/** Monday of the week a date falls in. */
+export const weekStartKey = (date: Date = new Date()): string =>
+  toDateKey(startOfWeek(date, WEEK_OPTIONS));
+
+export const currentYearKey = (): string => format(new Date(), 'yyyy');
+
+export const shiftWeek = (weekKey: string, amount: number): string =>
+  toDateKey(addWeeks(parseISO(weekKey), amount));
+
+export const shiftYear = (yearKey: string, amount: number): string =>
+  format(addYears(parseISO(`${yearKey}-01-01`), amount), 'yyyy');
+
+/** First and last day (yyyy-MM-dd) of the week starting on `weekKey`. */
+export const weekBounds = (weekKey: string): { start: string; end: string } => ({
+  start: weekKey,
+  end: toDateKey(endOfWeek(parseISO(weekKey), WEEK_OPTIONS)),
+});
+
+/** "3 – 9 Nov", or "28 Oct – 3 Nov" across months. */
+export const formatWeekLabel = (weekKey: string): string => {
+  const { start, end } = weekBounds(weekKey);
+  const pattern = getMessages().common.dateFormats.dayMonth;
+  const from = parseISO(start);
+  const to = parseISO(end);
+  const sameMonth = from.getMonth() === to.getMonth();
+  const startText = sameMonth
+    ? format(from, pattern.startsWith('d.') ? 'd.' : 'd')
+    : localized(from, pattern);
+  return `${startText} – ${localized(to, pattern)}`;
 };
 
 /** 1 → "1st" in English, "1." in Serbian. */

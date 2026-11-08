@@ -57,8 +57,17 @@ export type RecurringInput = Omit<RecurringExpense, 'id' | 'lastMonth' | 'create
 export const ALL = 'all';
 export type AllOption = typeof ALL;
 
+/** Which span of time the expense list shows. */
+export type ExpensePeriod = 'week' | 'month' | 'year';
+
 export interface ExpenseFilters {
+  period: ExpensePeriod;
+  /** Monday of the shown week (yyyy-MM-dd), when `period` is `week`. */
+  week: string;
+  /** The shown month (yyyy-MM), when `period` is `month`. */
   month: string;
+  /** The shown year (yyyy), when `period` is `year`. */
+  year: string;
   categoryId: string | AllOption;
   paymentMethod: PaymentMethod | AllOption;
   search: string;

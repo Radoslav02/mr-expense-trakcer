@@ -37,7 +37,15 @@ describe('expense utils', () => {
   });
 
   it('filters by month, category and search', () => {
-    const base = { month: '2026-11', categoryId: ALL, paymentMethod: ALL, search: '' } as const;
+    const base = {
+      period: 'month',
+      week: '2026-10-26',
+      month: '2026-11',
+      year: '2026',
+      categoryId: ALL,
+      paymentMethod: ALL,
+      search: '',
+    } as const;
     expect(filterExpenses(expenses, base).map((e) => e.id)).toEqual(['a', 'b']);
     expect(filterExpenses(expenses, { ...base, categoryId: 'bills' }).map((e) => e.id)).toEqual([
       'b',
@@ -45,6 +53,22 @@ describe('expense utils', () => {
     expect(filterExpenses(expenses, { ...base, month: '2026-10', search: 'FLIGHT' })).toHaveLength(
       1,
     );
+  });
+
+  it('filters by week (Monday to Sunday) and by year', () => {
+    const base = {
+      period: 'week',
+      week: '2026-10-12',
+      month: '2026-11',
+      year: '2026',
+      categoryId: ALL,
+      paymentMethod: ALL,
+      search: '',
+    } as const;
+    expect(filterExpenses(expenses, base).map((e) => e.id)).toEqual(['c']);
+    expect(filterExpenses(expenses, { ...base, week: '2026-10-19' })).toHaveLength(0);
+    expect(filterExpenses(expenses, { ...base, period: 'year' })).toHaveLength(3);
+    expect(filterExpenses(expenses, { ...base, period: 'year', year: '2025' })).toHaveLength(0);
   });
 
   it('groups by day newest first', () => {

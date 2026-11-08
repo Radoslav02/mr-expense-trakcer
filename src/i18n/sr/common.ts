@@ -47,6 +47,7 @@ export const common: Messages['common'] = {
     shortMonth: 'LLL',
     dayHeading: 'EEEE, d. MMMM',
     shortDate: 'd. MMM yyyy.',
+    dayMonth: 'd. MMM',
     monthAfterDay: [
       'januara',
       'februara',

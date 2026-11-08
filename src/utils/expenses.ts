@@ -1,7 +1,14 @@
 import { BUDGET_THRESHOLDS } from '@/constants/settings';
 import type { Category } from '@/types/category';
 import { ALL, type Expense, type ExpenseDayGroup, type ExpenseFilters } from '@/types/expense';
-import { monthKeyOf } from './dates';
+import {
+  formatMonthLabel,
+  formatWeekLabel,
+  monthBounds,
+  monthKeyOf,
+  todayKey,
+  weekBounds,
+} from './dates';
 import { roundMoney } from './currency';
 
 export const sumAmounts = (expenses: readonly Expense[]): number =>
@@ -21,10 +28,40 @@ const matchesSearch = (expense: Expense, search: string): boolean => {
   return [expense.title, expense.note ?? ''].some((text) => text.toLowerCase().includes(query));
 };
 
+/** First and last day (yyyy-MM-dd) of the period the filters show. */
+export const periodBounds = (filters: ExpenseFilters): { start: string; end: string } => {
+  if (filters.period === 'week') return weekBounds(filters.week);
+  if (filters.period === 'year')
+    return { start: `${filters.year}-01-01`, end: `${filters.year}-12-31` };
+  return monthBounds(filters.month);
+};
+
+const inPeriod = (date: string, filters: ExpenseFilters): boolean => {
+  if (filters.period === 'month') return monthKeyOf(date) === filters.month;
+  if (filters.period === 'year') return date.startsWith(`${filters.year}-`);
+  const { start, end } = weekBounds(filters.week);
+  return date >= start && date <= end;
+};
+
+/** "3 – 9 Nov", "November 2026" or "2026". */
+export const periodLabel = (filters: ExpenseFilters): string =>
+  filters.period === 'week'
+    ? formatWeekLabel(filters.week)
+    : filters.period === 'year'
+      ? filters.year
+      : formatMonthLabel(filters.month);
+
+/** Today when it's in the shown period, otherwise the period's first day. */
+export const defaultDateInPeriod = (filters: ExpenseFilters): string => {
+  const today = todayKey();
+  const { start, end } = periodBounds(filters);
+  return today >= start && today <= end ? today : start;
+};
+
 export const filterExpenses = (expenses: readonly Expense[], filters: ExpenseFilters): Expense[] =>
   expenses.filter(
     (expense) =>
-      monthKeyOf(expense.date) === filters.month &&
+      inPeriod(expense.date, filters) &&
       (filters.categoryId === ALL || expense.categoryId === filters.categoryId) &&
       (filters.paymentMethod === ALL || expense.paymentMethod === filters.paymentMethod) &&
       matchesSearch(expense, filters.search),

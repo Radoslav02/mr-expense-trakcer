@@ -18,7 +18,8 @@ import {
   type RecurringInput,
 } from '@/types/expense';
 import { roundMoney } from '@/utils/currency';
-import { currentMonthKey, monthBounds, todayKey } from '@/utils/dates';
+import { defaultDateInPeriod } from '@/utils/expenses';
+import { todayKey } from '@/utils/dates';
 import { nextDueDate } from '@/utils/recurring';
 import { categoryMapper, halfOf } from '@/utils/split';
 import {
@@ -33,9 +34,6 @@ import { useToast } from './useToast';
 
 const isPaymentMethod = (value: string): value is PaymentMethod =>
   PAYMENT_METHODS.includes(value as PaymentMethod);
-
-const defaultDateFor = (month: string): string =>
-  month === currentMonthKey() ? todayKey() : monthBounds(month).start;
 
 type FormDefaults = Pick<ExpenseFormValues, 'categoryId' | 'date' | 'paymentMethod'>;
 
@@ -176,7 +174,7 @@ export const useExpenseForm = (open: boolean, target: ExpenseFormTarget, onSaved
         : firstSharedCategory(categories);
     const initial = toFormValues(target, {
       categoryId: preferredCategory,
-      date: defaultDateFor(filters.month),
+      date: defaultDateInPeriod(filters),
       paymentMethod: DEFAULT_PAYMENT_METHOD,
     });
     setValues(

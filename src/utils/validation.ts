@@ -47,8 +47,7 @@ export const validateExpense = (values: ExpenseFormValues): FormErrors<ExpenseFo
     else if (!Number.isFinite(share) || share <= 0) errors.partnerShare = v.sharePositive;
     else if (!errors.amount && share > amount) errors.partnerShare = v.shareTooLarge;
   }
-  if (values.note.length > NOTE_MAX_LENGTH)
-    errors.note = v.noteTooLong(NOTE_MAX_LENGTH);
+  if (values.note.length > NOTE_MAX_LENGTH) errors.note = v.noteTooLong(NOTE_MAX_LENGTH);
 
   return errors;
 };
