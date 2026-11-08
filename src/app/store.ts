@@ -3,6 +3,7 @@ import { authReducer } from '@/redux/auth/authSlice';
 import { categoriesReducer } from '@/redux/categories/categoriesSlice';
 import { expensesReducer } from '@/redux/expenses/expensesSlice';
 import { partnerReducer } from '@/redux/partner/partnerSlice';
+import { recurringReducer } from '@/redux/recurring/recurringSlice';
 import { settingsReducer } from '@/redux/settings/settingsSlice';
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     categories: categoriesReducer,
     expenses: expensesReducer,
     partner: partnerReducer,
+    recurring: recurringReducer,
     settings: settingsReducer,
   },
 });

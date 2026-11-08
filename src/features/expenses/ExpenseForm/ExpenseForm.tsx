@@ -1,28 +1,41 @@
 import { useMemo } from 'react';
+import { Repeat } from 'lucide-react';
 import { useAppSelector } from '@/app/hooks';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Modal } from '@/components/Modal';
 import { Select } from '@/components/Select';
 import { TextArea } from '@/components/TextArea';
+import { ToggleField } from '@/components/ToggleField';
 import {
   NOTE_MAX_LENGTH,
   PAYMENT_METHOD_LABELS,
   PAYMENT_METHODS,
   TITLE_MAX_LENGTH,
 } from '@/constants/expenses';
-import { useExpenseForm } from '@/hooks/useExpenseForm';
+import { useExpenseForm, type ExpenseFormTarget } from '@/hooks/useExpenseForm';
 import { selectSortedCategories } from '@/redux/categories/categoriesSelectors';
 import { selectExpensesMutating } from '@/redux/expenses/expensesSelectors';
-import { selectLinkStatus, selectPersonNames } from '@/redux/partner/partnerSelectors';
+import {
+  selectLinkStatus,
+  selectPartnerMutating,
+  selectPersonNames,
+} from '@/redux/partner/partnerSelectors';
+import { selectRecurringMutating } from '@/redux/recurring/recurringSlice';
 import { selectCurrency } from '@/redux/settings/settingsSelectors';
-import type { Expense } from '@/types/expense';
+import type { Expense, RecurringExpense } from '@/types/expense';
+import { ordinal } from '@/utils/dates';
 import { SplitField } from '../SplitField';
+import { VisibilityField } from '../VisibilityField';
 import './ExpenseForm.css';
 
 interface ExpenseFormProps {
   open: boolean;
   expense: Expense | null;
+  /** Edit a recurring expense instead: changes apply to the months still to come. */
+  recurring?: RecurringExpense | null;
+  /** Edit one of my partner's shared expenses instead. */
+  partnerExpense?: Expense | null;
   onClose: () => void;
 }
 
@@ -33,17 +46,60 @@ const PAYMENT_OPTIONS = PAYMENT_METHODS.map((method) => ({
   label: PAYMENT_METHOD_LABELS[method],
 }));
 
-export const ExpenseForm = ({ open, expense, onClose }: ExpenseFormProps) => {
-  const { values, errors, setField, handleSubmit } = useExpenseForm(open, expense, onClose);
+const DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => ({
+  value: String(index + 1),
+  label: `The ${ordinal(index + 1)}${index + 1 > 28 ? ' (or the last day)' : ''}`,
+}));
+
+const TITLES: Record<ExpenseFormTarget['kind'], string> = {
+  new: 'Add expense',
+  expense: 'Edit expense',
+  partner: 'Edit expense',
+  recurring: 'Edit recurring expense',
+};
+
+export const ExpenseForm = ({
+  open,
+  expense,
+  recurring = null,
+  partnerExpense = null,
+  onClose,
+}: ExpenseFormProps) => {
+  const target = useMemo<ExpenseFormTarget>(
+    () =>
+      recurring
+        ? { kind: 'recurring', recurring }
+        : partnerExpense
+          ? { kind: 'partner', expense: partnerExpense }
+          : expense
+            ? { kind: 'expense', expense }
+            : { kind: 'new' },
+    [expense, recurring, partnerExpense],
+  );
+  const { values, errors, setField, handleSubmit } = useExpenseForm(open, target, onClose);
   const categories = useAppSelector(selectSortedCategories);
   const currency = useAppSelector(selectCurrency);
-  const saving = useAppSelector(selectExpensesMutating);
-  const connected = useAppSelector(selectLinkStatus) === 'connected';
+  const savingExpense = useAppSelector(selectExpensesMutating);
+  const savingRecurring = useAppSelector(selectRecurringMutating);
+  const linkStatus = useAppSelector(selectLinkStatus);
   const partnerName = useAppSelector(selectPersonNames).partner;
+  const savingPartner = useAppSelector(selectPartnerMutating);
+  const saving = savingExpense || savingRecurring || savingPartner;
+  const isPartners = target.kind === 'partner';
+  const isPrivate = !isPartners && values.visibility === 'private';
+  const connected = linkStatus === 'connected';
+  // Offer the choice whenever someone could see your expenses, or to move a private one back.
+  const showVisibility = !isPartners && (linkStatus !== 'none' || isPrivate);
 
   const categoryOptions = useMemo(
-    () => categories.map((category) => ({ value: category.id, label: category.name })),
-    [categories],
+    () =>
+      categories
+        .filter((category) => isPrivate || !category.isPrivate)
+        .map((category) => ({
+          value: category.id,
+          label: category.isPrivate ? `${category.name} (private)` : category.name,
+        })),
+    [categories, isPrivate],
   );
 
   return (
@@ -51,14 +107,21 @@ export const ExpenseForm = ({ open, expense, onClose }: ExpenseFormProps) => {
       open={open}
       onClose={onClose}
       dismissible={!saving}
-      title={expense ? 'Edit expense' : 'Add expense'}
+      title={TITLES[target.kind]}
+      description={
+        target.kind === 'recurring'
+          ? 'Changes apply from the next month on. Expenses already added stay as they are.'
+          : isPartners
+            ? `This is ${partnerName}’s expense. Your changes show up for both of you.`
+            : undefined
+      }
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
             Cancel
           </Button>
           <Button type="submit" form={FORM_ID} loading={saving}>
-            {expense ? 'Save changes' : 'Add expense'}
+            {target.kind === 'new' ? 'Add expense' : 'Save changes'}
           </Button>
         </>
       }
@@ -88,13 +151,22 @@ export const ExpenseForm = ({ open, expense, onClose }: ExpenseFormProps) => {
           trailing={currency}
           className="tabular"
         />
-        <Input
-          label="Date"
-          type="date"
-          value={values.date}
-          onChange={(event) => setField('date', event.target.value)}
-          error={errors.date}
-        />
+        {target.kind === 'recurring' ? (
+          <Select
+            label="Added every month on"
+            value={values.dayOfMonth}
+            options={DAY_OPTIONS}
+            onChange={(event) => setField('dayOfMonth', event.target.value)}
+          />
+        ) : (
+          <Input
+            label="Date"
+            type="date"
+            value={values.date}
+            onChange={(event) => setField('date', event.target.value)}
+            error={errors.date}
+          />
+        )}
         <Select
           label="Category"
           value={values.categoryId}
@@ -109,14 +181,42 @@ export const ExpenseForm = ({ open, expense, onClose }: ExpenseFormProps) => {
           options={PAYMENT_OPTIONS}
           onChange={(event) => setField('paymentMethod', event.target.value)}
         />
-        {(connected || values.split) && (
+        {showVisibility && (
+          <VisibilityField
+            value={values.visibility}
+            onChange={(visibility) => setField('visibility', visibility)}
+            partnerName={partnerName}
+          />
+        )}
+        {!isPrivate && (connected || values.split) && (
           <SplitField
             values={values}
             errors={errors}
             setField={setField}
             partnerName={partnerName}
             currency={currency}
+            payer={isPartners ? 'partner' : 'me'}
           />
+        )}
+        {target.kind === 'new' && (
+          <ToggleField
+            label="Repeats every month"
+            description={
+              values.repeats
+                ? `Added again on the ${ordinal(Number(values.date.slice(8, 10)) || 1)} of every month.`
+                : 'For rent, bills and subscriptions.'
+            }
+            icon={<Repeat />}
+            checked={values.repeats}
+            onChange={(checked) => setField('repeats', checked)}
+            className="sm:col-span-2"
+          />
+        )}
+        {target.kind === 'expense' && target.expense.recurringId && (
+          <p className="flex items-center gap-2 rounded-xl bg-sunken px-3.5 py-2.5 text-[0.8125rem] text-ink-muted sm:col-span-2">
+            <Repeat aria-hidden="true" className="h-4 w-4 shrink-0" />
+            Added by a recurring expense. Changes here only affect this month.
+          </p>
         )}
         <div className="sm:col-span-2">
           <TextArea

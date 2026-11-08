@@ -9,6 +9,7 @@ import { ExpenseFilters } from '@/features/expenses/ExpenseFilters';
 import { ExpenseForm } from '@/features/expenses/ExpenseForm';
 import { ExpenseList } from '@/features/expenses/ExpenseList';
 import { ExpenseListSkeleton } from '@/features/expenses/ExpenseListSkeleton';
+import { RecurringList } from '@/features/expenses/RecurringList';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import { useExpenseDialogs } from '@/hooks/useExpenseDialogs';
 import { useExpenseFilters } from '@/hooks/useExpenseFilters';
@@ -82,6 +83,7 @@ export const ExpensesPage = () => {
         }
       />
       <div className="flex min-w-0 flex-col gap-5">
+        <RecurringList />
         <ExpenseFilters />
         {error && <InlineError message={error} onRetry={() => void dispatch(loadExpenses())} />}
         {!loading && filtered.length > 0 && (

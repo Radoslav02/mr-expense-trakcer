@@ -61,3 +61,11 @@ export const monthBounds = (monthKey: string): { start: string; end: string } =>
   const start = startOfMonth(monthStart(monthKey));
   return { start: toDateKey(start), end: toDateKey(endOfMonth(start)) };
 };
+
+/** 1 → "1st", 22 → "22nd". */
+export const ordinal = (day: number): string => {
+  const tens = day % 100;
+  if (tens >= 11 && tens <= 13) return `${day}th`;
+  const suffix = ['th', 'st', 'nd', 'rd'][day % 10] ?? 'th';
+  return `${day}${day % 10 > 3 ? 'th' : suffix}`;
+};

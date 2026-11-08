@@ -1,0 +1,23 @@
+.recurring-list__toggle {
+  transition: background-color 150ms ease;
+}
+
+.recurring-list__toggle:hover {
+  @apply bg-sunken/60;
+}
+
+.recurring-list__toggle:focus-visible {
+  @apply ring-inset ring-offset-0;
+}
+
+.recurring-list__chevron {
+  transition: transform 200ms var(--ease-out);
+}
+
+.recurring-list__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.recurring-list__item + .recurring-list__item {
+  @apply border-t border-line;
+}

@@ -1,0 +1,32 @@
+.toggle-field {
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.toggle-field.is-on {
+  @apply border-accent/40 bg-accent-soft/40;
+}
+
+.toggle-field__icon svg {
+  @apply h-4 w-4;
+}
+
+.toggle-field__switch {
+  @apply relative h-6 w-10 shrink-0 cursor-pointer appearance-none rounded-full bg-line;
+  transition: background-color 150ms ease;
+}
+
+.toggle-field__switch::after {
+  @apply absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-surface shadow-card;
+  content: '';
+  transition: transform 200ms var(--ease-out);
+}
+
+.toggle-field__switch:checked {
+  @apply bg-accent;
+}
+
+.toggle-field__switch:checked::after {
+  transform: translateX(1rem);
+}

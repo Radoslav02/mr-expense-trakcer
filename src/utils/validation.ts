@@ -11,9 +11,16 @@ export interface ExpenseFormValues {
   split: boolean;
   splitMode: SplitMode;
   partnerShare: string;
+  visibility: Visibility;
+  /** Creating only: also add it on the same day every month. */
+  repeats: boolean;
+  /** Editing a recurring expense: the day of the month it's added. */
+  dayOfMonth: string;
 }
 
 export type SplitMode = 'even' | 'custom';
+
+export type Visibility = 'shared' | 'private';
 
 export type FormErrors<T> = Partial<Record<keyof T, string>>;
 
@@ -34,9 +41,9 @@ export const validateExpense = (values: ExpenseFormValues): FormErrors<ExpenseFo
 
   if (!isValidDateKey(values.date)) errors.date = 'Pick a valid date.';
   if (!values.categoryId) errors.categoryId = 'Choose a category.';
-  if (values.split && values.splitMode === 'custom') {
+  if (values.visibility === 'shared' && values.split && values.splitMode === 'custom') {
     const share = parseAmount(values.partnerShare);
-    if (!values.partnerShare.trim()) errors.partnerShare = 'Enter your partner’s share.';
+    if (!values.partnerShare.trim()) errors.partnerShare = 'Enter the split amount.';
     else if (!Number.isFinite(share) || share <= 0)
       errors.partnerShare = 'Share must be greater than 0.';
     else if (!errors.amount && share > amount)
@@ -66,6 +73,14 @@ export const validateBudget = (value: string): string | null => {
   const amount = parseAmount(value);
   if (!Number.isFinite(amount) || amount <= 0)
     return 'Budget must be a positive number, or leave it empty.';
+  return null;
+};
+
+export const validateIncome = (value: string): string | null => {
+  if (!value.trim()) return null;
+  const amount = parseAmount(value);
+  if (!Number.isFinite(amount) || amount <= 0)
+    return 'Income must be a positive number, or leave it empty.';
   return null;
 };
 

@@ -96,6 +96,9 @@ describe('validateExpense', () => {
       split: false,
       splitMode: 'even',
       partnerShare: '',
+      visibility: 'shared',
+      repeats: false,
+      dayOfMonth: '',
     });
     expect(Object.keys(errors).sort()).toEqual(['amount', 'categoryId', 'date', 'title']);
   });
