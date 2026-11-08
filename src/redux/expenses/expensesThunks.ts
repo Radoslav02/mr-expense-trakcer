@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAppAsyncThunk, requireUid } from '@/app/createAppAsyncThunk';
 import type { AppThunk } from '@/app/store';
+import { getMessages } from '@/i18n';
 import {
   createExpense,
   deleteExpense,
@@ -17,7 +18,7 @@ export const loadExpenses = createAppAsyncThunk(
     try {
       return await fetchExpenses(requireUid(getState()));
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not load expenses.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().expenses.errors.load));
     }
   },
 );
@@ -28,7 +29,7 @@ export const addExpense = createAppAsyncThunk(
     try {
       return await createExpense(requireUid(getState()), input);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not save the expense.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().expenses.errors.save));
     }
   },
 );
@@ -42,7 +43,7 @@ export const editExpense = createAppAsyncThunk(
     try {
       return await updateExpense(requireUid(getState()), expense, input);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not update the expense.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().expenses.errors.update));
     }
   },
 );
@@ -53,7 +54,7 @@ export const removeExpense = createAppAsyncThunk(
     try {
       return await deleteExpense(requireUid(getState()), expense);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not delete the expense.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().expenses.errors.delete));
     }
   },
 );
@@ -67,5 +68,6 @@ export const startExpensesSync =
     subscribeToMyExpenses(
       uid,
       (data) => dispatch(expensesSynced(data)),
-      (error) => dispatch(expensesSyncFailed(getErrorMessage(error, 'Could not load expenses.'))),
+      (error) =>
+        dispatch(expensesSyncFailed(getErrorMessage(error, getMessages().expenses.errors.load))),
     );

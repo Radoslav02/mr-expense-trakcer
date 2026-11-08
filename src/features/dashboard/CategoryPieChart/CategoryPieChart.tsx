@@ -5,6 +5,7 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectCategoryTotalsForMonth } from '@/redux/expenses/expensesSelectors';
 import { formatPercent } from '@/utils/currency';
 import type { CategoryTotal } from '@/utils/expenses';
@@ -17,6 +18,7 @@ interface CategoryPieChartProps {
 }
 
 export const CategoryPieChart = ({ month, loading }: CategoryPieChartProps) => {
+  const { t } = useI18n();
   const totals = useAppSelector((state) => selectCategoryTotalsForMonth(state, month));
   const { format } = useCurrencyFormatter();
   const grandTotal = totals.reduce((sum, item) => sum + item.total, 0);
@@ -29,8 +31,8 @@ export const CategoryPieChart = ({ month, loading }: CategoryPieChartProps) => {
 
   return (
     <Card
-      title="Spending by category"
-      description="Where this month’s money went"
+      title={t.dashboard.pie.title}
+      description={t.dashboard.pie.description}
       className="category-pie-chart"
     >
       {loading ? (
@@ -45,8 +47,8 @@ export const CategoryPieChart = ({ month, loading }: CategoryPieChartProps) => {
       ) : totals.length === 0 ? (
         <EmptyState
           icon={<PieIcon />}
-          title="No spending this month"
-          description="Add an expense and its category share will show up here."
+          title={t.dashboard.pie.emptyTitle}
+          description={t.dashboard.pie.emptyDescription}
           className="py-10"
         />
       ) : (
@@ -54,7 +56,7 @@ export const CategoryPieChart = ({ month, loading }: CategoryPieChartProps) => {
           <div
             className="relative h-44 w-44 shrink-0"
             role="img"
-            aria-label="Donut chart of spending by category"
+            aria-label={t.dashboard.pie.chartLabel}
           >
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -76,7 +78,7 @@ export const CategoryPieChart = ({ month, loading }: CategoryPieChartProps) => {
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xs text-ink-subtle">Total</span>
+              <span className="text-xs text-ink-subtle">{t.dashboard.pie.total}</span>
               <span className="tabular text-sm font-semibold text-ink">{format(grandTotal)}</span>
             </div>
           </div>

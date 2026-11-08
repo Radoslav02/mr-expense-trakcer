@@ -12,6 +12,7 @@ import { MonthlyBarChart } from '@/features/dashboard/MonthlyBarChart';
 import { SummaryCards } from '@/features/dashboard/SummaryCards';
 import { ExpenseForm } from '@/features/expenses/ExpenseForm';
 import { useExpenseDialogs } from '@/hooks/useExpenseDialogs';
+import { useI18n } from '@/i18n';
 import { selectExpensesError, selectExpensesStatus } from '@/redux/expenses/expensesSelectors';
 import { loadExpenses } from '@/redux/expenses/expensesThunks';
 import { selectSettingsStatus } from '@/redux/settings/settingsSelectors';
@@ -21,6 +22,7 @@ import './DashboardPage.css';
 const isPending = (status: string) => status === 'idle' || status === 'loading';
 
 export const DashboardPage = () => {
+  const { t } = useI18n();
   const dispatch = useAppDispatch();
   const [month, setMonth] = useState(currentMonthKey);
   const status = useAppSelector(selectExpensesStatus);
@@ -32,13 +34,13 @@ export const DashboardPage = () => {
   return (
     <div className="dashboard-page">
       <PageHeader
-        title="Overview"
-        description="A quick read on where your money is going."
+        title={t.dashboard.title}
+        description={t.dashboard.description}
         actions={
           <>
             <MonthPicker value={month} onChange={setMonth} />
             <Button icon={<Plus />} onClick={openCreate}>
-              Add expense
+              {t.dashboard.addExpense}
             </Button>
           </>
         }

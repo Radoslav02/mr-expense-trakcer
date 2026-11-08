@@ -7,13 +7,9 @@ import { Modal } from '@/components/Modal';
 import { Select } from '@/components/Select';
 import { TextArea } from '@/components/TextArea';
 import { ToggleField } from '@/components/ToggleField';
-import {
-  NOTE_MAX_LENGTH,
-  PAYMENT_METHOD_LABELS,
-  PAYMENT_METHODS,
-  TITLE_MAX_LENGTH,
-} from '@/constants/expenses';
+import { NOTE_MAX_LENGTH, PAYMENT_METHODS, TITLE_MAX_LENGTH } from '@/constants/expenses';
 import { useExpenseForm, type ExpenseFormTarget } from '@/hooks/useExpenseForm';
+import { useI18n } from '@/i18n';
 import { selectSortedCategories } from '@/redux/categories/categoriesSelectors';
 import { selectExpensesMutating } from '@/redux/expenses/expensesSelectors';
 import {
@@ -41,23 +37,6 @@ interface ExpenseFormProps {
 
 const FORM_ID = 'expense-form';
 
-const PAYMENT_OPTIONS = PAYMENT_METHODS.map((method) => ({
-  value: method,
-  label: PAYMENT_METHOD_LABELS[method],
-}));
-
-const DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => ({
-  value: String(index + 1),
-  label: `The ${ordinal(index + 1)}${index + 1 > 28 ? ' (or the last day)' : ''}`,
-}));
-
-const TITLES: Record<ExpenseFormTarget['kind'], string> = {
-  new: 'Add expense',
-  expense: 'Edit expense',
-  partner: 'Edit expense',
-  recurring: 'Edit recurring expense',
-};
-
 export const ExpenseForm = ({
   open,
   expense,
@@ -77,6 +56,8 @@ export const ExpenseForm = ({
     [expense, recurring, partnerExpense],
   );
   const { values, errors, setField, handleSubmit } = useExpenseForm(open, target, onClose);
+  const { t } = useI18n();
+  const form = t.expenses.form;
   const categories = useAppSelector(selectSortedCategories);
   const currency = useAppSelector(selectCurrency);
   const savingExpense = useAppSelector(selectExpensesMutating);
@@ -97,31 +78,58 @@ export const ExpenseForm = ({
         .filter((category) => isPrivate || !category.isPrivate)
         .map((category) => ({
           value: category.id,
-          label: category.isPrivate ? `${category.name} (private)` : category.name,
+          label: category.isPrivate
+            ? t.expenses.form.privateCategory(category.name)
+            : category.name,
         })),
-    [categories, isPrivate],
+    [categories, isPrivate, t],
   );
+
+  const paymentOptions = useMemo(
+    () =>
+      PAYMENT_METHODS.map((method) => ({
+        value: method,
+        label: t.expenses.paymentMethods[method],
+      })),
+    [t],
+  );
+
+  const dayOptions = useMemo(
+    () =>
+      Array.from({ length: 31 }, (_, index) => ({
+        value: String(index + 1),
+        label: t.expenses.form.dayOption(ordinal(index + 1), index + 1 > 28),
+      })),
+    [t],
+  );
+
+  const titles: Record<ExpenseFormTarget['kind'], string> = {
+    new: t.expenses.add,
+    expense: t.expenses.edit,
+    partner: t.expenses.edit,
+    recurring: t.expenses.editRecurring,
+  };
 
   return (
     <Modal
       open={open}
       onClose={onClose}
       dismissible={!saving}
-      title={TITLES[target.kind]}
+      title={titles[target.kind]}
       description={
         target.kind === 'recurring'
-          ? 'Changes apply from the next month on. Expenses already added stay as they are.'
+          ? form.recurringDescription
           : isPartners
-            ? `This is ${partnerName}’s expense. Your changes show up for both of you.`
+            ? form.partnerDescription(partnerName)
             : undefined
       }
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button type="submit" form={FORM_ID} loading={saving}>
-            {target.kind === 'new' ? 'Add expense' : 'Save changes'}
+            {target.kind === 'new' ? t.expenses.add : t.common.saveChanges}
           </Button>
         </>
       }
@@ -133,16 +141,16 @@ export const ExpenseForm = ({
         className="expense-form grid gap-4 pb-2 sm:grid-cols-2"
       >
         <Input
-          label="Title"
+          label={form.title}
           value={values.title}
           maxLength={TITLE_MAX_LENGTH}
-          placeholder="e.g. Groceries at Maxi"
+          placeholder={form.titlePlaceholder}
           onChange={(event) => setField('title', event.target.value)}
           error={errors.title}
           wrapperClassName="sm:col-span-2"
         />
         <Input
-          label="Amount"
+          label={form.amount}
           inputMode="decimal"
           value={values.amount}
           placeholder="0"
@@ -153,14 +161,14 @@ export const ExpenseForm = ({
         />
         {target.kind === 'recurring' ? (
           <Select
-            label="Added every month on"
+            label={form.dayOfMonth}
             value={values.dayOfMonth}
-            options={DAY_OPTIONS}
+            options={dayOptions}
             onChange={(event) => setField('dayOfMonth', event.target.value)}
           />
         ) : (
           <Input
-            label="Date"
+            label={form.date}
             type="date"
             value={values.date}
             onChange={(event) => setField('date', event.target.value)}
@@ -168,17 +176,17 @@ export const ExpenseForm = ({
           />
         )}
         <Select
-          label="Category"
+          label={form.category}
           value={values.categoryId}
           options={categoryOptions}
-          placeholder="Choose a category"
+          placeholder={form.categoryPlaceholder}
           onChange={(event) => setField('categoryId', event.target.value)}
           error={errors.categoryId}
         />
         <Select
-          label="Paid with"
+          label={form.paidWith}
           value={values.paymentMethod}
-          options={PAYMENT_OPTIONS}
+          options={paymentOptions}
           onChange={(event) => setField('paymentMethod', event.target.value)}
         />
         {showVisibility && (
@@ -200,11 +208,11 @@ export const ExpenseForm = ({
         )}
         {target.kind === 'new' && (
           <ToggleField
-            label="Repeats every month"
+            label={form.repeats}
             description={
               values.repeats
-                ? `Added again on the ${ordinal(Number(values.date.slice(8, 10)) || 1)} of every month.`
-                : 'For rent, bills and subscriptions.'
+                ? form.repeatsOn(ordinal(Number(values.date.slice(8, 10)) || 1))
+                : form.repeatsHint
             }
             icon={<Repeat />}
             checked={values.repeats}
@@ -215,12 +223,12 @@ export const ExpenseForm = ({
         {target.kind === 'expense' && target.expense.recurringId && (
           <p className="flex items-center gap-2 rounded-xl bg-sunken px-3.5 py-2.5 text-[0.8125rem] text-ink-muted sm:col-span-2">
             <Repeat aria-hidden="true" className="h-4 w-4 shrink-0" />
-            Added by a recurring expense. Changes here only affect this month.
+            {form.fromRecurring}
           </p>
         )}
         <div className="sm:col-span-2">
           <TextArea
-            label="Note"
+            label={form.note}
             optional
             rows={2}
             maxLength={NOTE_MAX_LENGTH}

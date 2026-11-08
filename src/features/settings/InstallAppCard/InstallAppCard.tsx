@@ -3,10 +3,13 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { APP_NAME } from '@/constants/settings';
 import { useInstallApp } from '@/hooks/useInstallApp';
+import { useI18n } from '@/i18n';
 import './InstallAppCard.css';
 
 export const InstallAppCard = () => {
   const { mode, install } = useInstallApp();
+  const { t } = useI18n();
+  const copy = t.settings.install;
 
   const renderBody = () => {
     switch (mode) {
@@ -14,17 +17,15 @@ export const InstallAppCard = () => {
         return (
           <p className="flex items-center gap-2 text-sm text-ink-muted">
             <CircleCheck aria-hidden="true" className="h-4 w-4 text-positive" />
-            {APP_NAME} is installed on this device.
+            {copy.installed(APP_NAME)}
           </p>
         );
       case 'prompt':
         return (
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-ink-muted">
-              Add {APP_NAME} to your home screen. It opens full screen and works offline.
-            </p>
+            <p className="text-sm text-ink-muted">{copy.prompt(APP_NAME)}</p>
             <Button icon={<Download />} onClick={() => void install()}>
-              Install app
+              {copy.installButton}
             </Button>
           </div>
         );
@@ -33,27 +34,26 @@ export const InstallAppCard = () => {
           <ol className="install-steps flex flex-col gap-2 text-sm text-ink-muted">
             <li>
               <span className="install-steps__n">1</span>
-              Tap <Share aria-label="Share" className="install-steps__icon" /> Share in Safari’s
-              toolbar.
+              {copy.iosStep1Before}{' '}
+              <Share aria-label={copy.iosShare} className="install-steps__icon" />{' '}
+              {copy.iosStep1After}
             </li>
             <li>
               <span className="install-steps__n">2</span>
-              Choose <SquarePlus aria-hidden="true" className="install-steps__icon" />
-              <strong>Add to Home Screen</strong>, then tap Add.
+              {copy.iosStep2Before}{' '}
+              <SquarePlus aria-hidden="true" className="install-steps__icon" />
+              <strong>{copy.iosAddToHomeScreen}</strong>
+              {copy.iosStep2After}
             </li>
           </ol>
         );
       default:
-        return (
-          <p className="text-sm text-ink-muted">
-            Open {APP_NAME} in Chrome on Android or Safari on iPhone to add it to your home screen.
-          </p>
-        );
+        return <p className="text-sm text-ink-muted">{copy.unsupported(APP_NAME)}</p>;
     }
   };
 
   return (
-    <Card title="Install app" description="Use it like a regular phone app.">
+    <Card title={copy.title} description={copy.description}>
       {renderBody()}
     </Card>
   );

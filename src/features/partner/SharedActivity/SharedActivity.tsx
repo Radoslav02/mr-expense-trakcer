@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { CategoryBadge } from '@/features/categories/CategoryBadge';
 import { ExpenseForm } from '@/features/expenses/ExpenseForm';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectAuthUser } from '@/redux/auth/authSelectors';
 import {
   selectConnectedPartnerUid,
@@ -35,6 +36,8 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
   const feed = useAppSelector((state) => selectSharedFeed(state, month));
   const names = useAppSelector(selectPersonNames);
   const { format } = useCurrencyFormatter();
+  const { t } = useI18n();
+  const copy = t.partner.activity;
   const [owner, setOwner] = useState<OwnerFilter>('all');
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [editing, setEditing] = useState<Editing>(null);
@@ -44,8 +47,9 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
   /** Shown when the last change came from the other person. */
   const editedNote = (person: Person, expense: Expense): string | null => {
     if (!expense.editedBy) return null;
-    if (person === 'me' && expense.editedBy === partnerUid) return `edited by ${names.partner}`;
-    if (person === 'partner' && expense.editedBy === myUid) return 'edited by you';
+    if (person === 'me' && expense.editedBy === partnerUid)
+      return copy.editedByPartner(names.partner);
+    if (person === 'partner' && expense.editedBy === myUid) return copy.editedByYou;
     return null;
   };
 
@@ -55,20 +59,20 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
   );
 
   const filters: { value: OwnerFilter; label: string }[] = [
-    { value: 'all', label: 'Both' },
+    { value: 'all', label: copy.both },
     { value: 'me', label: names.me },
     { value: 'partner', label: names.partner },
   ];
 
   return (
     <Card
-      title="Who bought what"
-      description="Every expense from both of you this month. Tap one to edit it."
+      title={copy.title}
+      description={copy.description}
       padded={false}
       actions={
         <div
           role="group"
-          aria-label="Show expenses from"
+          aria-label={copy.filterLabel}
           className="shared-activity__filter inline-flex rounded-lg bg-sunken p-0.5"
         >
           {filters.map((filter) => (
@@ -91,8 +95,8 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
       {visible.length === 0 ? (
         <EmptyState
           icon={<ReceiptText />}
-          title="No expenses here"
-          description="Nothing recorded for this month yet."
+          title={copy.emptyTitle}
+          description={copy.emptyDescription}
           className="py-10"
         />
       ) : (
@@ -102,7 +106,7 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
               <button
                 type="button"
                 onClick={() => setEditing({ owner: person, expense })}
-                aria-label={`Edit ${expense.title}, ${format(expense.amount)}, paid by ${names[person]}`}
+                aria-label={copy.editLabel(expense.title, format(expense.amount), names[person])}
                 className="shared-activity__main group flex w-full items-center gap-3 px-4 py-3 text-left sm:px-5"
               >
                 <PersonAvatar person={person} name={names[person]} />
@@ -117,7 +121,7 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
                     </span>
                     <CategoryBadge category={category} className="hidden min-w-0 sm:inline-flex" />
                     <span className="min-w-0 truncate sm:hidden">
-                      {category?.name ?? 'Uncategorized'}
+                      {category?.name ?? t.common.uncategorized}
                     </span>
                     <span aria-hidden="true" className="hidden shrink-0 min-[400px]:inline">
                       ·
@@ -138,7 +142,7 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
                   </span>
                   {isSplit(expense) && (
                     <span className="mt-0.5 block text-[0.75rem] font-medium text-partner">
-                      Split
+                      {copy.split}
                     </span>
                   )}
                 </span>
@@ -158,7 +162,7 @@ export const SharedActivity = ({ month }: SharedActivityProps) => {
             size="sm"
             onClick={() => setLimit((current) => current + PAGE_SIZE)}
           >
-            Show {Math.min(PAGE_SIZE, visible.length - limit)} more
+            {copy.showMore(Math.min(PAGE_SIZE, visible.length - limit))}
           </Button>
         </div>
       )}

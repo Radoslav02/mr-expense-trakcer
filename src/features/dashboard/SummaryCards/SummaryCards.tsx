@@ -3,6 +3,7 @@ import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
 import { useAppSelector } from '@/app/hooks';
 import { Skeleton } from '@/components/Skeleton';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectMonthSummary } from '@/redux/expenses/expensesSelectors';
 import { formatPercent } from '@/utils/currency';
 import { currentMonthKey, formatMonthLabel, formatShortDate, shiftMonth } from '@/utils/dates';
@@ -41,7 +42,8 @@ const Stat = ({ label, value, detail, loading }: StatProps) => (
 );
 
 const ChangeDetail = ({ change }: { change: number | null }) => {
-  if (change === null) return <>No spending to compare</>;
+  const { t } = useI18n();
+  if (change === null) return <>{t.dashboard.summary.noComparison}</>;
   const increased = change > 0;
   const Icon = increased ? ArrowUpRight : ArrowDownRight;
   return (
@@ -52,12 +54,16 @@ const ChangeDetail = ({ change }: { change: number | null }) => {
       )}
     >
       <Icon aria-hidden="true" className="h-3.5 w-3.5" />
-      {formatPercent(Math.abs(change))} {increased ? 'more' : 'less'} than before
+      {(increased ? t.dashboard.summary.more : t.dashboard.summary.less)(
+        formatPercent(Math.abs(change)),
+      )}
     </span>
   );
 };
 
 export const SummaryCards = ({ month, loading }: SummaryCardsProps) => {
+  const { t } = useI18n();
+  const copy = t.dashboard.summary;
   const summary = useAppSelector((state) => selectMonthSummary(state, month));
   const { format } = useCurrencyFormatter();
   const isCurrent = month === currentMonthKey();
@@ -67,30 +73,30 @@ export const SummaryCards = ({ month, loading }: SummaryCardsProps) => {
     <dl className="summary-cards grid grid-cols-1 overflow-hidden rounded-xl border border-line bg-surface shadow-card sm:grid-cols-2 xl:grid-cols-4">
       <Stat
         loading={loading}
-        label={isCurrent ? 'Spent this month' : `Spent in ${formatMonthLabel(month)}`}
+        label={isCurrent ? copy.spentThisMonth : copy.spentIn(formatMonthLabel(month))}
         value={format(summary.total)}
-        detail={`${summary.count} ${summary.count === 1 ? 'expense' : 'expenses'}`}
+        detail={t.common.expenseCount(summary.count)}
       />
       <Stat
         loading={loading}
-        label={isCurrent ? 'Last month' : previousLabel}
+        label={isCurrent ? copy.lastMonth : previousLabel}
         value={format(summary.previousTotal)}
         detail={<ChangeDetail change={summary.change} />}
       />
       <Stat
         loading={loading}
-        label="Daily average"
+        label={copy.dailyAverage}
         value={format(summary.dailyAverage)}
-        detail={isCurrent ? 'Across days so far' : 'Across the whole month'}
+        detail={isCurrent ? copy.daysSoFar : copy.wholeMonth}
       />
       <Stat
         loading={loading}
-        label="Largest expense"
+        label={copy.largest}
         value={summary.largest ? format(summary.largest.amount) : '—'}
         detail={
           summary.largest
             ? `${summary.largest.title} · ${formatShortDate(summary.largest.date)}`
-            : 'Nothing recorded yet'
+            : copy.nothingYet
         }
       />
     </dl>

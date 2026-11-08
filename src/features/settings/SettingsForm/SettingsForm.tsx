@@ -4,8 +4,9 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Input } from '@/components/Input';
 import { Select } from '@/components/Select';
-import { CURRENCY_OPTIONS } from '@/constants/settings';
+import { CURRENCY_CODES } from '@/constants/settings';
 import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/i18n';
 import {
   selectFinance,
   selectSettings,
@@ -16,12 +17,17 @@ import { formatCurrency, roundMoney } from '@/utils/currency';
 import { parseAmount, validateBudget, validateIncome } from '@/utils/validation';
 import './SettingsForm.css';
 
-const CURRENCY_SELECT_OPTIONS = CURRENCY_OPTIONS.map(({ code, label }) => ({ value: code, label }));
 const PREVIEW_AMOUNT = 12345.6;
 
 export const SettingsForm = () => {
   const dispatch = useAppDispatch();
   const toast = useToast();
+  const { t } = useI18n();
+  const copy = t.settings.money;
+  const currencyOptions = CURRENCY_CODES.map((code) => ({
+    value: code,
+    label: t.settings.currencies[code],
+  }));
   const settings = useAppSelector(selectSettings);
   const finance = useAppSelector(selectFinance);
   const saving = useAppSelector(selectSettingsSaveStatus) === 'loading';
@@ -60,61 +66,58 @@ export const SettingsForm = () => {
           finance: { monthlyIncome: nextIncome },
         }),
       ).unwrap();
-      toast.success('Settings saved.');
+      toast.success(copy.saved);
     } catch (message) {
       toast.error(String(message));
     }
   };
 
   return (
-    <Card
-      title="Money"
-      description="How amounts are shown, what you earn and what you plan to spend each month."
-    >
+    <Card title={copy.title} description={copy.description}>
       <form onSubmit={handleSubmit} noValidate className="settings-form flex flex-col gap-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <Input
-            label="Monthly income"
+            label={copy.incomeLabel}
             optional
             inputMode="decimal"
-            placeholder="Not set"
+            placeholder={copy.incomePlaceholder}
             value={income}
             onChange={(event) => {
               setIncome(event.target.value);
               setIncomeError(null);
             }}
             error={incomeError ?? undefined}
-            hint="What comes in each month. Only you can see it."
+            hint={copy.incomeHint}
             trailing={currency}
             className="tabular"
             wrapperClassName="min-w-0 sm:col-span-2"
           />
           <Select
-            label="Currency"
+            label={copy.currencyLabel}
             value={currency}
-            options={CURRENCY_SELECT_OPTIONS}
+            options={currencyOptions}
             onChange={(event) => setCurrency(event.target.value)}
-            hint={`Preview: ${formatCurrency(PREVIEW_AMOUNT, currency)}`}
+            hint={copy.preview(formatCurrency(PREVIEW_AMOUNT, currency))}
           />
           <Input
-            label="Monthly budget"
+            label={copy.budgetLabel}
             optional
             inputMode="decimal"
-            placeholder="No budget"
+            placeholder={copy.budgetPlaceholder}
             value={budget}
             onChange={(event) => {
               setBudget(event.target.value);
               setBudgetError(null);
             }}
             error={budgetError ?? undefined}
-            hint="Leave empty to hide the budget bar."
+            hint={copy.budgetHint}
             trailing={currency}
             className="tabular"
           />
         </div>
         <div className="flex justify-end border-t border-line pt-4">
           <Button type="submit" loading={saving} disabled={!isDirty}>
-            Save changes
+            {t.common.saveChanges}
           </Button>
         </div>
       </form>

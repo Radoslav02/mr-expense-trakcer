@@ -5,6 +5,7 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectCategoryComparison, selectPersonNames } from '@/redux/partner/partnerSelectors';
 import { PersonLegend } from '../PersonLegend';
 import './CategoryComparison.css';
@@ -21,12 +22,13 @@ export const CategoryComparison = ({ month, loading }: CategoryComparisonProps) 
   const rows = useAppSelector((state) => selectCategoryComparison(state, month));
   const names = useAppSelector(selectPersonNames);
   const { format } = useCurrencyFormatter();
+  const { t } = useI18n();
   const max = Math.max(0, ...rows.flatMap((row) => [row.me, row.partner]));
 
   return (
     <Card
-      title="By category"
-      description="Who spends what, side by side"
+      title={t.partner.categories.title}
+      description={t.partner.categories.description}
       actions={<PersonLegend />}
       className="category-comparison"
     >
@@ -43,8 +45,8 @@ export const CategoryComparison = ({ month, loading }: CategoryComparisonProps) 
       ) : rows.length === 0 ? (
         <EmptyState
           icon={<Scale />}
-          title="Nothing to compare yet"
-          description="Once either of you adds expenses this month, categories line up here."
+          title={t.partner.categories.emptyTitle}
+          description={t.partner.categories.emptyDescription}
           className="py-8"
         />
       ) : (

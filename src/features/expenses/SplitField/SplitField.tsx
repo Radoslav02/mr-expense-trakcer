@@ -1,5 +1,6 @@
 import { Input } from '@/components/Input';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { cn } from '@/utils/cn';
 import { roundMoney } from '@/utils/currency';
 import { halfOf } from '@/utils/split';
@@ -21,11 +22,6 @@ interface SplitFieldProps {
   payer?: 'me' | 'partner';
 }
 
-const MODES: { value: SplitMode; label: string }[] = [
-  { value: 'even', label: 'Half' },
-  { value: 'custom', label: 'Custom amount' },
-];
-
 const validAmount = (value: string): number | null => {
   const amount = parseAmount(value);
   return value.trim() && Number.isFinite(amount) && amount > 0 ? roundMoney(amount) : null;
@@ -40,6 +36,12 @@ export const SplitField = ({
   payer = 'me',
 }: SplitFieldProps) => {
   const { format } = useCurrencyFormatter();
+  const { t } = useI18n();
+  const s = t.expenses.split;
+  const modes: { value: SplitMode; label: string }[] = [
+    { value: 'even', label: s.half },
+    { value: 'custom', label: s.custom },
+  ];
   const amount = validAmount(values.amount);
   const share =
     values.splitMode === 'even'
@@ -52,11 +54,11 @@ export const SplitField = ({
   // A split is a cost we share, like groceries we both eat. Nobody owes anybody.
   const summary = valid
     ? payer === 'me'
-      ? `Your part ${rest} · ${partnerName}’s part ${format(share)}`
-      : `Your part ${format(share)} · ${partnerName}’s part ${rest}`
-    : 'Counted as a cost for both of you.';
-  const shareLabel = payer === 'me' ? `${partnerName}’s part` : 'Your part';
-  const offText = 'For things you both use, like groceries. Each of you counts your part.';
+      ? s.summary(rest, partnerName, format(share))
+      : s.summary(format(share), partnerName, rest)
+    : s.countedForBoth;
+  const shareLabel = payer === 'me' ? s.partnerPart(partnerName) : s.yourPart;
+  const offText = s.offHint;
 
   const chooseMode = (mode: SplitMode) => {
     setField('splitMode', mode);
@@ -68,15 +70,15 @@ export const SplitField = ({
   return (
     <fieldset
       className={cn(
-        'split-field rounded-xl border border-line p-3.5 sm:col-span-2',
+        'split-field min-w-0 rounded-xl border border-line p-3.5 sm:col-span-2',
         values.split && 'is-on',
       )}
     >
-      <legend className="sr-only">Split with {partnerName}</legend>
+      <legend className="sr-only">{s.splitWith(partnerName)}</legend>
       <label className="flex cursor-pointer items-center justify-between gap-3">
         <span className="min-w-0">
-          <span className="block text-sm font-medium text-ink">Split with {partnerName}</span>
-          <span className="block truncate text-[0.8125rem] text-ink-subtle">
+          <span className="block text-sm font-medium text-ink">{s.splitWith(partnerName)}</span>
+          <span className="block text-[0.8125rem] text-ink-subtle">
             {values.split ? summary : offText}
           </span>
         </span>
@@ -93,10 +95,10 @@ export const SplitField = ({
         <div className="mt-3.5 flex flex-col gap-3 border-t border-line pt-3.5 sm:flex-row sm:items-start">
           <div
             role="group"
-            aria-label="How to split"
+            aria-label={s.howToSplit}
             className="inline-flex shrink-0 self-start rounded-lg bg-sunken p-0.5"
           >
-            {MODES.map((mode) => (
+            {modes.map((mode) => (
               <button
                 key={mode.value}
                 type="button"

@@ -1,11 +1,13 @@
 import { Outlet } from 'react-router-dom';
 import { useUserDataSync } from '@/hooks/useUserDataSync';
+import { useI18n } from '@/i18n';
 import { BottomNav } from '../BottomNav';
 import { Header } from '../Header';
 import { Sidebar } from '../Sidebar';
 import './AppLayout.css';
 
 export const AppLayout = () => {
+  const { t } = useI18n();
   useUserDataSync();
 
   return (
@@ -14,7 +16,7 @@ export const AppLayout = () => {
         href="#main"
         className="sr-only z-50 rounded-md bg-surface px-3 py-2 text-sm focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
       >
-        Skip to content
+        {t.common.skipToContent}
       </a>
       <Sidebar />
       <div className="app-layout__main lg:pl-[var(--sidebar-width)]">

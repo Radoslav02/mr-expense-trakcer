@@ -1,9 +1,10 @@
 import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@/app/store';
+import { getMessages, selectLanguage } from '@/i18n';
 import { OTHER_CATEGORY_ID, UNCATEGORIZED_COLOR } from '@/constants/categories';
 import { MONTHS_IN_TREND } from '@/constants/expenses';
 import { selectAuthUser } from '@/redux/auth/authSelectors';
-import { selectCategories } from '@/redux/categories/categoriesSelectors';
+import { localizeCategory, selectCategories } from '@/redux/categories/categoriesSelectors';
 import { selectMySharedExpenses, selectMySharedSpending } from '@/redux/expenses/expensesSelectors';
 import { selectCurrency } from '@/redux/settings/settingsSelectors';
 import {
@@ -18,7 +19,10 @@ import { lastMonthKeys } from '@/utils/dates';
 import { categoryMapper, personalExpenses, sharedCosts } from '@/utils/split';
 import { expensesInMonth, sumAmounts, totalsByCategory, totalsByMonth } from '@/utils/expenses';
 
-const FALLBACK_CATEGORY = { name: 'Uncategorized', color: UNCATEGORIZED_COLOR };
+const fallbackCategory = () => ({
+  name: getMessages().common.uncategorized,
+  color: UNCATEGORIZED_COLOR,
+});
 
 const selectMonthArg = (_state: RootState, month: string) => month;
 
@@ -32,8 +36,9 @@ export const selectPartnerMutating = (state: RootState) =>
   state.partner.mutationStatus === 'loading';
 const selectPartnerExpenses = (state: RootState) => state.partner.expenses;
 const selectPartnerCategoryDocs = (state: RootState) => state.partner.categories;
-const selectPartnerCategories = createSelector([selectPartnerCategoryDocs], (categories) =>
-  categories.filter((category) => !category.deleted),
+const selectPartnerCategories = createSelector(
+  [selectPartnerCategoryDocs, selectLanguage],
+  (categories) => categories.filter((category) => !category.deleted).map(localizeCategory),
 );
 
 /** What my partner actually spends: their part of split expenses, including ones I paid for. */
@@ -58,12 +63,19 @@ export const selectConnectedPartnerUid = createSelector(
 );
 
 export const selectPersonNames = createSelector(
-  [selectAuthUser, selectIncomingInvite, selectPartnerEmail],
-  (user, incoming, partnerEmail) => ({
-    me: 'You',
-    meFull: firstName(user?.displayName ?? null, user?.email ?? null, 'You'),
-    partner: firstName(incoming?.displayName ?? null, incoming?.email ?? partnerEmail, 'Partner'),
-  }),
+  [selectAuthUser, selectIncomingInvite, selectPartnerEmail, selectLanguage],
+  (user, incoming, partnerEmail) => {
+    const { common } = getMessages();
+    return {
+      me: common.you,
+      meFull: firstName(user?.displayName ?? null, user?.email ?? null, common.you),
+      partner: firstName(
+        incoming?.displayName ?? null,
+        incoming?.email ?? partnerEmail,
+        common.partner,
+      ),
+    };
+  },
 );
 
 export const selectCurrencyMismatch = createSelector(
@@ -91,10 +103,11 @@ export const selectCategoryComparison = createSelector(
     selectPartnerSpending,
     selectPartnerCategories,
     selectMonthArg,
+    selectLanguage,
   ],
   (mine, myCategories, theirs, theirCategories, month) =>
     compareCategories(
-      totalsByCategory(expensesInMonth(mine, month), myCategories, FALLBACK_CATEGORY),
+      totalsByCategory(expensesInMonth(mine, month), myCategories, fallbackCategory()),
       totalsByCategory(
         expensesInMonth(theirs, month),
         // A shared category of mine they haven't synced yet: their expense holds its shared key.
@@ -104,7 +117,7 @@ export const selectCategoryComparison = createSelector(
             .filter((category) => !category.isPrivate)
             .map((category) => ({ ...category, id: category.sharedKey })),
         ],
-        FALLBACK_CATEGORY,
+        fallbackCategory(),
       ),
     ),
 );

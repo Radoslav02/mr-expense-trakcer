@@ -1,0 +1,57 @@
+import { pluralEn } from '../plural';
+
+export const dashboard = {
+  title: 'Overview',
+  description: 'A quick read on where your money is going.',
+  addExpense: 'Add expense',
+  summary: {
+    spentThisMonth: 'Spent this month',
+    spentIn: (month: string) => `Spent in ${month}`,
+    lastMonth: 'Last month',
+    noComparison: 'No spending to compare',
+    more: (percent: string) => `${percent} more than before`,
+    less: (percent: string) => `${percent} less than before`,
+    dailyAverage: 'Daily average',
+    daysSoFar: 'Across days so far',
+    wholeMonth: 'Across the whole month',
+    largest: 'Largest expense',
+    nothingYet: 'Nothing recorded yet',
+  },
+  budget: {
+    empty: 'Set a monthly budget to see how much room is left.',
+    setBudget: 'Set budget',
+    monthly: 'Monthly budget',
+    /** "of €500" after the amount spent. */
+    of: (budget: string) => `of ${budget}`,
+    left: (amount: string) => `${amount} left`,
+    over: (amount: string) => `${amount} over budget`,
+    used: (percent: string) => `${percent} used`,
+    progressLabel: 'Budget used',
+    progressValue: (percent: string) => `${percent} of budget used`,
+  },
+  moneyLeft: {
+    empty: 'Add your monthly income to see how much money you have left.',
+    addIncome: 'Add income',
+    title: 'Money left this month',
+    income: 'Income',
+    spent: 'Spent',
+    barLabel: (spent: string, income: string) => `Spent ${spent} of ${income}`,
+    barUpcoming: (amount: string) => `, ${amount} more in bills to come`,
+    billsToCome: (count: number) => `${count} ${pluralEn(count, 'bill', 'bills')} still to come`,
+    shortAfterBills: (amount: string) => `${amount} short after bills`,
+    leftAfterBills: (amount: string) => `${amount} left after bills`,
+  },
+  pie: {
+    title: 'Spending by category',
+    description: 'Where this month’s money went',
+    emptyTitle: 'No spending this month',
+    emptyDescription: 'Add an expense and its category share will show up here.',
+    chartLabel: 'Donut chart of spending by category',
+    total: 'Total',
+  },
+  trend: {
+    title: (months: number) => `Last ${months} months`,
+    description: (month: string) => `Monthly totals up to ${month}`,
+    chartLabel: (months: number) => `Bar chart of totals for the last ${months} months`,
+  },
+};

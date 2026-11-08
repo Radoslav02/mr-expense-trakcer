@@ -1,7 +1,12 @@
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { OTHER_CATEGORY_ID } from '@/constants/categories';
 import { useToast } from '@/hooks/useToast';
-import { selectCategoriesMutating } from '@/redux/categories/categoriesSelectors';
+import { useI18n } from '@/i18n';
+import {
+  selectCategoriesMutating,
+  selectCategoryMap,
+} from '@/redux/categories/categoriesSelectors';
 import { removeCategory } from '@/redux/categories/categoriesThunks';
 import type { Category } from '@/types/category';
 import './DeleteCategoryDialog.css';
@@ -17,7 +22,12 @@ export const DeleteCategoryDialog = ({
   expenseCount,
   onClose,
 }: DeleteCategoryDialogProps) => {
+  const { t } = useI18n();
   const dispatch = useAppDispatch();
+  const otherName =
+    useAppSelector(selectCategoryMap)[OTHER_CATEGORY_ID]?.name ??
+    t.categories.defaults[OTHER_CATEGORY_ID];
+  const copy = t.categories.deleteDialog;
   const toast = useToast();
   const deleting = useAppSelector(selectCategoriesMutating);
   const hasExpenses = expenseCount > 0;
@@ -28,8 +38,8 @@ export const DeleteCategoryDialog = ({
       const result = await dispatch(removeCategory(category)).unwrap();
       toast.success(
         result.reassignedCount > 0
-          ? `Deleted “${category.name}” and moved ${result.reassignedCount} expenses to Other.`
-          : `Deleted “${category.name}”.`,
+          ? copy.deletedAndMoved(category.name, result.reassignedCount, otherName)
+          : copy.deleted(category.name),
       );
       onClose();
     } catch (message) {
@@ -40,24 +50,23 @@ export const DeleteCategoryDialog = ({
   return (
     <ConfirmDialog
       open={category !== null}
-      title={`Delete ${category?.name ?? 'category'}?`}
-      confirmLabel={hasExpenses ? 'Delete and reassign' : 'Delete category'}
+      title={copy.title(category?.name ?? copy.fallbackName)}
+      confirmLabel={hasExpenses ? copy.confirmReassign : copy.confirm}
       loading={deleting}
       onConfirm={handleConfirm}
       onCancel={onClose}
       message={
         hasExpenses ? (
           <p className="delete-category__message">
-            {!category?.isPrivate && 'This removes it for your partner too. '}
-            <strong>
-              {expenseCount} {expenseCount === 1 ? 'expense uses' : 'expenses use'} this category.
-            </strong>{' '}
-            They will be moved to <strong>Other</strong> so nothing is lost.
+            {!category?.isPrivate && copy.partnerToo}
+            <strong>{copy.inUse(expenseCount)}</strong> {copy.movedBefore}
+            <strong>{otherName}</strong>
+            {copy.movedAfter}
           </p>
         ) : (
           <p className="delete-category__message">
-            {!category?.isPrivate && 'This removes it for your partner too. '}
-            No expenses use this category. This can’t be undone.
+            {!category?.isPrivate && copy.partnerToo}
+            {copy.unused}
           </p>
         )
       }

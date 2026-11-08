@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
+import { getMessages } from '@/i18n';
 import { OTHER_CATEGORY_ID } from '@/constants/categories';
 import { DEFAULT_PAYMENT_METHOD, PAYMENT_METHODS } from '@/constants/expenses';
 import { selectCategories } from '@/redux/categories/categoriesSelectors';
@@ -130,11 +131,12 @@ const categoryFits = (categories: readonly Category[], id: string, visibility: V
 const firstSharedCategory = (categories: readonly Category[]) =>
   categories.find((category) => !category.isPrivate)?.id ?? OTHER_CATEGORY_ID;
 
-const SUCCESS: Record<ExpenseFormTarget['kind'], string> = {
-  new: 'Expense added.',
-  expense: 'Expense updated.',
-  partner: 'Expense updated for both of you.',
-  recurring: 'Recurring expense updated.',
+const successMessage = (kind: ExpenseFormTarget['kind'], repeats: boolean): string => {
+  const toasts = getMessages().expenses.toasts;
+  if (kind === 'new') return repeats ? toasts.addedRepeating : toasts.added;
+  if (kind === 'partner') return toasts.partnerUpdated;
+  if (kind === 'recurring') return toasts.recurringUpdated;
+  return toasts.updated;
 };
 
 export const useExpenseForm = (open: boolean, target: ExpenseFormTarget, onSaved: () => void) => {
@@ -203,7 +205,7 @@ export const useExpenseForm = (open: boolean, target: ExpenseFormTarget, onSaved
     event.preventDefault();
     const nextErrors = validateExpense(values);
     if (!categoryFits(categories, values.categoryId, values.visibility)) {
-      nextErrors.categoryId = 'Private categories are only for private expenses.';
+      nextErrors.categoryId = getMessages().expenses.form.privateCategoryError;
     }
     setErrors(nextErrors);
     if (hasErrors(nextErrors)) return;
@@ -229,11 +231,7 @@ export const useExpenseForm = (open: boolean, target: ExpenseFormTarget, onSaved
       } else {
         await dispatch(addExpense(toInput(values))).unwrap();
       }
-      toast.success(
-        target.kind === 'new' && values.repeats
-          ? 'Expense added. It will repeat every month.'
-          : SUCCESS[target.kind],
-      );
+      toast.success(successMessage(target.kind, values.repeats));
       onSaved();
     } catch (message) {
       toast.error(String(message));

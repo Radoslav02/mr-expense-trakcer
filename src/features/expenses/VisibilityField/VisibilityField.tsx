@@ -1,4 +1,5 @@
 import { Lock, Users } from 'lucide-react';
+import { useI18n } from '@/i18n';
 import { cn } from '@/utils/cn';
 import type { Visibility } from '@/utils/validation';
 import './VisibilityField.css';
@@ -11,24 +12,26 @@ interface VisibilityFieldProps {
 
 /** Chooses whether the partner can see an expense at all. */
 export const VisibilityField = ({ value, onChange, partnerName }: VisibilityFieldProps) => {
+  const { t } = useI18n();
+  const v = t.expenses.visibility;
   const options = [
     {
       value: 'shared' as const,
-      label: `With ${partnerName}`,
-      hint: `${partnerName} can see it`,
+      label: v.shared(partnerName),
+      hint: v.sharedHint(partnerName),
       icon: <Users aria-hidden="true" />,
     },
     {
       value: 'private' as const,
-      label: 'Only me',
-      hint: 'Private, never shown to them',
+      label: v.private,
+      hint: v.privateHint,
       icon: <Lock aria-hidden="true" />,
     },
   ];
 
   return (
-    <fieldset className="visibility-field sm:col-span-2">
-      <legend className="mb-1.5 text-sm font-medium text-ink">Who is this for?</legend>
+    <fieldset className="visibility-field min-w-0 sm:col-span-2">
+      <legend className="mb-1.5 text-sm font-medium text-ink">{v.legend}</legend>
       <div className="grid grid-cols-2 gap-2">
         {options.map((option) => (
           <button

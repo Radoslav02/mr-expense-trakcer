@@ -6,18 +6,20 @@ import {
   Tags,
   type LucideIcon,
 } from 'lucide-react';
+import type { Messages } from '@/i18n';
 import { ROUTES, type AppRoute } from './routes';
 
 export interface NavItem {
   to: AppRoute;
-  label: string;
+  /** Key into `t.nav`. */
+  labelKey: keyof Messages['nav'];
   icon: LucideIcon;
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { to: ROUTES.dashboard, label: 'Overview', icon: LayoutDashboard },
-  { to: ROUTES.expenses, label: 'Expenses', icon: ReceiptText },
-  { to: ROUTES.together, label: 'Together', icon: HeartHandshake },
-  { to: ROUTES.categories, label: 'Categories', icon: Tags },
-  { to: ROUTES.settings, label: 'Settings', icon: Settings },
+  { to: ROUTES.dashboard, labelKey: 'overview', icon: LayoutDashboard },
+  { to: ROUTES.expenses, labelKey: 'expenses', icon: ReceiptText },
+  { to: ROUTES.together, labelKey: 'together', icon: HeartHandshake },
+  { to: ROUTES.categories, labelKey: 'categories', icon: Tags },
+  { to: ROUTES.settings, labelKey: 'settings', icon: Settings },
 ];

@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { DEFAULT_SETTINGS } from '@/constants/settings';
+import { getMessages } from '@/i18n';
 import { sessionCleared } from '@/redux/auth/authThunks';
 import type { SettingsState, Theme } from './settingsTypes';
 import {
@@ -57,7 +58,7 @@ const settingsSlice = createSlice({
       })
       .addCase(loadSettings.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Could not load your settings.';
+        state.error = action.payload ?? getMessages().settings.errors.load;
       })
       .addCase(updateSettings.pending, (state) => {
         state.saveStatus = 'loading';

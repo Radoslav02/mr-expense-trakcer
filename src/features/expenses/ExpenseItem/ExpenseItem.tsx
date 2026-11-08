@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { Lock, Repeat, Trash2 } from 'lucide-react';
 import { Button } from '@/components/Button';
-import { PAYMENT_METHOD_LABELS } from '@/constants/expenses';
 import { UNCATEGORIZED_COLOR } from '@/constants/categories';
+import { useI18n } from '@/i18n';
 import type { Category } from '@/types/category';
 import type { Expense } from '@/types/expense';
 import { CategoryBadge } from '@/features/categories/CategoryBadge';
@@ -30,11 +30,13 @@ export const ExpenseItem = ({
   onEdit,
   onDelete,
 }: ExpenseItemProps) => {
+  const { t } = useI18n();
+  const item = t.expenses.item;
   const paidByPartner = expense.shared?.paidByOther ?? false;
   const splitLabel = formattedTotal
     ? paidByPartner
-      ? `${partnerName} paid ${formattedTotal}`
-      : `Split of ${formattedTotal}`
+      ? `${item.paidBy(partnerName)} ${formattedTotal}`
+      : item.splitOf(formattedTotal)
     : null;
 
   const content: ReactNode = (
@@ -54,16 +56,18 @@ export const ExpenseItem = ({
         <span className="mt-0.5 flex min-w-0 items-center gap-2 text-[0.8125rem] text-ink-subtle">
           {splitLabel && (
             <span className="shrink-0 rounded bg-partner-soft px-1.5 py-px text-[0.75rem] font-medium text-partner">
-              Split
+              {item.split}
             </span>
           )}
           <CategoryBadge category={category} className="hidden min-w-0 sm:inline-flex" />
-          <span className="min-w-0 truncate sm:hidden">{category?.name ?? 'Uncategorized'}</span>
+          <span className="min-w-0 truncate sm:hidden">
+            {category?.name ?? t.common.uncategorized}
+          </span>
           <span aria-hidden="true" className="hidden shrink-0 min-[400px]:inline">
             ·
           </span>
           <span className="hidden shrink-0 whitespace-nowrap min-[400px]:inline">
-            {PAYMENT_METHOD_LABELS[expense.paymentMethod]}
+            {t.expenses.paymentMethods[expense.paymentMethod]}
           </span>
           {expense.note && (
             <>
@@ -83,10 +87,11 @@ export const ExpenseItem = ({
           <span className="tabular mt-0.5 block whitespace-nowrap text-[0.75rem] text-ink-subtle">
             {paidByPartner ? (
               <>
-                {partnerName} paid<span className="hidden sm:inline"> {formattedTotal}</span>
+                {item.paidBy(partnerName)}
+                <span className="hidden sm:inline"> {formattedTotal}</span>
               </>
             ) : (
-              `of ${formattedTotal}`
+              item.ofTotal(formattedTotal ?? '')
             )}
           </span>
         )}
@@ -94,7 +99,15 @@ export const ExpenseItem = ({
     </>
   );
 
-  const description = `${expense.title}, your part ${formattedAmount}${splitLabel ? `, ${splitLabel}` : ''}${expense.isPrivate ? ', private' : ''}${expense.recurringId ? ', repeats monthly' : ''}`;
+  const description = [
+    expense.title,
+    item.yourPart(formattedAmount),
+    splitLabel,
+    expense.isPrivate && item.private,
+    expense.recurringId && item.repeatsMonthly,
+  ]
+    .filter(Boolean)
+    .join(', ');
 
   if (paidByPartner) {
     return (
@@ -113,7 +126,7 @@ export const ExpenseItem = ({
         type="button"
         onClick={() => onEdit(expense)}
         className="expense-item__main flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left sm:px-5"
-        aria-label={`Edit ${description}`}
+        aria-label={item.editLabel(description)}
       >
         {content}
       </button>
@@ -125,7 +138,7 @@ export const ExpenseItem = ({
         onClick={() => onDelete(expense)}
         className="expense-item__delete mr-2 hover:text-danger sm:mr-3"
       >
-        {`Delete ${expense.title}`}
+        {item.deleteLabel(expense.title)}
       </Button>
     </li>
   );

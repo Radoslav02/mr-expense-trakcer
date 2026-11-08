@@ -5,6 +5,7 @@ import { Loader } from '@/components/Loader';
 import { MonthPicker } from '@/components/MonthPicker';
 import { PageHeader } from '@/components/PageHeader';
 import { CategoryManager } from '@/features/categories/CategoryManager';
+import { useI18n } from '@/i18n';
 import { CategoryComparison } from '@/features/partner/CategoryComparison';
 import { PartnerConnectCard } from '@/features/partner/PartnerConnectCard';
 import { SharedActivity } from '@/features/partner/SharedActivity';
@@ -39,19 +40,20 @@ export const TogetherPage = () => {
   const currency = useAppSelector(selectCurrency);
   const partnerCurrency = useAppSelector(selectCurrencyMismatch);
   const refresh = () => void dispatch(loadPartner());
+  const { t } = useI18n();
+  const copy = t.partner.page;
 
   const connected = linkStatus === 'connected';
   const loading = isPending(dataStatus) || isPending(expensesStatus);
 
   const renderContent = () => {
-    if (isPending(partnerStatus)) return <Loader label="Checking your partner link" />;
+    if (isPending(partnerStatus)) return <Loader label={copy.checkingLink} />;
     if (!connected) return <PartnerConnectCard />;
     return (
       <div className="flex flex-col gap-5">
         {partnerCurrency && (
           <p role="note" className="rounded-xl bg-partner-soft px-4 py-3 text-sm text-ink">
-            {names.partner} records amounts in {partnerCurrency} and you use {currency}. Amounts are
-            compared as entered, without conversion.
+            {copy.currencyMismatch(names.partner, partnerCurrency, currency)}
           </p>
         )}
         <SpendingSplit month={month} loading={loading} />
@@ -69,19 +71,15 @@ export const TogetherPage = () => {
   return (
     <div className="together-page">
       <PageHeader
-        title="Together"
-        description={
-          connected
-            ? `You and ${names.partner}, side by side.`
-            : 'Compare spending with your partner.'
-        }
+        title={copy.title}
+        description={connected ? copy.descriptionConnected(names.partner) : copy.description}
         actions={
           <>
             {connected && <MonthPicker value={month} onChange={setMonth} />}
             {connected && (
               <span className="together-page__live inline-flex items-center gap-2 text-xs font-medium text-ink-subtle">
                 <span aria-hidden="true" className="together-page__live-dot" />
-                Live
+                {copy.live}
               </span>
             )}
           </>

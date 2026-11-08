@@ -7,6 +7,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { COLLECTIONS, PROFILE_FIELDS } from '@/constants/firestore';
+import { getMessages } from '@/i18n';
 import type { Category } from '@/types/category';
 import type { Expense } from '@/types/expense';
 import type { PartnerData, PartnerLink, PartnerProfile } from '@/types/partner';
@@ -78,7 +79,7 @@ export const shareWithPartner = async (
   partnerEmail: string,
   previousPartnerEmail: string | null,
 ): Promise<string> => {
-  if (!me.email) throw new Error('Your account has no email address, so it cannot be shared.');
+  if (!me.email) throw new Error(getMessages().partner.errors.noEmail);
   const email = normalizeEmail(partnerEmail);
   const batch = writeBatch(db);
 

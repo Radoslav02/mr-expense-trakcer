@@ -3,6 +3,7 @@ import { useAppSelector } from '@/app/hooks';
 import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectPersonNames, selectSharedCosts } from '@/redux/partner/partnerSelectors';
 import type { Person } from '@/types/partner';
 import { PersonAvatar } from '../PersonAvatar';
@@ -38,15 +39,17 @@ export const SharedCosts = ({ month, loading }: SharedCostsProps) => {
   const costs = useAppSelector((state) => selectSharedCosts(state, month));
   const names = useAppSelector(selectPersonNames);
   const { format } = useCurrencyFormatter();
+  const { t } = useI18n();
+  const copy = t.partner.sharedCosts;
 
   return (
-    <Card title="Shared costs" description="Things you split this month, like groceries">
+    <Card title={copy.title} description={copy.description}>
       {loading ? (
         <Skeleton className="h-8 w-48" />
       ) : costs.count === 0 ? (
         <p className="flex items-center gap-2 text-sm text-ink-subtle">
           <ShoppingBasket className="h-4 w-4 shrink-0" aria-hidden="true" />
-          Nothing shared this month. Turn on “Split with {names.partner}” when adding one.
+          {copy.empty(names.partner)}
         </p>
       ) : (
         <>
@@ -56,22 +59,22 @@ export const SharedCosts = ({ month, loading }: SharedCostsProps) => {
           >
             {format(costs.total)}
             <span className="ml-2 text-sm font-normal tracking-normal text-ink-subtle">
-              in {costs.count} {costs.count === 1 ? 'expense' : 'expenses'}
+              {copy.inExpenses(costs.count)}
             </span>
           </p>
           <ul className="mt-4 flex flex-col gap-3 border-t border-line pt-4">
             <PartRow
               person="me"
               name={names.me}
-              label="Your part"
-              detail={`You bought ${format(costs.boughtByMe)}`}
+              label={copy.yourPart}
+              detail={copy.youBought(format(costs.boughtByMe))}
               amount={format(costs.myPart)}
             />
             <PartRow
               person="partner"
               name={names.partner}
-              label={`${names.partner}’s part`}
-              detail={`${names.partner} bought ${format(costs.boughtByPartner)}`}
+              label={copy.partnerPart(names.partner)}
+              detail={copy.partnerBought(names.partner, format(costs.boughtByPartner))}
               amount={format(costs.partnerPart)}
             />
           </ul>

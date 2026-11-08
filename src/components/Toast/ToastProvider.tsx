@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import { CircleAlert, CircleCheck, Info, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { useI18n } from '@/i18n';
 import { ToastContext, type ToastApi, type ToastMessage, type ToastTone } from './ToastContext';
 import './Toast.css';
 
@@ -14,6 +15,7 @@ const TONE_ICON = {
 } as const;
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
+  const { t } = useI18n();
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const nextId = useRef(0);
 
@@ -57,7 +59,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
               type="button"
               onClick={() => dismiss(toast.id)}
               className="rounded-md p-1 text-ink-subtle hover:bg-sunken hover:text-ink"
-              aria-label="Dismiss notification"
+              aria-label={t.common.dismissNotification}
             >
               <X className="h-4 w-4" />
             </button>

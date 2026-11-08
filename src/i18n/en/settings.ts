@@ -1,0 +1,61 @@
+export const settings = {
+  title: 'Settings',
+  signedInAs: (email: string) => `Signed in as ${email}`,
+  languageTitle: 'Language',
+  languageDescription: 'Saved on this device.',
+  validation: {
+    budgetPositive: 'Budget must be a positive number, or leave it empty.',
+    incomePositive: 'Income must be a positive number, or leave it empty.',
+  },
+  money: {
+    title: 'Money',
+    description: 'How amounts are shown, what you earn and what you plan to spend each month.',
+    incomeLabel: 'Monthly income',
+    incomePlaceholder: 'Not set',
+    incomeHint: 'What comes in each month. Only you can see it.',
+    currencyLabel: 'Currency',
+    preview: (amount: string) => `Preview: ${amount}`,
+    budgetLabel: 'Monthly budget',
+    budgetPlaceholder: 'No budget',
+    budgetHint: 'Leave empty to hide the budget bar.',
+    saved: 'Settings saved.',
+  },
+  /** Select labels, keyed by currency code. */
+  currencies: {
+    RSD: 'Serbian dinar (RSD)',
+    EUR: 'Euro (EUR)',
+    USD: 'US dollar (USD)',
+    GBP: 'British pound (GBP)',
+    CHF: 'Swiss franc (CHF)',
+    BAM: 'Convertible mark (BAM)',
+    HUF: 'Hungarian forint (HUF)',
+    MKD: 'Macedonian denar (MKD)',
+  },
+  appearance: {
+    title: 'Appearance',
+    description: 'Saved on this device.',
+    theme: 'Theme',
+    light: 'Light',
+    dark: 'Dark',
+  },
+  install: {
+    title: 'Install app',
+    description: 'Use it like a regular phone app.',
+    installed: (appName: string) => `${appName} is installed on this device.`,
+    prompt: (appName: string) =>
+      `Add ${appName} to your home screen. It opens full screen and works offline.`,
+    installButton: 'Install app',
+    iosStep1Before: 'Tap',
+    iosShare: 'Share',
+    iosStep1After: 'Share in Safari’s toolbar.',
+    iosStep2Before: 'Choose',
+    iosAddToHomeScreen: 'Add to Home Screen',
+    iosStep2After: ', then tap Add.',
+    unsupported: (appName: string) =>
+      `Open ${appName} in Chrome on Android or Safari on iPhone to add it to your home screen.`,
+  },
+  errors: {
+    load: 'Could not load your settings.',
+    save: 'Could not save your settings.',
+  },
+};

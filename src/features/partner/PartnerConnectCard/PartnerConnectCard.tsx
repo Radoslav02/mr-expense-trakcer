@@ -5,11 +5,14 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Input } from '@/components/Input';
 import { APP_NAME } from '@/constants/settings';
 import { usePartnerConnection } from '@/hooks/usePartnerConnection';
+import { useI18n } from '@/i18n';
 import { PersonAvatar } from '../PersonAvatar';
 import './PartnerConnectCard.css';
 
 export const PartnerConnectCard = () => {
   const connection = usePartnerConnection();
+  const { t } = useI18n();
+  const copy = t.partner.connect;
   const { status, partnerEmail, incoming, names, busy } = connection;
 
   const renderBody = () => {
@@ -18,11 +21,11 @@ export const PartnerConnectCard = () => {
         <div className="flex flex-wrap items-center gap-3">
           <PersonAvatar person="partner" name={names.partner} />
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-ink">Sharing with {names.partner}</p>
+            <p className="font-medium text-ink">{copy.sharingWith(names.partner)}</p>
             <p className="truncate text-sm text-ink-subtle">{partnerEmail}</p>
           </div>
           <Button variant="secondary" onClick={() => connection.setConfirmingStop(true)}>
-            Stop sharing
+            {copy.stopSharing}
           </Button>
         </div>
       );
@@ -32,13 +35,13 @@ export const PartnerConnectCard = () => {
       return (
         <div className="flex flex-col gap-4">
           <p className="partner-connect__note text-sm text-ink-muted">
-            You’re sharing with <strong>{partnerEmail}</strong>. To finish, they sign in to{' '}
-            {APP_NAME}
-            and add <strong>{connection.ownEmail}</strong> under Settings → Partner.
+            {copy.pendingBefore} <strong>{partnerEmail}</strong>
+            {copy.pendingMiddle(APP_NAME)} <strong>{connection.ownEmail}</strong>{' '}
+            {copy.pendingAfter}
           </p>
           <div>
             <Button variant="secondary" loading={busy} onClick={() => void connection.stop()}>
-              Cancel invite
+              {copy.cancelInvite}
             </Button>
           </div>
         </div>
@@ -51,10 +54,10 @@ export const PartnerConnectCard = () => {
           <div className="partner-connect__incoming flex flex-wrap items-center gap-3 rounded-lg bg-partner-soft px-4 py-3">
             <UserRoundCheck aria-hidden="true" className="h-4 w-4 shrink-0 text-partner" />
             <p className="min-w-0 flex-1 text-sm text-ink">
-              <strong>{names.partner}</strong> ({incoming.email}) shared their spending with you.
+              <strong>{names.partner}</strong> {copy.incoming(incoming.email)}
             </p>
             <Button size="sm" loading={busy} onClick={connection.shareBack}>
-              Share back
+              {copy.shareBack}
             </Button>
           </div>
         )}
@@ -64,11 +67,11 @@ export const PartnerConnectCard = () => {
           className="flex flex-col gap-3 sm:flex-row sm:items-start"
         >
           <Input
-            label="Partner’s email"
+            label={copy.emailLabel}
             type="email"
             inputMode="email"
             autoComplete="off"
-            placeholder="partner@example.com"
+            placeholder={copy.emailPlaceholder}
             value={connection.email}
             onChange={(event) => connection.setEmail(event.target.value)}
             error={connection.error ?? undefined}
@@ -76,7 +79,7 @@ export const PartnerConnectCard = () => {
             wrapperClassName="flex-1"
           />
           <Button type="submit" loading={busy} icon={<HeartHandshake />}>
-            Share my spending
+            {copy.share}
           </Button>
         </form>
       </div>
@@ -84,17 +87,13 @@ export const PartnerConnectCard = () => {
   };
 
   return (
-    <Card
-      title="Partner"
-      description="Share your spending with one person. You can see each other’s expenses but only edit your own."
-      className="partner-connect"
-    >
+    <Card title={copy.title} description={copy.description} className="partner-connect">
       {renderBody()}
       <ConfirmDialog
         open={connection.confirmingStop}
-        title={`Stop sharing with ${names.partner}?`}
-        message={`${names.partner} will no longer see your expenses, and the Together page will be empty until you share again.`}
-        confirmLabel="Stop sharing"
+        title={copy.confirmStopTitle(names.partner)}
+        message={copy.confirmStopMessage(names.partner)}
+        confirmLabel={copy.stopSharing}
         loading={busy}
         onConfirm={() => void connection.stop()}
         onCancel={() => connection.setConfirmingStop(false)}

@@ -3,6 +3,7 @@ import { InlineError } from '@/components/InlineError';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { EMAIL_PATTERN, useAuthForm } from '@/hooks/useAuthForm';
+import { getMessages, useI18n } from '@/i18n';
 import { loginWithEmail } from '@/redux/auth/authThunks';
 import { AuthDivider } from '../AuthDivider';
 import { GoogleButton } from '../GoogleButton';
@@ -13,12 +14,16 @@ interface LoginErrors {
   password?: string;
 }
 
-const validate = (email: string, password: string): LoginErrors => ({
-  ...(!EMAIL_PATTERN.test(email.trim()) && { email: 'Enter a valid email address.' }),
-  ...(!password && { password: 'Enter your password.' }),
-});
+const validate = (email: string, password: string): LoginErrors => {
+  const v = getMessages().auth.validation;
+  return {
+    ...(!EMAIL_PATTERN.test(email.trim()) && { email: v.emailInvalid }),
+    ...(!password && { password: v.passwordRequired }),
+  };
+};
 
 export const LoginForm = () => {
+  const { t } = useI18n();
   const { dispatch, serverError, isBusy, pendingAction, setPendingAction, signInWithGoogle } =
     useAuthForm();
   const [email, setEmail] = useState('');
@@ -45,7 +50,7 @@ export const LoginForm = () => {
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         {serverError && <InlineError message={serverError} />}
         <Input
-          label="Email"
+          label={t.auth.email}
           type="email"
           autoComplete="email"
           inputMode="email"
@@ -54,7 +59,7 @@ export const LoginForm = () => {
           error={errors.email}
         />
         <Input
-          label="Password"
+          label={t.auth.password}
           type="password"
           autoComplete="current-password"
           value={password}
@@ -68,7 +73,7 @@ export const LoginForm = () => {
           disabled={isBusy}
           className="mt-2"
         >
-          Sign in
+          {t.auth.signIn}
         </Button>
       </form>
     </div>

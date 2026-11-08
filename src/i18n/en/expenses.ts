@@ -1,0 +1,146 @@
+import { pluralEn } from '../plural';
+
+export const expenses = {
+  title: 'Expenses',
+  description: 'Everything you’ve spent, grouped by day.',
+  add: 'Add expense',
+  edit: 'Edit expense',
+  editRecurring: 'Edit recurring expense',
+  /** Keyed by PaymentMethod. */
+  paymentMethods: {
+    card: 'Card',
+    cash: 'Cash',
+    transfer: 'Bank transfer',
+    other: 'Other',
+  },
+  page: {
+    matchCount: (count: number) =>
+      `${count} ${pluralEn(count, 'expense matches', 'expenses match')}`,
+    total: 'Total',
+    noMatchTitle: 'No expenses match these filters',
+    noMatchDescription:
+      'Try a different search term or clear the filters to see everything this month.',
+    emptyTitle: (month: string) => `Nothing recorded for ${month}`,
+    emptyDescription:
+      'Add what you spend as it happens. Each expense lands in the overview right away.',
+    loading: 'Loading expenses',
+  },
+  filters: {
+    search: 'Search expenses',
+    searchPlaceholder: 'Search title or note',
+    category: 'Category',
+    allCategories: 'All categories',
+    paymentMethod: 'Payment method',
+    anyPayment: 'Any payment',
+    clear: 'Clear filters',
+  },
+  form: {
+    recurringDescription:
+      'Changes apply from the next month on. Expenses already added stay as they are.',
+    partnerDescription: (name: string) =>
+      `This is ${name}’s expense. Your changes show up for both of you.`,
+    title: 'Title',
+    titlePlaceholder: 'e.g. Groceries at Maxi',
+    amount: 'Amount',
+    dayOfMonth: 'Added every month on',
+    /** `day` is already an ordinal ("29th"); `orLast` for days some months don't have. */
+    dayOption: (day: string, orLast: boolean) => `The ${day}${orLast ? ' (or the last day)' : ''}`,
+    date: 'Date',
+    category: 'Category',
+    categoryPlaceholder: 'Choose a category',
+    privateCategory: (name: string) => `${name} (private)`,
+    privateCategoryError: 'Private categories are only for private expenses.',
+    paidWith: 'Paid with',
+    repeats: 'Repeats every month',
+    /** `day` is already an ordinal ("5th"). */
+    repeatsOn: (day: string) => `Added again on the ${day} of every month.`,
+    repeatsHint: 'For rent, bills and subscriptions.',
+    fromRecurring: 'Added by a recurring expense. Changes here only affect this month.',
+    note: 'Note',
+  },
+  toasts: {
+    added: 'Expense added.',
+    addedRepeating: 'Expense added. It will repeat every month.',
+    updated: 'Expense updated.',
+    partnerUpdated: 'Expense updated for both of you.',
+    recurringUpdated: 'Recurring expense updated.',
+    deleted: 'Expense deleted.',
+  },
+  item: {
+    split: 'Split',
+    paidBy: (name: string) => `${name} paid`,
+    splitOf: (total: string) => `Split of ${total}`,
+    ofTotal: (total: string) => `of ${total}`,
+    /** Screen reader description: pieces are joined with ", ". */
+    yourPart: (amount: string) => `your part ${amount}`,
+    private: 'private',
+    repeatsMonthly: 'repeats monthly',
+    editLabel: (description: string) => `Edit ${description}`,
+    deleteLabel: (title: string) => `Delete ${title}`,
+  },
+  delete: {
+    title: 'Delete this expense?',
+    confirm: 'Delete expense',
+    /** Follows the expense title. */
+    details: (amount: string, date: string) => `${amount} on ${date}. This can’t be undone.`,
+  },
+  split: {
+    splitWith: (name: string) => `Split with ${name}`,
+    half: 'Half',
+    custom: 'Custom amount',
+    howToSplit: 'How to split',
+    yourPart: 'Your part',
+    partnerPart: (name: string) => `${name}’s part`,
+    summary: (mine: string, name: string, theirs: string) =>
+      `Your part ${mine} · ${name}’s part ${theirs}`,
+    countedForBoth: 'Counted as a cost for both of you.',
+    offHint: 'For things you both use, like groceries. Each of you counts your part.',
+  },
+  visibility: {
+    legend: 'Who is this for?',
+    shared: (name: string) => `With ${name}`,
+    sharedHint: (name: string) => `${name} can see it`,
+    private: 'Only me',
+    privateHint: 'Private, never shown to them',
+  },
+  recurring: {
+    heading: 'Every month',
+    /** Followed by the monthly amount and `perMonth`. */
+    summary: (count: number) => `${count} recurring · your part`,
+    perMonth: 'a month',
+    private: 'Private',
+    splitPrefix: 'Split · ',
+    /** `day` is already an ordinal ("5th"). */
+    onDay: (day: string) => `On the ${day}`,
+    next: (date: string) => ` · next ${date}`,
+    editLabel: (title: string) => `Edit ${title}`,
+    stopLabel: (title: string) => `Stop ${title}`,
+    stopped: (title: string) => `“${title}” won’t be added anymore.`,
+    stopTitle: 'Stop this recurring expense?',
+    stopConfirm: 'Stop repeating',
+    /** Follows the expense title. */
+    stopMessage: ' won’t be added in future months. Expenses already added stay where they are.',
+  },
+  errors: {
+    load: 'Could not load expenses.',
+    save: 'Could not save the expense.',
+    update: 'Could not update the expense.',
+    delete: 'Could not delete the expense.',
+    recurringLoad: 'Could not load recurring expenses.',
+    recurringSave: 'Could not save the recurring expense.',
+    recurringUpdate: 'Could not update the recurring expense.',
+    recurringStop: 'Could not stop the recurring expense.',
+  },
+  validation: {
+    titleRequired: 'Give the expense a title.',
+    tooLong: (max: number) => `Keep it under ${max} characters.`,
+    amountRequired: 'Enter an amount.',
+    amountPositive: 'Amount must be greater than 0.',
+    dateInvalid: 'Pick a valid date.',
+    categoryRequired: 'Choose a category.',
+    shareRequired: 'Enter the split amount.',
+    sharePositive: 'Share must be greater than 0.',
+    shareTooLarge: 'Share can’t be more than the amount.',
+    noteTooLong: (max: number) => `Keep notes under ${max} characters.`,
+  },
+};

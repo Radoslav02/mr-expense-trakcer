@@ -7,16 +7,10 @@ export const DEFAULT_SETTINGS: UserSettings = {
   monthlyBudget: null,
 };
 
-export const CURRENCY_OPTIONS: readonly { code: string; label: string }[] = [
-  { code: 'RSD', label: 'Serbian dinar (RSD)' },
-  { code: 'EUR', label: 'Euro (EUR)' },
-  { code: 'USD', label: 'US dollar (USD)' },
-  { code: 'GBP', label: 'British pound (GBP)' },
-  { code: 'CHF', label: 'Swiss franc (CHF)' },
-  { code: 'BAM', label: 'Convertible mark (BAM)' },
-  { code: 'HUF', label: 'Hungarian forint (HUF)' },
-  { code: 'MKD', label: 'Macedonian denar (MKD)' },
-];
+/** Supported currencies; their labels live in `settings.currencies` in each dictionary. */
+export const CURRENCY_CODES = ['RSD', 'EUR', 'USD', 'GBP', 'CHF', 'BAM', 'HUF', 'MKD'] as const;
+
+export type CurrencyCode = (typeof CURRENCY_CODES)[number];
 
 export const BUDGET_THRESHOLDS = {
   warning: 0.75,

@@ -9,6 +9,7 @@ import {
 import { X } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { cn } from '@/utils/cn';
+import { useI18n } from '@/i18n';
 import './Modal.css';
 
 interface ModalProps {
@@ -39,6 +40,7 @@ export const Modal = ({
   dismissible = true,
   children,
 }: ModalProps) => {
+  const { t } = useI18n();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -111,7 +113,7 @@ export const Modal = ({
                 onClick={onClose}
                 className="-mr-2"
               >
-                Close dialog
+                {t.common.closeDialog}
               </Button>
             )}
           </header>

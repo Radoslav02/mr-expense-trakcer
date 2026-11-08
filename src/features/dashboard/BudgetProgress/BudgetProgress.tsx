@@ -5,6 +5,7 @@ import { useAppSelector } from '@/app/hooks';
 import { Card } from '@/components/Card';
 import { ROUTES } from '@/constants/routes';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectBudgetProgress } from '@/redux/expenses/expensesSelectors';
 import { formatPercent } from '@/utils/currency';
 import type { BudgetLevel } from '@/utils/expenses';
@@ -22,6 +23,7 @@ const LEVEL_TEXT: Record<BudgetLevel, string> = {
 };
 
 export const BudgetProgress = ({ month }: BudgetProgressProps) => {
+  const { t } = useI18n();
   const progress = useAppSelector((state) => selectBudgetProgress(state, month));
   const { format } = useCurrencyFormatter();
 
@@ -29,12 +31,12 @@ export const BudgetProgress = ({ month }: BudgetProgressProps) => {
     return (
       <div className="budget-progress flex items-center gap-3 rounded-xl border border-dashed border-line px-5 py-4 text-sm text-ink-muted">
         <Target aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-subtle" />
-        <p className="flex-1">Set a monthly budget to see how much room is left.</p>
+        <p className="flex-1">{t.dashboard.budget.empty}</p>
         <Link
           to={ROUTES.settings}
           className="shrink-0 rounded font-medium text-accent hover:underline"
         >
-          Set budget
+          {t.dashboard.budget.setBudget}
         </Link>
       </div>
     );
@@ -42,28 +44,31 @@ export const BudgetProgress = ({ month }: BudgetProgressProps) => {
 
   const { budget, spent, remaining, ratio, level } = progress;
   const statusText =
-    remaining >= 0 ? `${format(remaining)} left` : `${format(Math.abs(remaining))} over budget`;
+    remaining >= 0
+      ? t.dashboard.budget.left(format(remaining))
+      : t.dashboard.budget.over(format(Math.abs(remaining)));
 
   return (
     <Card as="div" className="budget-progress">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="text-sm text-ink-muted">
-          Monthly budget{' '}
+          {t.dashboard.budget.monthly}{' '}
           <span className="tabular font-medium text-ink">
-            {format(spent)} <span className="text-ink-subtle">of {format(budget)}</span>
+            {format(spent)}{' '}
+            <span className="text-ink-subtle">{t.dashboard.budget.of(format(budget))}</span>
           </span>
         </p>
         <p className={cn('tabular text-sm font-medium', LEVEL_TEXT[level])}>
-          {formatPercent(ratio)} used · {statusText}
+          {t.dashboard.budget.used(formatPercent(ratio))} · {statusText}
         </p>
       </div>
       <div
         role="progressbar"
-        aria-label="Budget used"
+        aria-label={t.dashboard.budget.progressLabel}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(Math.min(ratio, 1) * 100)}
-        aria-valuetext={`${formatPercent(ratio)} of budget used`}
+        aria-valuetext={t.dashboard.budget.progressValue(formatPercent(ratio))}
         className="budget-progress__track mt-3 h-2 overflow-hidden rounded-full bg-sunken"
       >
         <div

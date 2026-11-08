@@ -3,6 +3,7 @@ import { Button } from '@/components/Button';
 import { InlineError } from '@/components/InlineError';
 import { Input } from '@/components/Input';
 import { EMAIL_PATTERN, MIN_PASSWORD_LENGTH, useAuthForm } from '@/hooks/useAuthForm';
+import { getMessages, useI18n } from '@/i18n';
 import { registerUser } from '@/redux/auth/authThunks';
 import type { RegistrationData } from '@/types/user';
 import { AuthDivider } from '../AuthDivider';
@@ -11,15 +12,19 @@ import './RegisterForm.css';
 
 type RegisterErrors = Partial<Record<keyof RegistrationData, string>>;
 
-const validate = ({ displayName, email, password }: RegistrationData): RegisterErrors => ({
-  ...(!displayName.trim() && { displayName: 'Tell us what to call you.' }),
-  ...(!EMAIL_PATTERN.test(email.trim()) && { email: 'Enter a valid email address.' }),
-  ...(password.length < MIN_PASSWORD_LENGTH && {
-    password: `Use at least ${MIN_PASSWORD_LENGTH} characters.`,
-  }),
-});
+const validate = ({ displayName, email, password }: RegistrationData): RegisterErrors => {
+  const v = getMessages().auth.validation;
+  return {
+    ...(!displayName.trim() && { displayName: v.nameRequired }),
+    ...(!EMAIL_PATTERN.test(email.trim()) && { email: v.emailInvalid }),
+    ...(password.length < MIN_PASSWORD_LENGTH && {
+      password: v.passwordTooShort(MIN_PASSWORD_LENGTH),
+    }),
+  };
+};
 
 export const RegisterForm = () => {
+  const { t } = useI18n();
   const { dispatch, serverError, isBusy, pendingAction, setPendingAction, signInWithGoogle } =
     useAuthForm();
   const [values, setValues] = useState<RegistrationData>({
@@ -58,14 +63,14 @@ export const RegisterForm = () => {
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         {serverError && <InlineError message={serverError} />}
         <Input
-          label="Name"
+          label={t.auth.name}
           autoComplete="name"
           value={values.displayName}
           onChange={update('displayName')}
           error={errors.displayName}
         />
         <Input
-          label="Email"
+          label={t.auth.email}
           type="email"
           autoComplete="email"
           inputMode="email"
@@ -74,13 +79,13 @@ export const RegisterForm = () => {
           error={errors.email}
         />
         <Input
-          label="Password"
+          label={t.auth.password}
           type="password"
           autoComplete="new-password"
           value={values.password}
           onChange={update('password')}
           error={errors.password}
-          hint={`At least ${MIN_PASSWORD_LENGTH} characters.`}
+          hint={t.auth.passwordHint(MIN_PASSWORD_LENGTH)}
         />
         <Button
           type="submit"
@@ -89,7 +94,7 @@ export const RegisterForm = () => {
           disabled={isBusy}
           className="mt-2"
         >
-          Create account
+          {t.auth.createAccount}
         </Button>
       </form>
     </div>

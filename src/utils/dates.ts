@@ -12,8 +12,16 @@ import {
   startOfMonth,
 } from 'date-fns';
 
+import { dateLocale, getMessages } from '@/i18n';
+
 const MONTH_KEY_FORMAT = 'yyyy-MM';
 const DATE_KEY_FORMAT = 'yyyy-MM-dd';
+
+/** A date in the current language. Keys like `yyyy-MM-dd` use plain `format` instead. */
+const localized = (date: Date, pattern: string): string =>
+  format(date, pattern, { locale: dateLocale() });
+
+const capitalize = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
 
 export const toDateKey = (date: Date): string => format(date, DATE_KEY_FORMAT);
 
@@ -34,18 +42,26 @@ export const isValidDateKey = (value: string): boolean =>
   /^\d{4}-\d{2}-\d{2}$/.test(value) && isValid(parseISO(value));
 
 export const formatMonthLabel = (monthKey: string): string =>
-  format(monthStart(monthKey), 'MMMM yyyy');
+  capitalize(localized(monthStart(monthKey), getMessages().common.dateFormats.month));
 
-export const formatShortMonth = (monthKey: string): string => format(monthStart(monthKey), 'MMM');
+export const formatShortMonth = (monthKey: string): string =>
+  capitalize(localized(monthStart(monthKey), getMessages().common.dateFormats.shortMonth));
 
 export const formatDayHeading = (dateKey: string): string => {
   const date = parseISO(dateKey);
-  if (isToday(date)) return 'Today';
-  if (isYesterday(date)) return 'Yesterday';
-  return format(date, 'EEEE, d MMMM');
+  const { common } = getMessages();
+  if (isToday(date)) return common.today;
+  if (isYesterday(date)) return common.yesterday;
+  const { dayHeading, monthAfterDay } = common.dateFormats;
+  // Put the inflected month in as quoted literal text, e.g. "EEEE, d. 'novembra'".
+  const pattern = monthAfterDay
+    ? dayHeading.replace('MMMM', `'${monthAfterDay[date.getMonth()]}'`)
+    : dayHeading;
+  return capitalize(localized(date, pattern));
 };
 
-export const formatShortDate = (dateKey: string): string => format(parseISO(dateKey), 'd MMM yyyy');
+export const formatShortDate = (dateKey: string): string =>
+  localized(parseISO(dateKey), getMessages().common.dateFormats.shortDate);
 
 export const lastMonthKeys = (endMonthKey: string, count: number): string[] =>
   Array.from({ length: count }, (_, index) => shiftMonth(endMonthKey, index - count + 1));
@@ -62,10 +78,5 @@ export const monthBounds = (monthKey: string): { start: string; end: string } =>
   return { start: toDateKey(start), end: toDateKey(endOfMonth(start)) };
 };
 
-/** 1 → "1st", 22 → "22nd". */
-export const ordinal = (day: number): string => {
-  const tens = day % 100;
-  if (tens >= 11 && tens <= 13) return `${day}th`;
-  const suffix = ['th', 'st', 'nd', 'rd'][day % 10] ?? 'th';
-  return `${day}${day % 10 > 3 ? 'th' : suffix}`;
-};
+/** 1 → "1st" in English, "1." in Serbian. */
+export const ordinal = (day: number): string => getMessages().common.ordinal(day);

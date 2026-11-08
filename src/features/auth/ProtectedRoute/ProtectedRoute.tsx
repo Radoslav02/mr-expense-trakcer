@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
 import { Loader } from '@/components/Loader';
 import { ROUTES } from '@/constants/routes';
+import { useI18n } from '@/i18n';
 import { selectAuthInitialized, selectIsAuthenticated } from '@/redux/auth/authSelectors';
 import './ProtectedRoute.css';
 
@@ -16,11 +17,12 @@ export interface RedirectState {
 }
 
 export const ProtectedRoute = ({ children, mode = 'private' }: ProtectedRouteProps) => {
+  const { t } = useI18n();
   const initialized = useAppSelector(selectAuthInitialized);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const location = useLocation();
 
-  if (!initialized) return <Loader fullScreen label="Checking your session" />;
+  if (!initialized) return <Loader fullScreen label={t.auth.checkingSession} />;
 
   if (mode === 'private' && !isAuthenticated) {
     const state: RedirectState = { from: location.pathname };

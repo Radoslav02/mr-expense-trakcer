@@ -6,6 +6,7 @@ import { Modal } from '@/components/Modal';
 import { CATEGORY_COLOR_OPTIONS } from '@/constants/categories';
 import { DEFAULT_CATEGORY_ICON } from '@/constants/categoryIcons';
 import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/i18n';
 import {
   selectCategoriesMutating,
   selectCategoryNames,
@@ -43,6 +44,7 @@ export const CategoryFormModal = ({
   partnerName,
   onClose,
 }: CategoryFormModalProps) => {
+  const { t } = useI18n();
   const dispatch = useAppDispatch();
   const toast = useToast();
   const saving = useAppSelector(selectCategoriesMutating);
@@ -51,9 +53,9 @@ export const CategoryFormModal = ({
   const [nameError, setNameError] = useState<string | null>(null);
   const privateCategory = category ? category.isPrivate === true : isPrivate;
   const scopeNote = privateCategory
-    ? 'Only you can see this category. Use it for your private expenses.'
+    ? t.categories.form.privateNote
     : partnerName
-      ? `Shared with ${partnerName}: it shows up in both your lists.`
+      ? t.categories.form.sharedNote(partnerName)
       : undefined;
 
   useEffect(() => {
@@ -70,9 +72,16 @@ export const CategoryFormModal = ({
     if (error) return;
 
     try {
-      if (category) await dispatch(editCategory({ category, changes: values })).unwrap();
-      else await dispatch(addCategory({ input: values, isPrivate })).unwrap();
-      toast.success(category ? 'Category updated.' : `“${values.name.trim()}” created.`);
+      if (category) {
+        // A built-in category shows a translated name; only save the name if it was changed,
+        // so it keeps translating.
+        const { name, ...look } = values;
+        const changes = name.trim() === category.name ? look : values;
+        await dispatch(editCategory({ category, changes })).unwrap();
+      } else await dispatch(addCategory({ input: values, isPrivate })).unwrap();
+      toast.success(
+        category ? t.categories.form.updated : t.categories.form.created(values.name.trim()),
+      );
       onClose();
     } catch (message) {
       toast.error(String(message));
@@ -84,15 +93,21 @@ export const CategoryFormModal = ({
       open={open}
       onClose={onClose}
       dismissible={!saving}
-      title={category ? 'Edit category' : privateCategory ? 'New private category' : 'New category'}
+      title={
+        category
+          ? t.categories.form.editTitle
+          : privateCategory
+            ? t.categories.form.newPrivateTitle
+            : t.categories.form.newTitle
+      }
       description={scopeNote}
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button type="submit" form={FORM_ID} loading={saving}>
-            {category ? 'Save changes' : 'Create category'}
+            {category ? t.common.saveChanges : t.categories.form.create}
           </Button>
         </>
       }
@@ -106,7 +121,7 @@ export const CategoryFormModal = ({
         <div className="flex items-end gap-3">
           <CategoryIcon icon={values.icon} color={values.color} className="mb-0.5 h-10 w-10" />
           <Input
-            label="Name"
+            label={t.categories.form.name}
             value={values.name}
             maxLength={32}
             onChange={(event) => setValues((current) => ({ ...current, name: event.target.value }))}

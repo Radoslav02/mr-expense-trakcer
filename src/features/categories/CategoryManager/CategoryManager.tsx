@@ -6,6 +6,7 @@ import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { InlineError } from '@/components/InlineError';
 import { Skeleton } from '@/components/Skeleton';
+import { useI18n } from '@/i18n';
 import {
   selectCategoriesError,
   selectCategoriesStatus,
@@ -34,8 +35,8 @@ type FormState = { open: false } | { open: true; category: Category | null; isPr
 
 const SKELETON_ROWS = 5;
 
-const SkeletonRows = () => (
-  <ul aria-busy="true" aria-label="Loading categories">
+const SkeletonRows = ({ label }: { label: string }) => (
+  <ul aria-busy="true" aria-label={label}>
     {Array.from({ length: SKELETON_ROWS }, (_, index) => (
       <li key={index} className="flex items-center gap-3 border-line px-5 py-3 [&+&]:border-t">
         <Skeleton className="h-9 w-9 rounded-lg" />
@@ -49,6 +50,7 @@ const SkeletonRows = () => (
 );
 
 export const CategoryManager = ({ onRetry, scope = 'all' }: CategoryManagerProps) => {
+  const { t } = useI18n();
   const shared = useAppSelector(selectSharedCategories);
   const privateOnes = useAppSelector(selectPrivateCategories);
   const status = useAppSelector(selectCategoriesStatus);
@@ -68,20 +70,18 @@ export const CategoryManager = ({ onRetry, scope = 'all' }: CategoryManagerProps
     setForm({ open: true, category, isPrivate: category.isPrivate === true });
 
   const renderRows = (categories: readonly Category[], isPrivate: boolean) => {
-    if (isLoading) return <SkeletonRows />;
+    if (isLoading) return <SkeletonRows label={t.categories.loadingList} />;
     if (categories.length === 0) {
       return isPrivate ? (
-        <p className="px-5 py-6 text-sm text-ink-subtle">
-          No private categories yet. They’re only for your private expenses and only you see them.
-        </p>
+        <p className="px-5 py-6 text-sm text-ink-subtle">{t.categories.manager.privateEmpty}</p>
       ) : (
         <EmptyState
           icon={<Tags />}
-          title="No categories yet"
-          description="Categories group your spending so the overview can show where money goes."
+          title={t.categories.manager.emptyTitle}
+          description={t.categories.manager.emptyDescription}
           action={
             <Button icon={<Plus />} onClick={() => openCreate(false)}>
-              Create a category
+              {t.categories.manager.create}
             </Button>
           }
         />
@@ -107,15 +107,15 @@ export const CategoryManager = ({ onRetry, scope = 'all' }: CategoryManagerProps
       {error && onRetry && <InlineError message={error} onRetry={onRetry} />}
       <Card
         padded={false}
-        title={hasPartner ? 'Shared categories' : 'Categories'}
+        title={hasPartner ? t.categories.manager.sharedTitle : t.categories.title}
         description={
           hasPartner
-            ? `You and ${partnerName} both see these. Changes show up for both of you.`
-            : 'Used for your expenses. If you connect a partner, these are shared with them.'
+            ? t.categories.manager.sharedDescription(partnerName)
+            : t.categories.manager.soloDescription
         }
         actions={
           <Button size="sm" icon={<Plus />} onClick={() => openCreate(false)}>
-            New
+            {t.common.new}
           </Button>
         }
       >
@@ -124,11 +124,11 @@ export const CategoryManager = ({ onRetry, scope = 'all' }: CategoryManagerProps
       {scope === 'all' && (
         <Card
           padded={false}
-          title="Private categories"
-          description="Only you see these. They’re for private expenses."
+          title={t.categories.manager.privateTitle}
+          description={t.categories.manager.privateDescription}
           actions={
             <Button size="sm" variant="secondary" icon={<Plus />} onClick={() => openCreate(true)}>
-              New
+              {t.common.new}
             </Button>
           }
         >

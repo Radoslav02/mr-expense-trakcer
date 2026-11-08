@@ -5,37 +5,46 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { MonthPicker } from '@/components/MonthPicker';
 import { Select } from '@/components/Select';
-import { PAYMENT_METHOD_LABELS, PAYMENT_METHODS } from '@/constants/expenses';
+import { PAYMENT_METHODS } from '@/constants/expenses';
 import { useExpenseFilters } from '@/hooks/useExpenseFilters';
+import { useI18n } from '@/i18n';
 import { selectSortedCategories } from '@/redux/categories/categoriesSelectors';
 import { ALL, type PaymentMethod } from '@/types/expense';
 import './ExpenseFilters.css';
 
-const PAYMENT_FILTER_OPTIONS = [
-  { value: ALL, label: 'Any payment' },
-  ...PAYMENT_METHODS.map((method) => ({ value: method, label: PAYMENT_METHOD_LABELS[method] })),
-];
-
 export const ExpenseFilters = () => {
   const { filters, hasActiveFilters, setFilter, resetFilters } = useExpenseFilters();
   const categories = useAppSelector(selectSortedCategories);
+  const { t } = useI18n();
+  const f = t.expenses.filters;
 
   const categoryOptions = useMemo(
     () => [
-      { value: ALL, label: 'All categories' },
+      { value: ALL, label: t.expenses.filters.allCategories },
       ...categories.map((category) => ({ value: category.id, label: category.name })),
     ],
-    [categories],
+    [categories, t],
+  );
+
+  const paymentOptions = useMemo(
+    () => [
+      { value: ALL, label: t.expenses.filters.anyPayment },
+      ...PAYMENT_METHODS.map((method) => ({
+        value: method,
+        label: t.expenses.paymentMethods[method],
+      })),
+    ],
+    [t],
   );
 
   return (
     <div className="expense-filters flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center">
       <MonthPicker value={filters.month} onChange={(month) => setFilter('month', month)} />
       <Input
-        label="Search expenses"
+        label={f.search}
         hideLabel
         type="search"
-        placeholder="Search title or note"
+        placeholder={f.searchPlaceholder}
         value={filters.search}
         onChange={(event) => setFilter('search', event.target.value)}
         leadingIcon={<Search />}
@@ -43,7 +52,7 @@ export const ExpenseFilters = () => {
       />
       <div className="grid min-w-0 grid-cols-2 gap-3 lg:flex lg:shrink-0">
         <Select
-          label="Category"
+          label={f.category}
           hideLabel
           value={filters.categoryId}
           options={categoryOptions}
@@ -51,10 +60,10 @@ export const ExpenseFilters = () => {
           wrapperClassName="min-w-0 lg:w-44"
         />
         <Select
-          label="Payment method"
+          label={f.paymentMethod}
           hideLabel
           value={filters.paymentMethod}
-          options={PAYMENT_FILTER_OPTIONS}
+          options={paymentOptions}
           onChange={(event) => setFilter('paymentMethod', event.target.value as PaymentMethod)}
           wrapperClassName="min-w-0 lg:w-40"
         />
@@ -66,7 +75,7 @@ export const ExpenseFilters = () => {
           onClick={resetFilters}
           className="expense-filters__reset self-start lg:self-auto"
         >
-          Clear filters
+          {f.clear}
         </Button>
       )}
     </div>

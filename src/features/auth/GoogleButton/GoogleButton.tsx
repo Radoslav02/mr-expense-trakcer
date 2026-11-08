@@ -1,4 +1,5 @@
 import { Button } from '@/components/Button';
+import { useI18n } from '@/i18n';
 import './GoogleButton.css';
 
 interface GoogleButtonProps {
@@ -28,16 +29,20 @@ const GoogleMark = () => (
   </svg>
 );
 
-export const GoogleButton = ({ onClick, loading, disabled }: GoogleButtonProps) => (
-  <Button
-    variant="secondary"
-    fullWidth
-    onClick={onClick}
-    loading={loading}
-    disabled={disabled}
-    icon={<GoogleMark />}
-    className="google-button"
-  >
-    Continue with Google
-  </Button>
-);
+export const GoogleButton = ({ onClick, loading, disabled }: GoogleButtonProps) => {
+  const { t } = useI18n();
+
+  return (
+    <Button
+      variant="secondary"
+      fullWidth
+      onClick={onClick}
+      loading={loading}
+      disabled={disabled}
+      icon={<GoogleMark />}
+      className="google-button"
+    >
+      {t.auth.continueWithGoogle}
+    </Button>
+  );
+};

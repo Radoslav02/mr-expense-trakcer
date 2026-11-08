@@ -1,4 +1,5 @@
 import { createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
+import { getMessages } from '@/i18n';
 import { sessionCleared } from '@/redux/auth/authThunks';
 import { removeCategory } from '@/redux/categories/categoriesThunks';
 import { ALL, type ExpenseFilters } from '@/types/expense';
@@ -52,7 +53,7 @@ const expensesSlice = createSlice({
       })
       .addCase(loadExpenses.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Could not load expenses.';
+        state.error = action.payload ?? getMessages().expenses.errors.load;
       })
       .addCase(expensesSynced, (state, action) => {
         state.status = 'succeeded';

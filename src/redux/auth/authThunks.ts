@@ -11,6 +11,7 @@ import {
   subscribeToAuthChanges,
 } from '@/services/authService';
 import type { AuthUser, EmailCredentials, RegistrationData } from '@/types/user';
+import { getMessages } from '@/i18n';
 import { getErrorMessage } from '@/utils/errors';
 
 export const sessionCleared = createAction('auth/sessionCleared');
@@ -23,7 +24,7 @@ export const resolveSession = createAppAsyncThunk(
       await ensureUserInitialized(user);
       return user;
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not load your account.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().auth.failed.loadAccount));
     }
   },
 );
@@ -34,7 +35,7 @@ export const registerUser = createAppAsyncThunk(
     try {
       return await registerWithEmail(data);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not create your account.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().auth.failed.register));
     }
   },
 );
@@ -45,7 +46,7 @@ export const loginWithEmail = createAppAsyncThunk(
     try {
       return await signInWithEmail(credentials);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not sign you in.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().auth.failed.signIn));
     }
   },
 );
@@ -56,7 +57,7 @@ export const loginWithGoogle = createAppAsyncThunk(
     try {
       return await signInWithGoogle();
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Google sign-in failed.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().auth.failed.google));
     }
   },
 );
@@ -67,14 +68,14 @@ export const logoutUser = createAppAsyncThunk(
     try {
       await signOutUser();
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not sign you out.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().auth.failed.signOut));
     }
   },
 );
 
 export const startAuthListener = (): AppThunk<() => void> => (dispatch) => {
   completeRedirectSignIn().catch((error: unknown) => {
-    dispatch(authErrorRaised(getErrorMessage(error, 'Google sign-in failed.')));
+    dispatch(authErrorRaised(getErrorMessage(error, getMessages().auth.failed.google)));
   });
   return subscribeToAuthChanges((user) => {
     if (user) void dispatch(resolveSession(user));

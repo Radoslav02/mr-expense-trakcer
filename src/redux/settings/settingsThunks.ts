@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAppAsyncThunk, requireUid } from '@/app/createAppAsyncThunk';
 import type { AppThunk } from '@/app/store';
+import { getMessages } from '@/i18n';
 import {
   fetchSettings,
   saveFinance,
@@ -17,7 +18,7 @@ export const loadSettings = createAppAsyncThunk(
     try {
       return await fetchSettings(requireUid(getState()));
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not load your settings.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().settings.errors.load));
     }
   },
 );
@@ -36,7 +37,7 @@ export const updateSettings = createAppAsyncThunk(
       ]);
       return { settings: savedSettings, finance: savedFinance };
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not save your settings.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().settings.errors.save));
     }
   },
 );
@@ -50,7 +51,7 @@ export const startSettingsSync =
   (uid: string): AppThunk<() => void> =>
   (dispatch) => {
     const onError = (error: Error) =>
-      dispatch(settingsSyncFailed(getErrorMessage(error, 'Could not load your settings.')));
+      dispatch(settingsSyncFailed(getErrorMessage(error, getMessages().settings.errors.load)));
     const unsubscribes = [
       subscribeToSettings(uid, (data) => dispatch(settingsSynced(data)), onError),
       subscribeToFinance(uid, (data) => dispatch(financeSynced(data)), onError),

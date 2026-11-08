@@ -1,6 +1,7 @@
 import { createAction, createSlice, isAnyOf } from '@reduxjs/toolkit';
 import { createAppAsyncThunk, requireUid } from '@/app/createAppAsyncThunk';
 import type { AppThunk, RootState } from '@/app/store';
+import { getMessages } from '@/i18n';
 import { sessionCleared } from '@/redux/auth/authThunks';
 import {
   addDueExpenses,
@@ -38,7 +39,7 @@ export const addRecurringExpense = createAppAsyncThunk(
     try {
       await createRecurringWithExpense(requireUid(getState()), input);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not save the recurring expense.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().expenses.errors.recurringSave));
     }
   },
 );
@@ -49,7 +50,7 @@ export const editRecurring = createAppAsyncThunk(
     try {
       await updateRecurring(requireUid(getState()), id, input);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not update the recurring expense.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().expenses.errors.recurringUpdate));
     }
   },
 );
@@ -61,7 +62,7 @@ export const stopRecurring = createAppAsyncThunk(
       await deleteRecurring(requireUid(getState()), id);
       return id;
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not stop the recurring expense.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().expenses.errors.recurringStop));
     }
   },
 );
@@ -94,7 +95,9 @@ export const startRecurringSync =
         dispatch(addDueRecurringExpenses());
       },
       (error) =>
-        dispatch(recurringSyncFailed(getErrorMessage(error, 'Could not load recurring expenses.'))),
+        dispatch(
+          recurringSyncFailed(getErrorMessage(error, getMessages().expenses.errors.recurringLoad)),
+        ),
     );
 
 const recurringSlice = createSlice({

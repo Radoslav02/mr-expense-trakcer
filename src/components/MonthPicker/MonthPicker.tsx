@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/Button';
+import { useI18n } from '@/i18n';
 import { currentMonthKey, formatMonthLabel, shiftMonth } from '@/utils/dates';
 import './MonthPicker.css';
 
@@ -10,12 +11,13 @@ interface MonthPickerProps {
 }
 
 export const MonthPicker = ({ value, onChange, allowFuture = false }: MonthPickerProps) => {
+  const { t } = useI18n();
   const isCurrent = value >= currentMonthKey();
 
   return (
     <div
       role="group"
-      aria-label="Month"
+      aria-label={t.common.month}
       className="month-picker inline-flex h-10 items-center rounded-lg border border-line bg-surface"
     >
       <Button
@@ -26,7 +28,7 @@ export const MonthPicker = ({ value, onChange, allowFuture = false }: MonthPicke
         onClick={() => onChange(shiftMonth(value, -1))}
         className="ml-1"
       >
-        Previous month
+        {t.common.previousMonth}
       </Button>
       <span
         aria-live="polite"
@@ -43,7 +45,7 @@ export const MonthPicker = ({ value, onChange, allowFuture = false }: MonthPicke
         disabled={!allowFuture && isCurrent}
         className="mr-1"
       >
-        Next month
+        {t.common.nextMonth}
       </Button>
     </div>
   );

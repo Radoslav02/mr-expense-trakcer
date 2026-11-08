@@ -5,6 +5,7 @@ import { useAppSelector } from '@/app/hooks';
 import { Card } from '@/components/Card';
 import { ROUTES } from '@/constants/routes';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectMoneyLeft } from '@/redux/money/moneySelectors';
 import { cn } from '@/utils/cn';
 import type { BudgetLevel } from '@/utils/expenses';
@@ -22,6 +23,8 @@ const LEVEL_TEXT: Record<BudgetLevel, string> = {
 
 /** How much of this month's income is left, before and after the bills still to come. */
 export const MoneyLeft = ({ month }: MoneyLeftProps) => {
+  const { t } = useI18n();
+  const copy = t.dashboard.moneyLeft;
   const money = useAppSelector((state) => selectMoneyLeft(state, month));
   const { format } = useCurrencyFormatter();
 
@@ -29,14 +32,12 @@ export const MoneyLeft = ({ month }: MoneyLeftProps) => {
     return (
       <div className="money-left flex items-center gap-3 rounded-xl border border-dashed border-line px-5 py-4 text-sm text-ink-muted">
         <Wallet aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-subtle" />
-        <p className="min-w-0 flex-1">
-          Add your monthly income to see how much money you have left.
-        </p>
+        <p className="min-w-0 flex-1">{copy.empty}</p>
         <Link
           to={ROUTES.settings}
           className="shrink-0 rounded font-medium text-accent hover:underline"
         >
-          Add income
+          {copy.addIncome}
         </Link>
       </div>
     );
@@ -49,7 +50,7 @@ export const MoneyLeft = ({ month }: MoneyLeftProps) => {
     <Card as="div" className="money-left">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="min-w-0">
-          <p className="text-sm text-ink-muted">Money left this month</p>
+          <p className="text-sm text-ink-muted">{copy.title}</p>
           <p
             className={cn(
               'tabular mt-0.5 text-2xl font-semibold tracking-[-0.02em]',
@@ -61,18 +62,18 @@ export const MoneyLeft = ({ month }: MoneyLeftProps) => {
         </div>
         <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:flex sm:gap-x-6">
           <div className="min-w-0">
-            <dt className="text-ink-subtle">Income</dt>
+            <dt className="text-ink-subtle">{copy.income}</dt>
             <dd className="tabular font-medium text-ink">{format(income)}</dd>
           </div>
           <div className="min-w-0">
-            <dt className="text-ink-subtle">Spent</dt>
+            <dt className="text-ink-subtle">{copy.spent}</dt>
             <dd className="tabular font-medium text-ink">{format(spent)}</dd>
           </div>
         </dl>
       </div>
       <div
         role="img"
-        aria-label={`Spent ${format(spent)} of ${format(income)}${upcomingTotal > 0 ? `, ${format(upcomingTotal)} more in bills to come` : ''}`}
+        aria-label={`${copy.barLabel(format(spent), format(income))}${upcomingTotal > 0 ? copy.barUpcoming(format(upcomingTotal)) : ''}`}
         className="mt-4 flex h-2 overflow-hidden rounded-full bg-sunken"
       >
         <div
@@ -88,12 +89,12 @@ export const MoneyLeft = ({ month }: MoneyLeftProps) => {
       </div>
       {upcomingCount > 0 && (
         <p className="mt-3 text-sm text-ink-muted">
-          {upcomingCount} {upcomingCount === 1 ? 'bill' : 'bills'} still to come (
+          {copy.billsToCome(upcomingCount)} (
           <span className="tabular">{format(upcomingTotal)}</span>) ·{' '}
           <span className={cn('tabular font-medium', LEVEL_TEXT[level])}>
             {leftAfterBills < 0
-              ? `${format(Math.abs(leftAfterBills))} short after bills`
-              : `${format(leftAfterBills)} left after bills`}
+              ? copy.shortAfterBills(format(Math.abs(leftAfterBills)))
+              : copy.leftAfterBills(format(leftAfterBills))}
           </span>
         </p>
       )}

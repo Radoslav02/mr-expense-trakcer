@@ -1,4 +1,5 @@
 import { createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
+import { getMessages } from '@/i18n';
 import type { AuthUser } from '@/types/user';
 import type { AuthState } from './authTypes';
 import {
@@ -47,10 +48,10 @@ const authSlice = createSlice({
       })
       .addCase(resolveSession.rejected, (state, action) => {
         state.initialized = true;
-        state.error = action.payload ?? 'Could not load your account.';
+        state.error = action.payload ?? getMessages().auth.failed.loadAccount;
       })
       .addCase(logoutUser.rejected, (state, action) => {
-        state.error = action.payload ?? 'Could not sign you out.';
+        state.error = action.payload ?? getMessages().auth.failed.signOut;
       })
       .addMatcher(
         isAnyOf(registerUser.pending, loginWithEmail.pending, loginWithGoogle.pending),
@@ -71,7 +72,8 @@ const authSlice = createSlice({
         isAnyOf(registerUser.rejected, loginWithEmail.rejected, loginWithGoogle.rejected),
         (state, action) => {
           state.status = 'failed';
-          state.error = typeof action.payload === 'string' ? action.payload : 'Sign-in failed.';
+          state.error =
+            typeof action.payload === 'string' ? action.payload : getMessages().auth.failed.generic;
         },
       );
   },

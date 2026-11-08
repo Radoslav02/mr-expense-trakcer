@@ -8,6 +8,7 @@ import { UNCATEGORIZED_COLOR } from '@/constants/categories';
 import { CategoryIcon } from '@/features/categories/CategoryIcon';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/i18n';
 import { selectCategoryMap } from '@/redux/categories/categoriesSelectors';
 import {
   selectRecurring,
@@ -30,6 +31,8 @@ export const RecurringList = () => {
   const categories = useAppSelector(selectCategoryMap);
   const stopping = useAppSelector(selectRecurringMutating);
   const { format } = useCurrencyFormatter();
+  const { t } = useI18n();
+  const r = t.expenses.recurring;
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<RecurringExpense | null>(null);
   const [pendingStop, setPendingStop] = useState<RecurringExpense | null>(null);
@@ -42,7 +45,7 @@ export const RecurringList = () => {
     if (!pendingStop) return;
     try {
       await dispatch(stopRecurring(pendingStop.id)).unwrap();
-      toast.success(`“${pendingStop.title}” won’t be added anymore.`);
+      toast.success(r.stopped(pendingStop.title));
       setPendingStop(null);
     } catch (message) {
       toast.error(String(message));
@@ -61,10 +64,10 @@ export const RecurringList = () => {
           <Repeat aria-hidden="true" className="h-4 w-4" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-medium text-ink">Every month</span>
+          <span className="block text-sm font-medium text-ink">{r.heading}</span>
           <span className="block truncate text-[0.8125rem] text-ink-subtle">
-            {templates.length} recurring · your part{' '}
-            <span className="tabular">{format(monthlyTotal)}</span> a month
+            {r.summary(templates.length)} <span className="tabular">{format(monthlyTotal)}</span>{' '}
+            {r.perMonth}
           </span>
         </span>
         <ChevronDown
@@ -95,13 +98,16 @@ export const RecurringList = () => {
                       {template.title}
                     </span>
                     {template.isPrivate && (
-                      <Lock aria-label="Private" className="h-3.5 w-3.5 shrink-0 text-ink-subtle" />
+                      <Lock
+                        aria-label={r.private}
+                        className="h-3.5 w-3.5 shrink-0 text-ink-subtle"
+                      />
                     )}
                   </p>
                   <p className="truncate text-[0.8125rem] text-ink-subtle">
-                    {template.partnerShare ? 'Split · ' : ''}On the {ordinal(template.dayOfMonth)}
-                    {' · next '}
-                    {formatShortDate(nextDueDate(template))}
+                    {template.partnerShare ? r.splitPrefix : ''}
+                    {r.onDay(ordinal(template.dayOfMonth))}
+                    {r.next(formatShortDate(nextDueDate(template)))}
                   </p>
                 </div>
                 <span className="tabular shrink-0 whitespace-nowrap text-[0.9375rem] font-semibold text-ink">
@@ -115,7 +121,7 @@ export const RecurringList = () => {
                     icon={<Pencil />}
                     onClick={() => setEditing(template)}
                   >
-                    {`Edit ${template.title}`}
+                    {r.editLabel(template.title)}
                   </Button>
                   <Button
                     variant="ghost"
@@ -125,7 +131,7 @@ export const RecurringList = () => {
                     onClick={() => setPendingStop(template)}
                     className="hover:text-danger"
                   >
-                    {`Stop ${template.title}`}
+                    {r.stopLabel(template.title)}
                   </Button>
                 </div>
               </li>
@@ -141,16 +147,16 @@ export const RecurringList = () => {
       />
       <ConfirmDialog
         open={pendingStop !== null}
-        title="Stop this recurring expense?"
-        confirmLabel="Stop repeating"
+        title={r.stopTitle}
+        confirmLabel={r.stopConfirm}
         loading={stopping}
         onConfirm={confirmStop}
         onCancel={() => setPendingStop(null)}
         message={
           pendingStop && (
             <p>
-              <strong>{pendingStop.title}</strong> won’t be added in future months. Expenses already
-              added stay where they are.
+              <strong>{pendingStop.title}</strong>
+              {r.stopMessage}
             </p>
           )
         }

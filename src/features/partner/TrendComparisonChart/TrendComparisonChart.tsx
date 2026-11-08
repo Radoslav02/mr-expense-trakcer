@@ -1,3 +1,4 @@
+import { formatAxisAmount } from '@/utils/currency';
 import {
   Bar,
   BarChart,
@@ -13,6 +14,7 @@ import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
 import { MONTHS_IN_TREND } from '@/constants/expenses';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectPersonNames, selectTrendComparison } from '@/redux/partner/partnerSelectors';
 import type { TrendComparisonPoint } from '@/utils/comparison';
 import { formatMonthLabel, formatShortMonth } from '@/utils/dates';
@@ -27,7 +29,8 @@ interface TrendComparisonChartProps {
 export const TrendComparisonChart = ({ month, loading }: TrendComparisonChartProps) => {
   const trend = useAppSelector((state) => selectTrendComparison(state, month));
   const names = useAppSelector(selectPersonNames);
-  const { format, formatCompact } = useCurrencyFormatter();
+  const { format } = useCurrencyFormatter();
+  const { t } = useI18n();
 
   const renderTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     const point = payload?.[0]?.payload as TrendComparisonPoint | undefined;
@@ -49,19 +52,15 @@ export const TrendComparisonChart = ({ month, loading }: TrendComparisonChartPro
 
   return (
     <Card
-      title="Last 6 months"
-      description="Monthly totals for each of you"
+      title={t.partner.trend.title(MONTHS_IN_TREND)}
+      description={t.partner.trend.description}
       actions={<PersonLegend />}
       className="trend-comparison"
     >
       {loading ? (
         <Skeleton className="h-56 w-full" />
       ) : (
-        <div
-          className="h-56"
-          role="img"
-          aria-label={`Grouped bar chart of the last ${MONTHS_IN_TREND} months for both of you`}
-        >
+        <div className="h-56" role="img" aria-label={t.partner.trend.chartLabel(MONTHS_IN_TREND)}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={trend}
@@ -78,10 +77,10 @@ export const TrendComparisonChart = ({ month, loading }: TrendComparisonChartPro
                 tickMargin={8}
               />
               <YAxis
-                tickFormatter={formatCompact}
+                tickFormatter={formatAxisAmount}
                 axisLine={false}
                 tickLine={false}
-                width={56}
+                width={64}
                 tickMargin={4}
               />
               <Tooltip content={renderTooltip} cursor={{ className: 'trend-comparison__cursor' }} />

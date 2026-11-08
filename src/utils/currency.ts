@@ -1,11 +1,14 @@
+import { intlLocale } from '@/i18n';
+
 const formatterCache = new Map<string, Intl.NumberFormat>();
 
 const getFormatter = (currency: string, compact: boolean): Intl.NumberFormat => {
-  const key = `${currency}:${compact ? 'compact' : 'full'}`;
+  const locale = intlLocale();
+  const key = `${locale}:${currency}:${compact ? 'compact' : 'full'}`;
   const cached = formatterCache.get(key);
   if (cached) return cached;
 
-  const formatter = new Intl.NumberFormat(undefined, {
+  const formatter = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
     notation: compact ? 'compact' : 'standard',
@@ -22,7 +25,13 @@ export const formatCurrency = (amount: number, currency: string): string =>
 export const formatCompactCurrency = (amount: number, currency: string): string =>
   getFormatter(currency, true).format(amount);
 
+/** A short number for chart axes, without the currency: "15K" / "15 hilj.". */
+export const formatAxisAmount = (amount: number): string =>
+  new Intl.NumberFormat(intlLocale(), { notation: 'compact', maximumFractionDigits: 1 }).format(
+    amount,
+  );
+
 export const formatPercent = (ratio: number): string =>
-  new Intl.NumberFormat(undefined, { style: 'percent', maximumFractionDigits: 0 }).format(ratio);
+  new Intl.NumberFormat(intlLocale(), { style: 'percent', maximumFractionDigits: 0 }).format(ratio);
 
 export const roundMoney = (amount: number): number => Math.round(amount * 100) / 100;

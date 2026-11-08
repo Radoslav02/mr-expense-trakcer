@@ -1,8 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@/app/store';
+import { getMessages, selectLanguage } from '@/i18n';
 import { OTHER_CATEGORY_ID, UNCATEGORIZED_COLOR } from '@/constants/categories';
 import { MONTHS_IN_TREND } from '@/constants/expenses';
-import { selectCategories } from '@/redux/categories/categoriesSelectors';
+import { localizeCategory, selectCategories } from '@/redux/categories/categoriesSelectors';
 import { selectMonthlyBudget } from '@/redux/settings/settingsSelectors';
 import { ALL } from '@/types/expense';
 import { daysCountedInMonth, lastMonthKeys, shiftMonth } from '@/utils/dates';
@@ -29,8 +30,9 @@ export const selectExpensesMutating = (state: RootState) =>
 const selectMonthArg = (_state: RootState, month: string) => month;
 const selectPartnerExpenses = (state: RootState) => state.partner.expenses;
 const selectPartnerCategoryDocs = (state: RootState) => state.partner.categories;
-const selectPartnerCategories = createSelector([selectPartnerCategoryDocs], (categories) =>
-  categories.filter((category) => !category.deleted),
+const selectPartnerCategories = createSelector(
+  [selectPartnerCategoryDocs, selectLanguage],
+  (categories) => categories.filter((category) => !category.deleted).map(localizeCategory),
 );
 
 /** Raw expense documents by id, for editing and deleting the stored record. */
@@ -107,10 +109,10 @@ export const selectMonthSummary = createSelector(
 );
 
 export const selectCategoryTotalsForMonth = createSelector(
-  [selectMySpending, selectCategories, selectMonthArg],
+  [selectMySpending, selectCategories, selectMonthArg, selectLanguage],
   (expenses, categories, month) =>
     totalsByCategory(expensesInMonth(expenses, month), categories, {
-      name: 'Uncategorized',
+      name: getMessages().common.uncategorized,
       color: UNCATEGORIZED_COLOR,
     }),
 );

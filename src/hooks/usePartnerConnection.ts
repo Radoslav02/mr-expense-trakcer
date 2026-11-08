@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
+import { getMessages, useI18n } from '@/i18n';
 import { selectAuthUser } from '@/redux/auth/authSelectors';
 import {
   selectIncomingInvite,
@@ -15,14 +16,16 @@ import { useToast } from './useToast';
 
 const validatePartnerEmail = (value: string, ownEmail: string | null): string | null => {
   const email = normalizeEmail(value);
-  if (!EMAIL_PATTERN.test(email)) return 'Enter your partner’s email address.';
-  if (ownEmail && email === normalizeEmail(ownEmail)) return 'That’s your own email.';
+  const { validation } = getMessages().partner;
+  if (!EMAIL_PATTERN.test(email)) return validation.emailRequired;
+  if (ownEmail && email === normalizeEmail(ownEmail)) return validation.ownEmail;
   return null;
 };
 
 export const usePartnerConnection = () => {
   const dispatch = useAppDispatch();
   const toast = useToast();
+  const { t } = useI18n();
   const user = useAppSelector(selectAuthUser);
   const status = useAppSelector(selectLinkStatus);
   const partnerEmail = useAppSelector(selectPartnerEmail);
@@ -40,7 +43,7 @@ export const usePartnerConnection = () => {
     try {
       await dispatch(connectPartner(target)).unwrap();
       setEmail('');
-      toast.success('Your spending is now shared.');
+      toast.success(t.partner.connect.shared);
     } catch (message) {
       toast.error(String(message));
     }
@@ -55,7 +58,7 @@ export const usePartnerConnection = () => {
     try {
       await dispatch(disconnectPartner()).unwrap();
       setConfirmingStop(false);
-      toast.success('You stopped sharing your spending.');
+      toast.success(t.partner.connect.stopped);
     } catch (message) {
       toast.error(String(message));
     }

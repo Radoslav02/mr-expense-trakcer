@@ -11,8 +11,10 @@ import {
   subscribeToMyCategories,
   updateCategory,
 } from '@/services/categoriesService';
+import { getMessages } from '@/i18n';
 import type { Category, CategoryChanges, CategoryInput } from '@/types/category';
 import { selectConnectedPartnerUid } from '@/redux/partner/partnerSelectors';
+import { localizeCategory } from './categoriesSelectors';
 import { getErrorMessage } from '@/utils/errors';
 import { isEmptyPlan, planCategorySync } from '@/utils/sharedCategories';
 
@@ -22,7 +24,7 @@ export const loadCategories = createAppAsyncThunk(
     try {
       return await fetchCategories(requireUid(getState()));
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not load categories.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().categories.errors.load));
     }
   },
 );
@@ -36,7 +38,7 @@ export const addCategory = createAppAsyncThunk(
     try {
       return await createCategory(requireUid(getState()), input, isPrivate);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not create the category.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().categories.errors.create));
     }
   },
 );
@@ -50,7 +52,7 @@ export const editCategory = createAppAsyncThunk(
     try {
       return await updateCategory(requireUid(getState()), category, changes);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not update the category.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().categories.errors.update));
     }
   },
 );
@@ -59,12 +61,14 @@ export const removeCategory = createAppAsyncThunk(
   'categories/remove',
   async (category: Category, { getState, rejectWithValue }) => {
     if (category.id === OTHER_CATEGORY_ID) {
-      return rejectWithValue('"Other" collects reassigned expenses, so it cannot be deleted.');
+      return rejectWithValue(
+        getMessages().categories.errors.otherProtected(localizeCategory(category).name),
+      );
     }
     try {
       return await deleteCategory(requireUid(getState()), category, OTHER_CATEGORY_ID);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not delete the category.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().categories.errors.delete));
     }
   },
 );
@@ -79,7 +83,9 @@ export const startCategoriesSync =
       uid,
       (data) => dispatch(categoriesSynced(data)),
       (error) =>
-        dispatch(categoriesSyncFailed(getErrorMessage(error, 'Could not load categories.'))),
+        dispatch(
+          categoriesSyncFailed(getErrorMessage(error, getMessages().categories.errors.load)),
+        ),
     );
 
 let syncing = false;

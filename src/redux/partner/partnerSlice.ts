@@ -1,4 +1,5 @@
 import { createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
+import { getMessages } from '@/i18n';
 import { sessionCleared } from '@/redux/auth/authThunks';
 import type { PartnerLink } from '@/types/partner';
 import type { PartnerState } from './partnerTypes';
@@ -74,7 +75,7 @@ const partnerSlice = createSlice({
         state.error =
           typeof action.payload === 'string'
             ? action.payload
-            : 'Could not check your partner link.';
+            : getMessages().partner.errors.checkLink;
       })
       .addMatcher(editPartnerExpense.fulfilled.match, (state) => {
         state.mutationStatus = 'succeeded';

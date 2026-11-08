@@ -1,5 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 import { createAppAsyncThunk, requireUid } from '@/app/createAppAsyncThunk';
+import { getMessages } from '@/i18n';
 import type { AppThunk, RootState } from '@/app/store';
 import {
   fetchPartnerLink,
@@ -16,7 +17,7 @@ import { getErrorMessage, isPermissionDenied } from '@/utils/errors';
 
 const requireUser = (state: RootState) => {
   const user = state.auth.user;
-  if (!user?.email) throw new Error('Sign in with an email account to share spending.');
+  if (!user?.email) throw new Error(getMessages().partner.errors.needsEmailAccount);
   return user;
 };
 
@@ -35,7 +36,7 @@ export const startPartnerLinkSync =
       (link) => dispatch(partnerLinkSynced(link)),
       (error) =>
         dispatch(
-          partnerLinkSyncFailed(getErrorMessage(error, 'Could not check your partner link.')),
+          partnerLinkSyncFailed(getErrorMessage(error, getMessages().partner.errors.checkLink)),
         ),
     );
 
@@ -50,8 +51,8 @@ export const startPartnerDataSync =
         dispatch(
           partnerDataSyncFailed(
             isPermissionDenied(error)
-              ? 'Your partner isn’t sharing with you right now.'
-              : getErrorMessage(error, 'Could not load your partner’s spending.'),
+              ? getMessages().partner.errors.notSharingWithYou
+              : getErrorMessage(error, getMessages().partner.errors.loadSpending),
           ),
         ),
     );
@@ -64,7 +65,7 @@ export const loadPartner = createAppAsyncThunk(
       const user = requireUser(getState());
       return await fetchPartnerLink(user.uid, user.email ?? '');
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not check your partner link.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().partner.errors.checkLink));
     }
   },
 );
@@ -76,7 +77,7 @@ export const connectPartner = createAppAsyncThunk(
       const state = getState();
       return await shareWithPartner(requireUser(state), partnerEmail, state.partner.partnerEmail);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not share with your partner.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().partner.errors.share));
     }
   },
 );
@@ -90,7 +91,7 @@ export const disconnectPartner = createAppAsyncThunk(
     try {
       await stopSharing(requireUid(state), partnerEmail);
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error, 'Could not stop sharing.'));
+      return rejectWithValue(getErrorMessage(error, getMessages().partner.errors.stop));
     }
   },
 );
@@ -105,13 +106,13 @@ export const editPartnerExpense = createAppAsyncThunk(
     const state = getState();
     const partnerUid = selectConnectedPartnerUid(state);
     try {
-      if (!partnerUid) throw new Error('You’re not connected to your partner right now.');
+      if (!partnerUid) throw new Error(getMessages().partner.errors.notConnected);
       await updatePartnerExpense(requireUid(state), partnerUid, expense.id, input);
     } catch (error) {
       return rejectWithValue(
         isPermissionDenied(error)
-          ? 'Your partner needs to share with you before you can edit their expenses.'
-          : getErrorMessage(error, 'Could not update the expense.'),
+          ? getMessages().partner.errors.editNeedsShare
+          : getErrorMessage(error, getMessages().partner.errors.updateExpense),
       );
     }
   },

@@ -1,3 +1,4 @@
+import { formatAxisAmount } from '@/utils/currency';
 import {
   Bar,
   BarChart,
@@ -14,6 +15,7 @@ import { Card } from '@/components/Card';
 import { Skeleton } from '@/components/Skeleton';
 import { MONTHS_IN_TREND } from '@/constants/expenses';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
+import { useI18n } from '@/i18n';
 import { selectMonthlyTrend } from '@/redux/expenses/expensesSelectors';
 import { formatMonthLabel, formatShortMonth } from '@/utils/dates';
 import type { MonthTotal } from '@/utils/expenses';
@@ -28,8 +30,9 @@ interface MonthlyBarChartProps {
 const SKELETON_HEIGHTS = ['h-16', 'h-28', 'h-20', 'h-36', 'h-24', 'h-32'];
 
 export const MonthlyBarChart = ({ month, loading }: MonthlyBarChartProps) => {
+  const { t } = useI18n();
   const trend = useAppSelector((state) => selectMonthlyTrend(state, month));
-  const { format, formatCompact } = useCurrencyFormatter();
+  const { format } = useCurrencyFormatter();
 
   const renderTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     const item = payload?.[0]?.payload as MonthTotal | undefined;
@@ -39,8 +42,8 @@ export const MonthlyBarChart = ({ month, loading }: MonthlyBarChartProps) => {
 
   return (
     <Card
-      title="Last 6 months"
-      description={`Monthly totals up to ${formatMonthLabel(month)}`}
+      title={t.dashboard.trend.title(MONTHS_IN_TREND)}
+      description={t.dashboard.trend.description(formatMonthLabel(month))}
       className="monthly-bar-chart"
     >
       {loading ? (
@@ -50,11 +53,7 @@ export const MonthlyBarChart = ({ month, loading }: MonthlyBarChartProps) => {
           ))}
         </div>
       ) : (
-        <div
-          className="h-56"
-          role="img"
-          aria-label={`Bar chart of totals for the last ${MONTHS_IN_TREND} months`}
-        >
+        <div className="h-56" role="img" aria-label={t.dashboard.trend.chartLabel(MONTHS_IN_TREND)}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={trend}
@@ -70,10 +69,10 @@ export const MonthlyBarChart = ({ month, loading }: MonthlyBarChartProps) => {
                 tickMargin={8}
               />
               <YAxis
-                tickFormatter={formatCompact}
+                tickFormatter={formatAxisAmount}
                 axisLine={false}
                 tickLine={false}
-                width={56}
+                width={64}
                 tickMargin={4}
               />
               <Tooltip

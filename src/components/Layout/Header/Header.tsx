@@ -2,6 +2,7 @@ import { LogOut } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { Button } from '@/components/Button';
 import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/i18n';
 import { selectAuthUser } from '@/redux/auth/authSelectors';
 import { logoutUser } from '@/redux/auth/authThunks';
 import { Brand } from '../Brand';
@@ -17,10 +18,11 @@ const initialsOf = (name: string): string =>
     .join('');
 
 export const Header = () => {
+  const { t } = useI18n();
   const dispatch = useAppDispatch();
   const toast = useToast();
   const user = useAppSelector(selectAuthUser);
-  const name = user?.displayName || user?.email || 'Account';
+  const name = user?.displayName || user?.email || t.common.account;
 
   const handleLogout = async () => {
     try {
@@ -66,8 +68,8 @@ export const Header = () => {
             onClick={handleLogout}
             className="ml-1"
           >
-            <span className="hidden sm:inline">Sign out</span>
-            <span className="sr-only sm:hidden">Sign out</span>
+            <span className="hidden sm:inline">{t.common.signOut}</span>
+            <span className="sr-only sm:hidden">{t.common.signOut}</span>
           </Button>
         </div>
       </div>

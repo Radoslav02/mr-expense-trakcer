@@ -1,4 +1,5 @@
 import { createSlice, isAnyOf } from '@reduxjs/toolkit';
+import { getMessages } from '@/i18n';
 import { sessionCleared } from '@/redux/auth/authThunks';
 import type { CategoriesState } from './categoriesTypes';
 import {
@@ -34,7 +35,7 @@ const categoriesSlice = createSlice({
       })
       .addCase(loadCategories.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Could not load categories.';
+        state.error = action.payload ?? getMessages().categories.errors.load;
       })
       .addCase(categoriesSynced, (state, action) => {
         state.status = 'succeeded';
