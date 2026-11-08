@@ -17,6 +17,8 @@ interface SplitFieldProps {
   setField: <K extends keyof ExpenseFormValues>(key: K, value: ExpenseFormValues[K]) => void;
   partnerName: string;
   currency: string;
+  /** Who paid: `partner` when editing their expense, so the share is what I owe them. */
+  payer?: 'me' | 'partner';
 }
 
 const MODES: { value: SplitMode; label: string }[] = [
@@ -35,6 +37,7 @@ export const SplitField = ({
   setField,
   partnerName,
   currency,
+  payer = 'me',
 }: SplitFieldProps) => {
   const { format } = useCurrencyFormatter();
   const amount = validAmount(values.amount);
@@ -44,10 +47,21 @@ export const SplitField = ({
         ? halfOf(amount)
         : null
       : validAmount(values.partnerShare);
+  const valid = amount !== null && share !== null && share <= amount;
+  const rest = valid ? format(roundMoney(amount - share)) : '';
   const summary =
-    amount !== null && share !== null && share <= amount
-      ? `${partnerName} owes you ${format(share)} · your share ${format(roundMoney(amount - share))}`
-      : `${partnerName} will owe you their part of this expense.`;
+    payer === 'me'
+      ? valid
+        ? `${partnerName} owes you ${format(share)} · your share ${rest}`
+        : `${partnerName} will owe you their part of this expense.`
+      : valid
+        ? `You owe ${partnerName} ${format(share)} · their share ${rest}`
+        : `You’ll owe ${partnerName} your part of this expense.`;
+  const shareLabel = payer === 'me' ? `${partnerName}’s share` : 'Your share';
+  const offText =
+    payer === 'me'
+      ? 'You paid, and you’re sharing the cost.'
+      : `${partnerName} paid. Turn on to share the cost.`;
 
   const chooseMode = (mode: SplitMode) => {
     setField('splitMode', mode);
@@ -68,7 +82,7 @@ export const SplitField = ({
         <span className="min-w-0">
           <span className="block text-sm font-medium text-ink">Split with {partnerName}</span>
           <span className="block truncate text-[0.8125rem] text-ink-subtle">
-            {values.split ? summary : 'You paid, and you’re sharing the cost.'}
+            {values.split ? summary : offText}
           </span>
         </span>
         <input
@@ -104,10 +118,10 @@ export const SplitField = ({
           </div>
           {values.splitMode === 'custom' && (
             <Input
-              label={`${partnerName}’s share`}
+              label={shareLabel}
               hideLabel
               inputMode="decimal"
-              placeholder={`${partnerName}’s share`}
+              placeholder={shareLabel}
               value={values.partnerShare}
               onChange={(event) => setField('partnerShare', event.target.value)}
               error={errors.partnerShare}

@@ -5,6 +5,7 @@ import type { PartnerState } from './partnerTypes';
 import {
   connectPartner,
   disconnectPartner,
+  editPartnerExpense,
   loadPartner,
   partnerDataSynced,
   partnerDataSyncFailed,
@@ -75,12 +76,21 @@ const partnerSlice = createSlice({
             ? action.payload
             : 'Could not check your partner link.';
       })
-      .addMatcher(isAnyOf(connectPartner.pending, disconnectPartner.pending), (state) => {
-        state.mutationStatus = 'loading';
+      .addMatcher(editPartnerExpense.fulfilled.match, (state) => {
+        state.mutationStatus = 'succeeded';
       })
-      .addMatcher(isAnyOf(connectPartner.rejected, disconnectPartner.rejected), (state) => {
-        state.mutationStatus = 'failed';
-      });
+      .addMatcher(
+        isAnyOf(connectPartner.pending, disconnectPartner.pending, editPartnerExpense.pending),
+        (state) => {
+          state.mutationStatus = 'loading';
+        },
+      )
+      .addMatcher(
+        isAnyOf(connectPartner.rejected, disconnectPartner.rejected, editPartnerExpense.rejected),
+        (state) => {
+          state.mutationStatus = 'failed';
+        },
+      );
   },
 });
 

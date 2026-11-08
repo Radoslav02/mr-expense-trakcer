@@ -20,6 +20,28 @@ service cloud.firestore {
            == request.auth.token.email.lower();
     }
 
+    // Both people shared with each other: the owner shared with me, and I shared back.
+    function isConnectedTo(userId) {
+      return isPartnerOf(userId)
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('partnerEmail', '')
+           == get(/databases/$(database)/documents/users/$(userId)).data.get('email', '').lower();
+    }
+
+    // A partner may change what an expense is, never where it lives or who owns it.
+    function isPartnerEdit() {
+      let data = request.resource.data;
+      return data.diff(resource.data).affectedKeys().hasOnly([
+          'title', 'amount', 'categoryId', 'date', 'note', 'paymentMethod', 'partnerShare',
+          'updatedAt', 'editedBy'
+        ])
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 80
+        && data.amount is number && data.amount > 0
+        && data.partnerShare is number && data.partnerShare >= 0
+        && data.partnerShare <= data.amount
+        && data.date is timestamp
+        && data.editedBy == request.auth.uid;
+    }
+
     match /users/{userId} {
       allow read, write: if isOwner(userId);
       allow read: if isPartnerOf(userId);
@@ -37,6 +59,7 @@ service cloud.firestore {
 
       match /expenses/{expenseId} {
         allow read: if isPartnerOf(userId);
+        allow update: if isConnectedTo(userId) && isPartnerEdit();
       }
     }
 

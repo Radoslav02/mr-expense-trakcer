@@ -16,3 +16,27 @@
 .shared-activity__row + .shared-activity__row {
   @apply border-t border-line;
 }
+
+.shared-activity__main {
+  transition: background-color 150ms ease;
+}
+
+.shared-activity__main:hover {
+  @apply bg-sunken/60;
+}
+
+.shared-activity__main:focus-visible {
+  @apply ring-inset ring-offset-0;
+}
+
+@media (hover: hover) {
+  .shared-activity__edit {
+    opacity: 0;
+    transition: opacity 150ms ease;
+  }
+
+  .shared-activity__main:hover .shared-activity__edit,
+  .shared-activity__main:focus-visible .shared-activity__edit {
+    opacity: 1;
+  }
+}

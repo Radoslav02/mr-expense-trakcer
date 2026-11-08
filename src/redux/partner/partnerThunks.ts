@@ -8,6 +8,9 @@ import {
   subscribeToPartnerData,
   subscribeToPartnerLink,
 } from '@/services/partnerService';
+import { updatePartnerExpense } from '@/services/expensesService';
+import { selectConnectedPartnerUid } from './partnerSelectors';
+import type { Expense, ExpenseInput } from '@/types/expense';
 import type { PartnerData, PartnerLink } from '@/types/partner';
 import { getErrorMessage, isPermissionDenied } from '@/utils/errors';
 
@@ -88,6 +91,28 @@ export const disconnectPartner = createAppAsyncThunk(
       await stopSharing(requireUid(state), partnerEmail);
     } catch (error) {
       return rejectWithValue(getErrorMessage(error, 'Could not stop sharing.'));
+    }
+  },
+);
+
+/** Saves my changes to one of my partner's shared expenses. */
+export const editPartnerExpense = createAppAsyncThunk(
+  'partner/editExpense',
+  async (
+    { expense, input }: { expense: Expense; input: ExpenseInput },
+    { getState, rejectWithValue },
+  ) => {
+    const state = getState();
+    const partnerUid = selectConnectedPartnerUid(state);
+    try {
+      if (!partnerUid) throw new Error('You’re not connected to your partner right now.');
+      await updatePartnerExpense(requireUid(state), partnerUid, expense.id, input);
+    } catch (error) {
+      return rejectWithValue(
+        isPermissionDenied(error)
+          ? 'Your partner needs to share with you before you can edit their expenses.'
+          : getErrorMessage(error, 'Could not update the expense.'),
+      );
     }
   },
 );
