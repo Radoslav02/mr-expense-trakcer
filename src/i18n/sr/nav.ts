@@ -5,6 +5,7 @@ export const nav: Messages['nav'] = {
   overview: 'Pregled',
   expenses: 'Troškovi',
   together: 'Zajedno',
+  groups: 'Grupe',
   categories: 'Kategorije',
   settings: 'Podešavanja',
 };

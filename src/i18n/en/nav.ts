@@ -3,6 +3,7 @@ export const nav = {
   overview: 'Overview',
   expenses: 'Expenses',
   together: 'Together',
+  groups: 'Groups',
   categories: 'Categories',
   settings: 'Settings',
 };

@@ -44,3 +44,7 @@ podeljeno (split), samo ja (only me), ponavlja se svakog meseca (repeats monthly
   owner-only collections. Firestore rules are in `firestore.rules`; changes there must be
   deployed separately (`npm run deploy:rules`).
 - Shared categories are synced between partners by `sharedKey` (`src/utils/sharedCategories.ts`).
+- Groups (trips with friends, Splitwise-style) live in the top-level `groups/{groupId}` collection
+  with `expenses` and `payments` subcollections, separate from personal spending. Members are
+  joined app users (`memberIds`), invited emails (`invitedEmails`) or name-only people. Balance
+  math is in whole cents in `src/utils/groupBalances.ts` (tested); keep it that way.

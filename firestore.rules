@@ -79,6 +79,46 @@ service cloud.firestore {
       }
     }
 
+    // Groups (trips with friends): joined app users are in memberIds; invited people are in
+    // invitedEmails until they answer.
+    match /groups/{groupId} {
+      function isGroupMember() {
+        return signedIn() && request.auth.uid in resource.data.memberIds;
+      }
+
+      function isInvited() {
+        return hasEmail() && request.auth.token.email.lower() in resource.data.invitedEmails;
+      }
+
+      // An invited person may only take their own invite: add themselves, drop their email and
+      // touch at most one member entry (the one the invite created).
+      function isAnsweringInvite() {
+        let email = request.auth.token.email.lower();
+        let before = resource.data;
+        let after = request.resource.data;
+        return after.diff(before).affectedKeys()
+            .hasOnly(['memberIds', 'invitedEmails', 'members', 'updatedAt'])
+          && after.invitedEmails.toSet() == before.invitedEmails.toSet().difference([email].toSet())
+          && after.memberIds.toSet().difference(before.memberIds.toSet())
+            .hasOnly([request.auth.uid])
+          && before.memberIds.toSet().difference(after.memberIds.toSet()).size() == 0
+          && after.members.diff(before.members).affectedKeys().size() <= 1;
+      }
+
+      allow read: if isGroupMember() || isInvited();
+      allow create: if signedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.memberIds == [request.auth.uid];
+      allow update: if isGroupMember() || (isInvited() && isAnsweringInvite());
+      allow delete: if signedIn() && resource.data.createdBy == request.auth.uid;
+
+      // Expenses and payments: any joined member may add, change or remove them.
+      match /{collection}/{docId} {
+        allow read, write: if signedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.memberIds;
+      }
+    }
+
     // Doc id = invitee's lowercased email. Tells the invitee which uid shared with them.
     match /partnerInvites/{email} {
       allow read: if (hasEmail() && request.auth.token.email.lower() == email)

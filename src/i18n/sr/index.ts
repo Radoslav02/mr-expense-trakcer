@@ -7,6 +7,7 @@ import { categories } from './categories';
 import { dashboard } from './dashboard';
 import { partner } from './partner';
 import { settings } from './settings';
+import { groups } from './groups';
 
 export const sr: Messages = {
   common,
@@ -17,4 +18,5 @@ export const sr: Messages = {
   dashboard,
   partner,
   settings,
+  groups,
 };

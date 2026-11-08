@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { selectAuthUser } from '@/redux/auth/authSelectors';
 import { startCategoriesSync, syncSharedCategories } from '@/redux/categories/categoriesThunks';
 import { startExpensesSync } from '@/redux/expenses/expensesThunks';
+import { startGroupsSync } from '@/redux/groups/groupsSlice';
 import { selectConnectedPartnerUid } from '@/redux/partner/partnerSelectors';
 import { startPartnerDataSync, startPartnerLinkSync } from '@/redux/partner/partnerThunks';
 import { addDueRecurringExpenses, startRecurringSync } from '@/redux/recurring/recurringSlice';
@@ -24,6 +25,7 @@ export const useUserDataSync = (): void => {
       dispatch(startCategoriesSync(uid)),
       dispatch(startExpensesSync(uid)),
       dispatch(startRecurringSync(uid)),
+      dispatch(startGroupsSync(uid, email ?? null)),
       ...(email ? [dispatch(startPartnerLinkSync(uid, email))] : []),
     ];
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());

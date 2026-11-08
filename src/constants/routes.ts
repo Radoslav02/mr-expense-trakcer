@@ -2,6 +2,8 @@ export const ROUTES = {
   dashboard: '/',
   expenses: '/expenses',
   together: '/together',
+  groups: '/groups',
+  group: '/groups/:groupId',
   categories: '/categories',
   settings: '/settings',
   login: '/login',

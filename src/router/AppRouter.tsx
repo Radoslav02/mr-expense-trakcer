@@ -14,6 +14,12 @@ const ExpensesPage = lazy(() =>
 const TogetherPage = lazy(() =>
   import('@/pages/TogetherPage').then((module) => ({ default: module.TogetherPage })),
 );
+const GroupsPage = lazy(() =>
+  import('@/pages/GroupsPage').then((module) => ({ default: module.GroupsPage })),
+);
+const GroupDetailPage = lazy(() =>
+  import('@/pages/GroupDetailPage').then((module) => ({ default: module.GroupDetailPage })),
+);
 const CategoriesPage = lazy(() =>
   import('@/pages/CategoriesPage').then((module) => ({ default: module.CategoriesPage })),
 );
@@ -53,6 +59,8 @@ export const AppRouter = () => (
         <Route path={ROUTES.dashboard} element={withSuspense(<DashboardPage />)} />
         <Route path={ROUTES.expenses} element={withSuspense(<ExpensesPage />)} />
         <Route path={ROUTES.together} element={withSuspense(<TogetherPage />)} />
+        <Route path={ROUTES.groups} element={withSuspense(<GroupsPage />)} />
+        <Route path={ROUTES.group} element={withSuspense(<GroupDetailPage />)} />
         <Route path={ROUTES.categories} element={withSuspense(<CategoriesPage />)} />
         <Route path={ROUTES.settings} element={withSuspense(<SettingsPage />)} />
       </Route>

@@ -13,7 +13,7 @@ export const BottomNav = () => {
       aria-label={t.nav.main}
       className="bottom-nav safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 lg:hidden"
     >
-      <ul className="mx-auto grid max-w-md grid-cols-5">
+      <ul className="mx-auto grid max-w-lg grid-cols-6">
         {NAV_ITEMS.map(({ to, labelKey, icon: Icon }) => (
           <li key={to}>
             <NavLink
@@ -21,13 +21,13 @@ export const BottomNav = () => {
               end={to === ROUTES.dashboard}
               className={({ isActive }) =>
                 cn(
-                  'bottom-nav__link flex h-16 flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium',
+                  'bottom-nav__link flex h-16 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-[0.625rem] font-medium min-[400px]:text-[0.6875rem]',
                   isActive ? 'text-accent' : 'text-ink-subtle',
                 )
               }
             >
               <Icon aria-hidden="true" className="h-5 w-5" />
-              {t.nav[labelKey]}
+              <span className="max-w-full truncate">{t.nav[labelKey]}</span>
             </NavLink>
           </li>
         ))}
