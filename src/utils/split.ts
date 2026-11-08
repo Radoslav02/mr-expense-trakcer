@@ -52,6 +52,12 @@ export const categoryMapper = (
   from: readonly Category[],
   to: readonly Category[],
   fallbackId: string,
+  /**
+   * `sharedKey`: when the other side has no copy yet, use the category's shared key instead of
+   * the fallback. Synced copies take the shared key as their id, so it resolves once they sync.
+   * Use this when writing to the other person's data; `fallback` when only displaying.
+   */
+  whenMissing: 'fallback' | 'sharedKey' = 'fallback',
 ): ((categoryId: string) => string) => {
   const live = to.filter((category) => !category.deleted);
   const byKey = new Map(live.map((category) => [category.sharedKey, category.id]));
@@ -59,11 +65,13 @@ export const categoryMapper = (
   const fallback = live.some((category) => category.id === fallbackId) ? fallbackId : null;
   return (categoryId) => {
     const source = from.find((category) => category.id === categoryId);
-    return (
-      (source && (byKey.get(source.sharedKey) ?? byName.get(nameKey(source.name)))) ??
-      fallback ??
-      categoryId
-    );
+    const match = source
+      ? (byKey.get(source.sharedKey) ?? byName.get(nameKey(source.name)))
+      : // Not one of theirs: it may already be the shared key of one of mine.
+        byKey.get(categoryId);
+    if (match) return match;
+    if (source && whenMissing === 'sharedKey' && !source.isPrivate) return source.sharedKey;
+    return fallback ?? categoryId;
   };
 };
 

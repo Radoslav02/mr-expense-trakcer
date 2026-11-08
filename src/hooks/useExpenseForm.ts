@@ -147,7 +147,7 @@ export const useExpenseForm = (open: boolean, target: ExpenseFormTarget, onSaved
   const mapping = useMemo(
     () => ({
       toMine: categoryMapper(partnerCategories, categories, OTHER_CATEGORY_ID),
-      toTheirs: categoryMapper(categories, partnerCategories, OTHER_CATEGORY_ID),
+      toTheirs: categoryMapper(categories, partnerCategories, OTHER_CATEGORY_ID, 'sharedKey'),
     }),
     [categories, partnerCategories],
   );

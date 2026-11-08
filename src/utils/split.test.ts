@@ -106,3 +106,21 @@ describe('validateExpense split', () => {
     expect(validateExpense({ ...base, split: false }).partnerShare).toBeUndefined();
   });
 });
+
+describe('categoryMapper when writing to the other side', () => {
+  const cat = (id: string, name: string) => ({
+    id,
+    name,
+    color: '#000',
+    isDefault: false,
+    sharedKey: id,
+    updatedAt: '1970-01-01T00:00:00.000Z',
+  });
+
+  it('uses the shared key for a category the other side hasn’t synced yet', () => {
+    const mine = [cat('gym', 'Gym'), cat('default-other', 'Other')];
+    const theirs = [cat('default-other', 'Other')];
+    expect(categoryMapper(mine, theirs, 'default-other', 'sharedKey')('gym')).toBe('gym');
+    expect(categoryMapper(mine, theirs, 'default-other')('gym')).toBe('default-other');
+  });
+});

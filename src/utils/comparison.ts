@@ -88,11 +88,20 @@ const withOwner = (
   owner: Person,
   expenses: readonly Expense[],
   categories: readonly Category[],
+  /** The other person's categories: a shared category one side hasn't synced yet is there. */
+  others: readonly Category[],
 ): FeedItem[] =>
   expenses.map((expense) => ({
     owner,
     expense,
-    category: categories.find((category) => category.id === expense.categoryId),
+    category:
+      categories.find((category) => category.id === expense.categoryId && !category.deleted) ??
+      others.find(
+        (category) =>
+          !category.deleted &&
+          !category.isPrivate &&
+          (category.sharedKey === expense.categoryId || category.id === expense.categoryId),
+      ),
   }));
 
 export const buildSharedFeed = (
@@ -100,8 +109,8 @@ export const buildSharedFeed = (
   theirs: { expenses: readonly Expense[]; categories: readonly Category[] },
 ): FeedItem[] => {
   const items = [
-    ...withOwner('me', mine.expenses, mine.categories),
-    ...withOwner('partner', theirs.expenses, theirs.categories),
+    ...withOwner('me', mine.expenses, mine.categories, theirs.categories),
+    ...withOwner('partner', theirs.expenses, theirs.categories, mine.categories),
   ];
   const order = new Map(sortByDateDesc(items.map((item) => item.expense)).map((e, i) => [e, i]));
   return items.sort((a, b) => (order.get(a.expense) ?? 0) - (order.get(b.expense) ?? 0));
