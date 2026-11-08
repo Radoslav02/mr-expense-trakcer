@@ -115,11 +115,14 @@ export const Modal = ({
               </Button>
             )}
           </header>
-          <div ref={bodyRef} className="min-h-0 overflow-y-auto overscroll-contain px-5 py-3 sm:px-6">
+          <div
+            ref={bodyRef}
+            className="min-h-0 overflow-y-auto overscroll-contain px-5 py-3 sm:px-6"
+          >
             {children}
           </div>
           {footer && (
-            <footer className="flex flex-col-reverse gap-2 border-t border-line px-5 py-4 sm:flex-row sm:px-6 sm:justify-end">
+            <footer className="flex flex-col-reverse gap-2 border-t border-line px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
               {footer}
             </footer>
           )}

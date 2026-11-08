@@ -90,6 +90,51 @@
   }
 }
 
+/*
+ * Shared form-field look. It lives here, in the components layer, rather than in a component's
+ * own CSS: that CSS loads later with each lazy route and would override utilities like `pl-9`
+ * (room for a leading icon) or `pr-14` (room for a trailing currency).
+ */
+@layer components {
+  .control {
+    @apply h-10 w-full rounded-lg border border-line bg-surface px-3 text-[0.9375rem] text-ink;
+    @apply placeholder:text-ink-subtle;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .control:hover:not(:disabled) {
+    @apply border-ink-subtle/50;
+  }
+
+  .control:focus-visible {
+    @apply border-accent ring-[3px] ring-accent/20 ring-offset-0;
+  }
+
+  .control[aria-invalid='true'] {
+    @apply border-danger;
+  }
+
+  .control[aria-invalid='true']:focus-visible {
+    @apply ring-danger/20;
+  }
+
+  .control:disabled {
+    @apply cursor-not-allowed bg-sunken opacity-70;
+  }
+
+  /*
+   * Mobile browsers zoom the page when a focused field's text is smaller than 16px.
+   * Keep fields at 16px on phones and touch screens so focusing one never zooms.
+   */
+  @media (max-width: 1023px), (pointer: coarse) {
+    .control {
+      font-size: 1rem;
+    }
+  }
+}
+
 @layer utilities {
   .tabular {
     font-variant-numeric: tabular-nums;
