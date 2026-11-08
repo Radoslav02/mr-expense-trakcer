@@ -42,6 +42,21 @@ service cloud.firestore {
         && data.editedBy == request.auth.uid;
     }
 
+    // A partner's app may copy shared categories into my list so both lists match, even when
+    // my app is out of date. It can add or change one, never delete it or make it private.
+    function isCategoryCopy(categoryId) {
+      let data = request.resource.data;
+      let fields = ['name', 'color', 'icon', 'sharedKey', 'deleted', 'updatedAt'];
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 32
+        && data.color is string
+        && data.sharedKey is string
+        && data.deleted == false
+        && (resource == null
+          ? data.keys().hasOnly(fields.concat(['createdAt', 'isDefault']))
+            && data.sharedKey == categoryId
+          : data.diff(resource.data).affectedKeys().hasOnly(fields));
+    }
+
     match /users/{userId} {
       allow read, write: if isOwner(userId);
       allow read: if isPartnerOf(userId);
@@ -55,6 +70,7 @@ service cloud.firestore {
       // Only shared data is visible to the partner.
       match /categories/{categoryId} {
         allow read: if isPartnerOf(userId);
+        allow create, update: if isConnectedTo(userId) && isCategoryCopy(categoryId);
       }
 
       match /expenses/{expenseId} {

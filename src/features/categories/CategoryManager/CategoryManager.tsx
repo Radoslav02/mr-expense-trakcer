@@ -13,7 +13,11 @@ import {
   selectSharedCategories,
 } from '@/redux/categories/categoriesSelectors';
 import { selectExpenseCountsByCategory } from '@/redux/expenses/expensesSelectors';
-import { selectLinkStatus, selectPersonNames } from '@/redux/partner/partnerSelectors';
+import {
+  selectLinkStatus,
+  selectPersonNames,
+  selectSharedCategoryCounts,
+} from '@/redux/partner/partnerSelectors';
 import type { Category } from '@/types/category';
 import { CategoryFormModal } from '../CategoryFormModal';
 import { CategoryRow } from '../CategoryRow';
@@ -49,7 +53,10 @@ export const CategoryManager = ({ onRetry, scope = 'all' }: CategoryManagerProps
   const privateOnes = useAppSelector(selectPrivateCategories);
   const status = useAppSelector(selectCategoriesStatus);
   const error = useAppSelector(selectCategoriesError);
-  const counts = useAppSelector(selectExpenseCountsByCategory);
+  const ownCounts = useAppSelector(selectExpenseCountsByCategory);
+  const sharedCounts = useAppSelector(selectSharedCategoryCounts);
+  // On the Together tab, a shared category counts both people's expenses.
+  const counts = scope === 'shared' ? sharedCounts : ownCounts;
   const hasPartner = useAppSelector(selectLinkStatus) !== 'none';
   const partnerName = useAppSelector(selectPersonNames).partner;
   const [form, setForm] = useState<FormState>({ open: false });

@@ -43,7 +43,7 @@ const selectPartnerSpending = createSelector(
     personalExpenses(
       theirs,
       mine,
-      categoryMapper(myCategories, theirCategories, OTHER_CATEGORY_ID),
+      categoryMapper(myCategories, theirCategories, OTHER_CATEGORY_ID, 'sharedKey'),
     ),
 );
 
@@ -95,7 +95,17 @@ export const selectCategoryComparison = createSelector(
   (mine, myCategories, theirs, theirCategories, month) =>
     compareCategories(
       totalsByCategory(expensesInMonth(mine, month), myCategories, FALLBACK_CATEGORY),
-      totalsByCategory(expensesInMonth(theirs, month), theirCategories, FALLBACK_CATEGORY),
+      totalsByCategory(
+        expensesInMonth(theirs, month),
+        // A shared category of mine they haven't synced yet: their expense holds its shared key.
+        [
+          ...theirCategories,
+          ...myCategories
+            .filter((category) => !category.isPrivate)
+            .map((category) => ({ ...category, id: category.sharedKey })),
+        ],
+        FALLBACK_CATEGORY,
+      ),
     ),
 );
 
@@ -126,4 +136,22 @@ export const selectSharedCosts = createSelector(
   [selectMySharedExpenses, selectPartnerExpenses, selectMonthArg],
   (mine, theirs, month) =>
     sharedCosts(expensesInMonth(mine, month), expensesInMonth(theirs, month)),
+);
+
+/**
+ * How many shared expenses each of my categories holds, counting both of ours: my shared
+ * expenses plus my partner's, matched to my copy of their category.
+ */
+export const selectSharedCategoryCounts = createSelector(
+  [selectMySharedExpenses, selectPartnerExpenses, selectPartnerCategories, selectCategories],
+  (mine, theirs, theirCategories, myCategories) => {
+    const toMine = categoryMapper(theirCategories, myCategories, OTHER_CATEGORY_ID);
+    const counts: Record<string, number> = {};
+    const add = (categoryId: string) => {
+      counts[categoryId] = (counts[categoryId] ?? 0) + 1;
+    };
+    mine.forEach((expense) => add(expense.categoryId));
+    theirs.forEach((expense) => add(toMine(expense.categoryId)));
+    return counts;
+  },
 );

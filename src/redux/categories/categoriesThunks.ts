@@ -12,6 +12,7 @@ import {
   updateCategory,
 } from '@/services/categoriesService';
 import type { Category, CategoryChanges, CategoryInput } from '@/types/category';
+import { selectConnectedPartnerUid } from '@/redux/partner/partnerSelectors';
 import { getErrorMessage } from '@/utils/errors';
 import { isEmptyPlan, planCategorySync } from '@/utils/sharedCategories';
 
@@ -82,6 +83,7 @@ export const startCategoriesSync =
     );
 
 let syncing = false;
+let failedPush = '';
 
 /**
  * Brings my shared categories in line with my partner's: copies ones they added, applies their
@@ -94,11 +96,26 @@ export const syncSharedCategories = (): AppThunk => async (dispatch, getState) =
   const ready = state.categories.status === 'succeeded' && state.partner.dataStatus === 'succeeded';
   if (!uid || !ready || syncing) return;
 
+  const partnerUid = selectConnectedPartnerUid(state);
   const plan = planCategorySync(state.categories.items, state.partner.categories);
-  if (isEmptyPlan(plan)) return;
+  // What my partner is missing. Copying it to them directly means the lists match even when
+  // their app is an older version or hasn't been opened. Removals stay with their own app,
+  // since a removal also moves their expenses, which only they may do.
+  const theirPlan = planCategorySync(state.partner.categories, state.categories.items);
+  const pushKey = theirPlan.upserts.map(({ id, updatedAt }) => `${id}@${updatedAt}`).join();
+  const pushToPartner =
+    partnerUid !== null && theirPlan.upserts.length > 0 && pushKey !== failedPush;
+  if (isEmptyPlan(plan) && !pushToPartner) return;
 
   syncing = true;
   try {
+    if (pushToPartner) {
+      await applyCategoryUpserts(partnerUid, theirPlan.upserts).catch((error) => {
+        // Don't retry the same copy until something changes, or this would loop.
+        failedPush = pushKey;
+        console.warn('Could not copy shared categories to your partner.', error);
+      });
+    }
     await applyCategoryUpserts(uid, plan.upserts);
     for (const { category, deletedAt } of plan.removals) {
       await removeSyncedCategory(uid, category, deletedAt);
