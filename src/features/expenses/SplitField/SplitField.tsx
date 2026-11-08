@@ -17,7 +17,7 @@ interface SplitFieldProps {
   setField: <K extends keyof ExpenseFormValues>(key: K, value: ExpenseFormValues[K]) => void;
   partnerName: string;
   currency: string;
-  /** Who paid: `partner` when editing their expense, so the share is what I owe them. */
+  /** Who bought it: `partner` when editing their expense, so the share is my part. */
   payer?: 'me' | 'partner';
 }
 
@@ -49,19 +49,14 @@ export const SplitField = ({
       : validAmount(values.partnerShare);
   const valid = amount !== null && share !== null && share <= amount;
   const rest = valid ? format(roundMoney(amount - share)) : '';
-  const summary =
-    payer === 'me'
-      ? valid
-        ? `${partnerName} owes you ${format(share)} · your share ${rest}`
-        : `${partnerName} will owe you their part of this expense.`
-      : valid
-        ? `You owe ${partnerName} ${format(share)} · their share ${rest}`
-        : `You’ll owe ${partnerName} your part of this expense.`;
-  const shareLabel = payer === 'me' ? `${partnerName}’s share` : 'Your share';
-  const offText =
-    payer === 'me'
-      ? 'You paid, and you’re sharing the cost.'
-      : `${partnerName} paid. Turn on to share the cost.`;
+  // A split is a cost we share, like groceries we both eat. Nobody owes anybody.
+  const summary = valid
+    ? payer === 'me'
+      ? `Your part ${rest} · ${partnerName}’s part ${format(share)}`
+      : `Your part ${format(share)} · ${partnerName}’s part ${rest}`
+    : 'Counted as a cost for both of you.';
+  const shareLabel = payer === 'me' ? `${partnerName}’s part` : 'Your part';
+  const offText = 'For things you both use, like groceries. Each of you counts your part.';
 
   const chooseMode = (mode: SplitMode) => {
     setField('splitMode', mode);

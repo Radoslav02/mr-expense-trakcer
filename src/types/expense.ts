@@ -8,7 +8,7 @@ export interface Expense {
   date: string;
   note?: string;
   paymentMethod: PaymentMethod;
-  /** Amount the partner owes for this expense. Absent when the expense isn't split. */
+  /** The partner's part of a shared (split) cost. Absent when the expense isn't split. */
   partnerShare?: number;
   /** Stored in the owner-only collection: the partner can't see it at all. */
   isPrivate?: boolean;
@@ -28,7 +28,7 @@ export interface Expense {
 export interface SharedPortion {
   /** The full price of the split expense. */
   total: number;
-  /** True when the other person paid and this entry is the part owed to them. */
+  /** True when the other person bought it and this entry is my part of it. */
   paidByOther: boolean;
 }
 

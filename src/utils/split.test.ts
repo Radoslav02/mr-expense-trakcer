@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Expense } from '@/types/expense';
-import { categoryMapper, halfOf, isSplit, ownShare, personalExpenses, splitBalance } from './split';
+import { categoryMapper, halfOf, isSplit, ownShare, personalExpenses, sharedCosts } from './split';
 import { sumAmounts } from './expenses';
 import { validateExpense, type ExpenseFormValues } from './validation';
 
@@ -25,12 +25,19 @@ describe('split utils', () => {
     expect(halfOf(99.99)).toBe(50);
   });
 
-  it('nets what each partner owes the other', () => {
-    const balance = splitBalance(
+  it('adds up shared costs and each person’s part, ignoring unsplit ones', () => {
+    const costs = sharedCosts(
       [makeExpense({ partnerShare: 50 }), makeExpense({ partnerShare: 10.1 }), makeExpense({})],
       [makeExpense({ amount: 300, partnerShare: 150 })],
     );
-    expect(balance).toEqual({ owedToMe: 60.1, iOwe: 150, net: -89.9, meCount: 2, partnerCount: 1 });
+    expect(costs).toEqual({
+      total: 500,
+      myPart: 289.9,
+      partnerPart: 210.1,
+      boughtByMe: 200,
+      boughtByPartner: 300,
+      count: 3,
+    });
   });
 });
 

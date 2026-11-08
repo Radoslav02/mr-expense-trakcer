@@ -15,7 +15,7 @@ import {
   splitSpending,
 } from '@/utils/comparison';
 import { lastMonthKeys } from '@/utils/dates';
-import { categoryMapper, personalExpenses, splitBalance } from '@/utils/split';
+import { categoryMapper, personalExpenses, sharedCosts } from '@/utils/split';
 import { expensesInMonth, sumAmounts, totalsByCategory, totalsByMonth } from '@/utils/expenses';
 
 const FALLBACK_CATEGORY = { name: 'Uncategorized', color: UNCATEGORIZED_COLOR };
@@ -122,8 +122,8 @@ export const selectSharedFeed = createSelector(
     ),
 );
 
-export const selectSplitBalance = createSelector(
+export const selectSharedCosts = createSelector(
   [selectMySharedExpenses, selectPartnerExpenses, selectMonthArg],
   (mine, theirs, month) =>
-    splitBalance(expensesInMonth(mine, month), expensesInMonth(theirs, month)),
+    sharedCosts(expensesInMonth(mine, month), expensesInMonth(theirs, month)),
 );

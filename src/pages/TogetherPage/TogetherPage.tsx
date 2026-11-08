@@ -8,7 +8,7 @@ import { CategoryManager } from '@/features/categories/CategoryManager';
 import { CategoryComparison } from '@/features/partner/CategoryComparison';
 import { PartnerConnectCard } from '@/features/partner/PartnerConnectCard';
 import { SharedActivity } from '@/features/partner/SharedActivity';
-import { SplitBalance } from '@/features/partner/SplitBalance';
+import { SharedCosts } from '@/features/partner/SharedCosts';
 import { SpendingSplit } from '@/features/partner/SpendingSplit';
 import { TrendComparisonChart } from '@/features/partner/TrendComparisonChart';
 import { selectExpensesStatus } from '@/redux/expenses/expensesSelectors';
@@ -55,7 +55,7 @@ export const TogetherPage = () => {
           </p>
         )}
         <SpendingSplit month={month} loading={loading} />
-        <SplitBalance month={month} loading={loading} />
+        <SharedCosts month={month} loading={loading} />
         <div className="grid gap-5 lg:grid-cols-2">
           <CategoryComparison month={month} loading={loading} />
           <TrendComparisonChart month={month} loading={loading} />
