@@ -1,0 +1,18 @@
+.language-switch__option {
+  @apply flex h-8 cursor-pointer items-center rounded-md px-3.5 text-sm font-medium text-ink-muted;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.language-switch__option:hover {
+  @apply text-ink;
+}
+
+.language-switch__option.is-selected {
+  @apply bg-accent text-accent-ink shadow-card;
+}
+
+.language-switch__option:has(input:focus-visible) {
+  @apply ring-2 ring-accent ring-offset-2 ring-offset-canvas;
+}

@@ -25,3 +25,17 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: ROUTES.categories, labelKey: 'categories', icon: Tags },
   { to: ROUTES.settings, labelKey: 'settings', icon: Settings },
 ];
+
+/** Phone bottom tabs. Together only shows once a partner is linked. */
+export const MOBILE_TABS: readonly (NavItem & { needsPartner?: boolean })[] = [
+  { to: ROUTES.dashboard, labelKey: 'overview', icon: LayoutDashboard },
+  { to: ROUTES.expenses, labelKey: 'expenses', icon: ReceiptText },
+  { to: ROUTES.together, labelKey: 'together', icon: HeartHandshake, needsPartner: true },
+  { to: ROUTES.groups, labelKey: 'groups', icon: Users },
+];
+
+/** Phone menu (behind the ☰ button). */
+export const MOBILE_MENU: readonly NavItem[] = [
+  { to: ROUTES.categories, labelKey: 'categories', icon: Tags },
+  { to: ROUTES.settings, labelKey: 'settings', icon: Settings },
+];

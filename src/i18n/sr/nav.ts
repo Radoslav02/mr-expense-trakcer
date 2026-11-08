@@ -8,4 +8,6 @@ export const nav: Messages['nav'] = {
   groups: 'Grupe',
   categories: 'Kategorije',
   settings: 'Podešavanja',
+  menu: 'Meni',
+  openMenu: 'Otvori meni',
 };

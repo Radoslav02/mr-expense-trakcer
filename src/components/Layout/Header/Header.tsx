@@ -1,4 +1,5 @@
-import { LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { LogOut, Menu } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { Button } from '@/components/Button';
 import { useToast } from '@/hooks/useToast';
@@ -6,6 +7,7 @@ import { useI18n } from '@/i18n';
 import { selectAuthUser } from '@/redux/auth/authSelectors';
 import { logoutUser } from '@/redux/auth/authThunks';
 import { Brand } from '../Brand';
+import { MobileMenu } from '../MobileMenu';
 import { ThemeToggle } from '../ThemeToggle';
 import './Header.css';
 
@@ -23,6 +25,7 @@ export const Header = () => {
   const toast = useToast();
   const user = useAppSelector(selectAuthUser);
   const name = user?.displayName || user?.email || t.common.account;
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -35,7 +38,18 @@ export const Header = () => {
   return (
     <header className="header sticky top-0 z-20 border-b border-line bg-canvas/90">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6 lg:h-16 lg:px-8">
-        <div className="lg:hidden">
+        <Button
+          variant="ghost"
+          size="sm"
+          iconOnly
+          icon={<Menu />}
+          onClick={() => setMenuOpen(true)}
+          aria-haspopup="dialog"
+          className="-ml-2 lg:hidden"
+        >
+          {t.nav.openMenu}
+        </Button>
+        <div className="min-w-0 lg:hidden">
           <Brand />
         </div>
         <div className="ml-auto flex items-center gap-1">
@@ -73,6 +87,7 @@ export const Header = () => {
           </Button>
         </div>
       </div>
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </header>
   );
 };

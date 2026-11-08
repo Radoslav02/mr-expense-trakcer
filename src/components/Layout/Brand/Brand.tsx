@@ -11,7 +11,7 @@ export const Brand = () => {
     <Link
       to={ROUTES.dashboard}
       aria-label={t.common.goToOverview(APP_NAME)}
-      className="brand inline-flex items-center gap-2 rounded-md text-[1.0625rem] font-semibold tracking-[-0.01em] text-ink"
+      className="brand inline-flex items-center gap-2 whitespace-nowrap rounded-md text-[1.0625rem] font-semibold tracking-[-0.01em] text-ink"
     >
       <span
         aria-hidden="true"

@@ -6,4 +6,6 @@ export const nav = {
   groups: 'Groups',
   categories: 'Categories',
   settings: 'Settings',
+  menu: 'Menu',
+  openMenu: 'Open menu',
 };
