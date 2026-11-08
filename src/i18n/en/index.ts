@@ -7,8 +7,20 @@ import { dashboard } from './dashboard';
 import { partner } from './partner';
 import { settings } from './settings';
 import { groups } from './groups';
+import { savings } from './savings';
 
 /** English is the source of truth: every other language must match this shape. */
-export const en = { common, nav, auth, expenses, categories, dashboard, partner, settings, groups };
+export const en = {
+  common,
+  nav,
+  auth,
+  expenses,
+  categories,
+  dashboard,
+  partner,
+  settings,
+  groups,
+  savings,
+};
 
 export type Messages = typeof en;

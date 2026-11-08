@@ -8,6 +8,7 @@ import { dashboard } from './dashboard';
 import { partner } from './partner';
 import { settings } from './settings';
 import { groups } from './groups';
+import { savings } from './savings';
 
 export const sr: Messages = {
   common,
@@ -19,4 +20,5 @@ export const sr: Messages = {
   partner,
   settings,
   groups,
+  savings,
 };

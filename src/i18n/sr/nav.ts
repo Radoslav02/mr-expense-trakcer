@@ -6,6 +6,7 @@ export const nav: Messages['nav'] = {
   expenses: 'Troškovi',
   together: 'Zajedno',
   groups: 'Grupe',
+  savings: 'Ušteđevina',
   categories: 'Kategorije',
   settings: 'Podešavanja',
   menu: 'Meni',

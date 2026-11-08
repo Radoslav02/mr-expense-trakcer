@@ -4,6 +4,7 @@ export const nav = {
   expenses: 'Expenses',
   together: 'Together',
   groups: 'Groups',
+  savings: 'Savings',
   categories: 'Categories',
   settings: 'Settings',
   menu: 'Menu',

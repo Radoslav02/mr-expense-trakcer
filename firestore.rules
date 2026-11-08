@@ -77,6 +77,11 @@ service cloud.firestore {
         allow read: if isPartnerOf(userId);
         allow update: if isConnectedTo(userId) && isPartnerEdit();
       }
+
+      // Shared savings; private ones live in privateSavings, which stays owner-only.
+      match /savings/{savingId} {
+        allow read: if isPartnerOf(userId);
+      }
     }
 
     // Groups (trips with friends): joined app users are in memberIds; invited people are in

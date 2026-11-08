@@ -1,6 +1,7 @@
 import {
   HeartHandshake,
   LayoutDashboard,
+  PiggyBank,
   ReceiptText,
   Settings,
   Tags,
@@ -22,6 +23,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { to: ROUTES.expenses, labelKey: 'expenses', icon: ReceiptText },
   { to: ROUTES.together, labelKey: 'together', icon: HeartHandshake },
   { to: ROUTES.groups, labelKey: 'groups', icon: Users },
+  { to: ROUTES.savings, labelKey: 'savings', icon: PiggyBank },
   { to: ROUTES.categories, labelKey: 'categories', icon: Tags },
   { to: ROUTES.settings, labelKey: 'settings', icon: Settings },
 ];
@@ -36,6 +38,7 @@ export const MOBILE_TABS: readonly (NavItem & { needsPartner?: boolean })[] = [
 
 /** Phone menu (behind the ☰ button). */
 export const MOBILE_MENU: readonly NavItem[] = [
+  { to: ROUTES.savings, labelKey: 'savings', icon: PiggyBank },
   { to: ROUTES.categories, labelKey: 'categories', icon: Tags },
   { to: ROUTES.settings, labelKey: 'settings', icon: Settings },
 ];

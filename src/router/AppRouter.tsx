@@ -20,6 +20,9 @@ const GroupsPage = lazy(() =>
 const GroupDetailPage = lazy(() =>
   import('@/pages/GroupDetailPage').then((module) => ({ default: module.GroupDetailPage })),
 );
+const SavingsPage = lazy(() =>
+  import('@/pages/SavingsPage').then((module) => ({ default: module.SavingsPage })),
+);
 const CategoriesPage = lazy(() =>
   import('@/pages/CategoriesPage').then((module) => ({ default: module.CategoriesPage })),
 );
@@ -61,6 +64,7 @@ export const AppRouter = () => (
         <Route path={ROUTES.together} element={withSuspense(<TogetherPage />)} />
         <Route path={ROUTES.groups} element={withSuspense(<GroupsPage />)} />
         <Route path={ROUTES.group} element={withSuspense(<GroupDetailPage />)} />
+        <Route path={ROUTES.savings} element={withSuspense(<SavingsPage />)} />
         <Route path={ROUTES.categories} element={withSuspense(<CategoriesPage />)} />
         <Route path={ROUTES.settings} element={withSuspense(<SettingsPage />)} />
       </Route>

@@ -4,6 +4,7 @@ import { selectAuthUser } from '@/redux/auth/authSelectors';
 import { startCategoriesSync, syncSharedCategories } from '@/redux/categories/categoriesThunks';
 import { startExpensesSync } from '@/redux/expenses/expensesThunks';
 import { startGroupsSync } from '@/redux/groups/groupsSlice';
+import { startPartnerSavingsSync, startSavingsSync } from '@/redux/savings/savingsSlice';
 import { selectConnectedPartnerUid } from '@/redux/partner/partnerSelectors';
 import { startPartnerDataSync, startPartnerLinkSync } from '@/redux/partner/partnerThunks';
 import { addDueRecurringExpenses, startRecurringSync } from '@/redux/recurring/recurringSlice';
@@ -26,6 +27,7 @@ export const useUserDataSync = (): void => {
       dispatch(startExpensesSync(uid)),
       dispatch(startRecurringSync(uid)),
       dispatch(startGroupsSync(uid, email ?? null)),
+      dispatch(startSavingsSync(uid)),
       ...(email ? [dispatch(startPartnerLinkSync(uid, email))] : []),
     ];
     return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
@@ -33,7 +35,11 @@ export const useUserDataSync = (): void => {
 
   useEffect(() => {
     if (!partnerUid) return;
-    return dispatch(startPartnerDataSync(partnerUid));
+    const unsubscribes = [
+      dispatch(startPartnerDataSync(partnerUid)),
+      dispatch(startPartnerSavingsSync(partnerUid)),
+    ];
+    return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }, [dispatch, partnerUid]);
 
   // Keep shared categories identical on both sides whenever either list changes.

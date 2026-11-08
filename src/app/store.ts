@@ -4,6 +4,7 @@ import { categoriesReducer } from '@/redux/categories/categoriesSlice';
 import { expensesReducer } from '@/redux/expenses/expensesSlice';
 import { partnerReducer } from '@/redux/partner/partnerSlice';
 import { groupsReducer } from '@/redux/groups/groupsSlice';
+import { savingsReducer } from '@/redux/savings/savingsSlice';
 import { recurringReducer } from '@/redux/recurring/recurringSlice';
 import { settingsReducer } from '@/redux/settings/settingsSlice';
 
@@ -15,6 +16,7 @@ export const store = configureStore({
     partner: partnerReducer,
     recurring: recurringReducer,
     groups: groupsReducer,
+    savings: savingsReducer,
     settings: settingsReducer,
   },
 });

@@ -4,6 +4,7 @@ export const ROUTES = {
   together: '/together',
   groups: '/groups',
   group: '/groups/:groupId',
+  savings: '/savings',
   categories: '/categories',
   settings: '/settings',
   login: '/login',
