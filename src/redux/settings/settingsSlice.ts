@@ -2,7 +2,13 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { DEFAULT_SETTINGS } from '@/constants/settings';
 import { sessionCleared } from '@/redux/auth/authThunks';
 import type { SettingsState, Theme } from './settingsTypes';
-import { loadSettings, settingsSynced, settingsSyncFailed, updateSettings } from './settingsThunks';
+import {
+  financeSynced,
+  loadSettings,
+  settingsSynced,
+  settingsSyncFailed,
+  updateSettings,
+} from './settingsThunks';
 
 const initialTheme = (): Theme =>
   typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
@@ -11,6 +17,7 @@ const initialTheme = (): Theme =>
 
 const initialState: SettingsState = {
   data: DEFAULT_SETTINGS,
+  finance: { monthlyIncome: null },
   theme: initialTheme(),
   status: 'idle',
   saveStatus: 'idle',
@@ -33,6 +40,9 @@ const settingsSlice = createSlice({
         state.error = null;
         state.data = action.payload;
       })
+      .addCase(financeSynced, (state, action) => {
+        state.finance = action.payload;
+      })
       .addCase(settingsSyncFailed, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
@@ -54,7 +64,8 @@ const settingsSlice = createSlice({
       })
       .addCase(updateSettings.fulfilled, (state, action) => {
         state.saveStatus = 'succeeded';
-        state.data = action.payload;
+        state.data = action.payload.settings;
+        state.finance = action.payload.finance;
       })
       .addCase(updateSettings.rejected, (state) => {
         state.saveStatus = 'failed';

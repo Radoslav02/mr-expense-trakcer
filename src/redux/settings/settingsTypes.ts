@@ -1,10 +1,11 @@
 import type { AsyncStatus } from '@/types/async';
-import type { UserSettings } from '@/types/user';
+import type { PrivateFinance, UserSettings } from '@/types/user';
 
 export type Theme = 'light' | 'dark';
 
 export interface SettingsState {
   data: UserSettings;
+  finance: PrivateFinance;
   theme: Theme;
   status: AsyncStatus;
   saveStatus: AsyncStatus;

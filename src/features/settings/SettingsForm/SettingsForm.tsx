@@ -6,10 +6,14 @@ import { Input } from '@/components/Input';
 import { Select } from '@/components/Select';
 import { CURRENCY_OPTIONS } from '@/constants/settings';
 import { useToast } from '@/hooks/useToast';
-import { selectSettings, selectSettingsSaveStatus } from '@/redux/settings/settingsSelectors';
+import {
+  selectFinance,
+  selectSettings,
+  selectSettingsSaveStatus,
+} from '@/redux/settings/settingsSelectors';
 import { updateSettings } from '@/redux/settings/settingsThunks';
 import { formatCurrency, roundMoney } from '@/utils/currency';
-import { parseAmount, validateBudget } from '@/utils/validation';
+import { parseAmount, validateBudget, validateIncome } from '@/utils/validation';
 import './SettingsForm.css';
 
 const CURRENCY_SELECT_OPTIONS = CURRENCY_OPTIONS.map(({ code, label }) => ({ value: code, label }));
@@ -19,26 +23,43 @@ export const SettingsForm = () => {
   const dispatch = useAppDispatch();
   const toast = useToast();
   const settings = useAppSelector(selectSettings);
+  const finance = useAppSelector(selectFinance);
   const saving = useAppSelector(selectSettingsSaveStatus) === 'loading';
   const [currency, setCurrency] = useState(settings.currency);
   const [budget, setBudget] = useState(settings.monthlyBudget?.toString() ?? '');
   const [budgetError, setBudgetError] = useState<string | null>(null);
+  const [income, setIncome] = useState(finance.monthlyIncome?.toString() ?? '');
+  const [incomeError, setIncomeError] = useState<string | null>(null);
 
   useEffect(() => {
     setCurrency(settings.currency);
     setBudget(settings.monthlyBudget?.toString() ?? '');
   }, [settings]);
 
+  useEffect(() => {
+    setIncome(finance.monthlyIncome?.toString() ?? '');
+  }, [finance]);
+
   const nextBudget = budget.trim() ? roundMoney(parseAmount(budget)) : null;
-  const isDirty = currency !== settings.currency || nextBudget !== settings.monthlyBudget;
+  const nextIncome = income.trim() ? roundMoney(parseAmount(income)) : null;
+  const isDirty =
+    currency !== settings.currency ||
+    nextBudget !== settings.monthlyBudget ||
+    nextIncome !== finance.monthlyIncome;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const error = validateBudget(budget);
-    setBudgetError(error);
-    if (error) return;
+    const errors = { budget: validateBudget(budget), income: validateIncome(income) };
+    setBudgetError(errors.budget);
+    setIncomeError(errors.income);
+    if (errors.budget || errors.income) return;
     try {
-      await dispatch(updateSettings({ currency, monthlyBudget: nextBudget })).unwrap();
+      await dispatch(
+        updateSettings({
+          settings: { currency, monthlyBudget: nextBudget },
+          finance: { monthlyIncome: nextIncome },
+        }),
+      ).unwrap();
       toast.success('Settings saved.');
     } catch (message) {
       toast.error(String(message));
@@ -46,9 +67,28 @@ export const SettingsForm = () => {
   };
 
   return (
-    <Card title="Money" description="How amounts are shown and what you plan to spend each month.">
+    <Card
+      title="Money"
+      description="How amounts are shown, what you earn and what you plan to spend each month."
+    >
       <form onSubmit={handleSubmit} noValidate className="settings-form flex flex-col gap-5">
         <div className="grid gap-5 sm:grid-cols-2">
+          <Input
+            label="Monthly income"
+            optional
+            inputMode="decimal"
+            placeholder="Not set"
+            value={income}
+            onChange={(event) => {
+              setIncome(event.target.value);
+              setIncomeError(null);
+            }}
+            error={incomeError ?? undefined}
+            hint="What comes in each month. Only you can see it."
+            trailing={currency}
+            className="tabular"
+            wrapperClassName="min-w-0 sm:col-span-2"
+          />
           <Select
             label="Currency"
             value={currency}

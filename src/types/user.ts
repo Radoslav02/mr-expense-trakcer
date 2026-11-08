@@ -10,6 +10,11 @@ export interface UserSettings {
   monthlyBudget: number | null;
 }
 
+/** Kept in an owner-only document, so a partner never sees it. */
+export interface PrivateFinance {
+  monthlyIncome: number | null;
+}
+
 export interface UserProfile extends UserSettings {
   displayName: string | null;
   email: string | null;

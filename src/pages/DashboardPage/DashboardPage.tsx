@@ -7,6 +7,7 @@ import { MonthPicker } from '@/components/MonthPicker';
 import { PageHeader } from '@/components/PageHeader';
 import { BudgetProgress } from '@/features/dashboard/BudgetProgress';
 import { CategoryPieChart } from '@/features/dashboard/CategoryPieChart';
+import { MoneyLeft } from '@/features/dashboard/MoneyLeft';
 import { MonthlyBarChart } from '@/features/dashboard/MonthlyBarChart';
 import { SummaryCards } from '@/features/dashboard/SummaryCards';
 import { ExpenseForm } from '@/features/expenses/ExpenseForm';
@@ -45,6 +46,7 @@ export const DashboardPage = () => {
       <div className="flex flex-col gap-5">
         {error && <InlineError message={error} onRetry={() => void dispatch(loadExpenses())} />}
         <SummaryCards month={month} loading={loading} />
+        {!isPending(settingsStatus) && <MoneyLeft month={month} />}
         {!isPending(settingsStatus) && <BudgetProgress month={month} />}
         <div className="grid gap-5 lg:grid-cols-2">
           <CategoryPieChart month={month} loading={loading} />

@@ -1,0 +1,26 @@
+.money-left__spent,
+.money-left__upcoming {
+  width: calc(var(--part) * 100%);
+  transition: width 500ms var(--ease-out);
+}
+
+.money-left__spent.is-healthy {
+  background-color: rgb(var(--color-positive));
+}
+
+.money-left__spent.is-warning {
+  background-color: rgb(var(--color-warning));
+}
+
+.money-left__spent.is-exceeded {
+  background-color: rgb(var(--color-danger));
+}
+
+/* Bills still to come: the same track, hatched so it reads as "committed, not spent yet". */
+.money-left__upcoming {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgb(var(--color-ink-subtle) / 0.45) 0 3px,
+    transparent 3px 6px
+  );
+}
