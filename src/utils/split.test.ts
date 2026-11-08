@@ -43,7 +43,14 @@ describe('personalExpenses', () => {
     makeExpense({ id: 'rent', amount: 50000, partnerShare: 25000, categoryId: 'their-home' }),
     makeExpense({ id: 'shoes', amount: 8000, categoryId: 'their-clothes' }),
   ];
-  const cat = (id: string, name: string) => ({ id, name, color: '#000', isDefault: false });
+  const cat = (id: string, name: string) => ({
+    id,
+    name,
+    color: '#000',
+    isDefault: false,
+    sharedKey: id,
+    updatedAt: '1970-01-01T00:00:00.000Z',
+  });
   const myCategories = [cat('my-food', 'Food'), cat('my-home', 'Home'), cat('other', 'Other')];
   const theirCategories = [cat('their-home', 'home'), cat('their-clothes', 'Clothes')];
 
@@ -82,6 +89,9 @@ describe('validateExpense split', () => {
     split: true,
     splitMode: 'custom',
     partnerShare: '',
+    visibility: 'shared',
+    repeats: false,
+    dayOfMonth: '',
   };
 
   it('requires a share between 0 and the amount for custom splits', () => {

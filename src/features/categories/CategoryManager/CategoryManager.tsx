@@ -9,9 +9,11 @@ import { Skeleton } from '@/components/Skeleton';
 import {
   selectCategoriesError,
   selectCategoriesStatus,
-  selectSortedCategories,
+  selectPrivateCategories,
+  selectSharedCategories,
 } from '@/redux/categories/categoriesSelectors';
 import { selectExpenseCountsByCategory } from '@/redux/expenses/expensesSelectors';
+import { selectLinkStatus, selectPersonNames } from '@/redux/partner/partnerSelectors';
 import type { Category } from '@/types/category';
 import { CategoryFormModal } from '../CategoryFormModal';
 import { CategoryRow } from '../CategoryRow';
@@ -19,76 +21,118 @@ import { DeleteCategoryDialog } from '../DeleteCategoryDialog';
 import './CategoryManager.css';
 
 interface CategoryManagerProps {
-  onRetry: () => void;
+  onRetry?: () => void;
+  /** `shared` shows only the categories both partners use (the Together tab). */
+  scope?: 'all' | 'shared';
 }
 
-type FormState = { open: false } | { open: true; category: Category | null };
+type FormState = { open: false } | { open: true; category: Category | null; isPrivate: boolean };
 
 const SKELETON_ROWS = 5;
 
-export const CategoryManager = ({ onRetry }: CategoryManagerProps) => {
-  const categories = useAppSelector(selectSortedCategories);
+const SkeletonRows = () => (
+  <ul aria-busy="true" aria-label="Loading categories">
+    {Array.from({ length: SKELETON_ROWS }, (_, index) => (
+      <li key={index} className="flex items-center gap-3 border-line px-5 py-3 [&+&]:border-t">
+        <Skeleton className="h-9 w-9 rounded-lg" />
+        <div className="flex-1 space-y-1.5">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-3 w-20" />
+        </div>
+      </li>
+    ))}
+  </ul>
+);
+
+export const CategoryManager = ({ onRetry, scope = 'all' }: CategoryManagerProps) => {
+  const shared = useAppSelector(selectSharedCategories);
+  const privateOnes = useAppSelector(selectPrivateCategories);
   const status = useAppSelector(selectCategoriesStatus);
   const error = useAppSelector(selectCategoriesError);
   const counts = useAppSelector(selectExpenseCountsByCategory);
+  const hasPartner = useAppSelector(selectLinkStatus) !== 'none';
+  const partnerName = useAppSelector(selectPersonNames).partner;
   const [form, setForm] = useState<FormState>({ open: false });
   const [pendingDelete, setPendingDelete] = useState<Category | null>(null);
 
   const isLoading = status === 'idle' || status === 'loading';
-  const openCreate = () => setForm({ open: true, category: null });
+  const openCreate = (isPrivate: boolean) => setForm({ open: true, category: null, isPrivate });
+  const openEdit = (category: Category) =>
+    setForm({ open: true, category, isPrivate: category.isPrivate === true });
+
+  const renderRows = (categories: readonly Category[], isPrivate: boolean) => {
+    if (isLoading) return <SkeletonRows />;
+    if (categories.length === 0) {
+      return isPrivate ? (
+        <p className="px-5 py-6 text-sm text-ink-subtle">
+          No private categories yet. They’re only for your private expenses and only you see them.
+        </p>
+      ) : (
+        <EmptyState
+          icon={<Tags />}
+          title="No categories yet"
+          description="Categories group your spending so the overview can show where money goes."
+          action={
+            <Button icon={<Plus />} onClick={() => openCreate(false)}>
+              Create a category
+            </Button>
+          }
+        />
+      );
+    }
+    return (
+      <ul>
+        {categories.map((category) => (
+          <CategoryRow
+            key={category.id}
+            category={category}
+            expenseCount={counts[category.id] ?? 0}
+            onEdit={openEdit}
+            onDelete={setPendingDelete}
+          />
+        ))}
+      </ul>
+    );
+  };
 
   return (
-    <div className="category-manager flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button icon={<Plus />} onClick={openCreate}>
-          New category
-        </Button>
-      </div>
-      {error && <InlineError message={error} onRetry={onRetry} />}
-      <Card padded={false}>
-        {isLoading ? (
-          <ul aria-busy="true" aria-label="Loading categories">
-            {Array.from({ length: SKELETON_ROWS }, (_, index) => (
-              <li
-                key={index}
-                className="flex items-center gap-3 border-line px-5 py-3 [&+&]:border-t"
-              >
-                <Skeleton className="h-9 w-9 rounded-lg" />
-                <div className="flex-1 space-y-1.5">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-20" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : categories.length === 0 ? (
-          <EmptyState
-            icon={<Tags />}
-            title="No categories yet"
-            description="Categories group your spending so the overview can show where money goes."
-            action={
-              <Button icon={<Plus />} onClick={openCreate}>
-                Create a category
-              </Button>
-            }
-          />
-        ) : (
-          <ul>
-            {categories.map((category) => (
-              <CategoryRow
-                key={category.id}
-                category={category}
-                expenseCount={counts[category.id] ?? 0}
-                onEdit={(selected) => setForm({ open: true, category: selected })}
-                onDelete={setPendingDelete}
-              />
-            ))}
-          </ul>
-        )}
+    <div className="category-manager flex flex-col gap-5">
+      {error && onRetry && <InlineError message={error} onRetry={onRetry} />}
+      <Card
+        padded={false}
+        title={hasPartner ? 'Shared categories' : 'Categories'}
+        description={
+          hasPartner
+            ? `You and ${partnerName} both see these. Changes show up for both of you.`
+            : 'Used for your expenses. If you connect a partner, these are shared with them.'
+        }
+        actions={
+          <Button size="sm" icon={<Plus />} onClick={() => openCreate(false)}>
+            New
+          </Button>
+        }
+      >
+        <div className="mt-4 border-t border-line">{renderRows(shared, false)}</div>
       </Card>
+      {scope === 'all' && (
+        <Card
+          padded={false}
+          title="Private categories"
+          description="Only you see these. They’re for private expenses."
+          actions={
+            <Button size="sm" variant="secondary" icon={<Plus />} onClick={() => openCreate(true)}>
+              New
+            </Button>
+          }
+        >
+          <div className="mt-4 border-t border-line">{renderRows(privateOnes, true)}</div>
+        </Card>
+      )}
       <CategoryFormModal
         open={form.open}
         category={form.open ? form.category : null}
+        isPrivate={form.open && form.isPrivate}
+        partnerName={hasPartner ? partnerName : undefined}
         onClose={() => setForm({ open: false })}
       />
       <DeleteCategoryDialog

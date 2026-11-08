@@ -21,6 +21,10 @@ import './CategoryFormModal.css';
 interface CategoryFormModalProps {
   open: boolean;
   category: Category | null;
+  /** For a new category: private ones are only for private expenses and only you see them. */
+  isPrivate?: boolean;
+  /** Set when you have a partner, to explain that shared categories show up for them too. */
+  partnerName?: string;
   onClose: () => void;
 }
 
@@ -32,13 +36,25 @@ const initialValues = (category: Category | null): CategoryInput => ({
   icon: category?.icon ?? DEFAULT_CATEGORY_ICON,
 });
 
-export const CategoryFormModal = ({ open, category, onClose }: CategoryFormModalProps) => {
+export const CategoryFormModal = ({
+  open,
+  category,
+  isPrivate = false,
+  partnerName,
+  onClose,
+}: CategoryFormModalProps) => {
   const dispatch = useAppDispatch();
   const toast = useToast();
   const saving = useAppSelector(selectCategoriesMutating);
   const names = useAppSelector(selectCategoryNames);
   const [values, setValues] = useState<CategoryInput>(() => initialValues(category));
   const [nameError, setNameError] = useState<string | null>(null);
+  const privateCategory = category ? category.isPrivate === true : isPrivate;
+  const scopeNote = privateCategory
+    ? 'Only you can see this category. Use it for your private expenses.'
+    : partnerName
+      ? `Shared with ${partnerName}: it shows up in both your lists.`
+      : undefined;
 
   useEffect(() => {
     if (!open) return;
@@ -54,8 +70,8 @@ export const CategoryFormModal = ({ open, category, onClose }: CategoryFormModal
     if (error) return;
 
     try {
-      if (category) await dispatch(editCategory({ id: category.id, changes: values })).unwrap();
-      else await dispatch(addCategory(values)).unwrap();
+      if (category) await dispatch(editCategory({ category, changes: values })).unwrap();
+      else await dispatch(addCategory({ input: values, isPrivate })).unwrap();
       toast.success(category ? 'Category updated.' : `“${values.name.trim()}” created.`);
       onClose();
     } catch (message) {
@@ -68,7 +84,8 @@ export const CategoryFormModal = ({ open, category, onClose }: CategoryFormModal
       open={open}
       onClose={onClose}
       dismissible={!saving}
-      title={category ? 'Edit category' : 'New category'}
+      title={category ? 'Edit category' : privateCategory ? 'New private category' : 'New category'}
+      description={scopeNote}
       footer={
         <>
           <Button variant="secondary" onClick={onClose} disabled={saving}>

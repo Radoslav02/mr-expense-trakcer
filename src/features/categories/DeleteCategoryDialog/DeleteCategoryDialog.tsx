@@ -25,7 +25,7 @@ export const DeleteCategoryDialog = ({
   const handleConfirm = async () => {
     if (!category) return;
     try {
-      const result = await dispatch(removeCategory(category.id)).unwrap();
+      const result = await dispatch(removeCategory(category)).unwrap();
       toast.success(
         result.reassignedCount > 0
           ? `Deleted “${category.name}” and moved ${result.reassignedCount} expenses to Other.`
@@ -48,6 +48,7 @@ export const DeleteCategoryDialog = ({
       message={
         hasExpenses ? (
           <p className="delete-category__message">
+            {!category?.isPrivate && 'This removes it for your partner too. '}
             <strong>
               {expenseCount} {expenseCount === 1 ? 'expense uses' : 'expenses use'} this category.
             </strong>{' '}
@@ -55,6 +56,7 @@ export const DeleteCategoryDialog = ({
           </p>
         ) : (
           <p className="delete-category__message">
+            {!category?.isPrivate && 'This removes it for your partner too. '}
             No expenses use this category. This can’t be undone.
           </p>
         )

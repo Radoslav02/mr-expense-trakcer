@@ -58,7 +58,10 @@ const categoriesSlice = createSlice({
       })
       .addCase(removeCategory.fulfilled, (state, action) => {
         state.mutationStatus = 'succeeded';
-        state.items = state.items.filter((item) => item.id !== action.payload.categoryId);
+        const removed = state.items.find((item) => item.id === action.payload.categoryId);
+        // Shared categories stay as tombstones (see deleteCategory); private ones are gone.
+        if (removed && !removed.isPrivate) removed.deleted = true;
+        else state.items = state.items.filter((item) => item.id !== action.payload.categoryId);
       })
       .addMatcher(
         isAnyOf(addCategory.pending, editCategory.pending, removeCategory.pending),

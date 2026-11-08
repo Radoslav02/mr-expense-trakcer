@@ -2,7 +2,12 @@ import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '@/app/store';
 import type { Category } from '@/types/category';
 
-export const selectCategories = (state: RootState) => state.categories.items;
+/** Every category document, including tombstones of deleted shared ones. For syncing only. */
+const selectCategoryDocs = (state: RootState) => state.categories.items;
+
+export const selectCategories = createSelector([selectCategoryDocs], (categories) =>
+  categories.filter((category) => !category.deleted),
+);
 export const selectCategoriesStatus = (state: RootState) => state.categories.status;
 export const selectCategoriesError = (state: RootState) => state.categories.error;
 export const selectCategoriesMutating = (state: RootState) =>
@@ -14,8 +19,20 @@ export const selectCategoryMap = createSelector(
     Object.fromEntries(categories.map((category) => [category.id, category])),
 );
 
+const byName = (a: Category, b: Category) => a.name.localeCompare(b.name);
+
 export const selectSortedCategories = createSelector([selectCategories], (categories) =>
-  [...categories].sort((a, b) => a.name.localeCompare(b.name)),
+  [...categories].sort(byName),
+);
+
+/** Categories both partners see, for shared expenses. */
+export const selectSharedCategories = createSelector([selectSortedCategories], (categories) =>
+  categories.filter((category) => !category.isPrivate),
+);
+
+/** Categories only I see, for private expenses. */
+export const selectPrivateCategories = createSelector([selectSortedCategories], (categories) =>
+  categories.filter((category) => category.isPrivate),
 );
 
 export const selectCategoryNames = createSelector([selectCategories], (categories) =>

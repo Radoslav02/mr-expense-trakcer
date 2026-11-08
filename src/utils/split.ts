@@ -44,19 +44,26 @@ export const splitBalance = (
 const nameKey = (name: string) => name.trim().toLowerCase();
 
 /**
- * Maps a category id from one person's categories to the other's by name, falling back to
- * their "Other" category, so a shared expense lands in a familiar place on both sides.
+ * Maps a category id from one person's categories to the other's: the synced copy of the same
+ * shared category first, then one with the same name, then their "Other" category, so a shared
+ * expense lands in the same place on both sides.
  */
 export const categoryMapper = (
   from: readonly Category[],
   to: readonly Category[],
   fallbackId: string,
 ): ((categoryId: string) => string) => {
-  const byName = new Map(to.map((category) => [nameKey(category.name), category.id]));
-  const fallback = to.some((category) => category.id === fallbackId) ? fallbackId : null;
+  const live = to.filter((category) => !category.deleted);
+  const byKey = new Map(live.map((category) => [category.sharedKey, category.id]));
+  const byName = new Map(live.map((category) => [nameKey(category.name), category.id]));
+  const fallback = live.some((category) => category.id === fallbackId) ? fallbackId : null;
   return (categoryId) => {
     const source = from.find((category) => category.id === categoryId);
-    return (source && byName.get(nameKey(source.name))) ?? fallback ?? categoryId;
+    return (
+      (source && (byKey.get(source.sharedKey) ?? byName.get(nameKey(source.name)))) ??
+      fallback ??
+      categoryId
+    );
   };
 };
 

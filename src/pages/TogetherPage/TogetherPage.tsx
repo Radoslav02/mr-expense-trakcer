@@ -4,6 +4,7 @@ import { InlineError } from '@/components/InlineError';
 import { Loader } from '@/components/Loader';
 import { MonthPicker } from '@/components/MonthPicker';
 import { PageHeader } from '@/components/PageHeader';
+import { CategoryManager } from '@/features/categories/CategoryManager';
 import { CategoryComparison } from '@/features/partner/CategoryComparison';
 import { PartnerConnectCard } from '@/features/partner/PartnerConnectCard';
 import { SharedActivity } from '@/features/partner/SharedActivity';
@@ -60,6 +61,7 @@ export const TogetherPage = () => {
           <TrendComparisonChart month={month} loading={loading} />
         </div>
         <SharedActivity month={month} />
+        <CategoryManager scope="shared" />
       </div>
     );
   };

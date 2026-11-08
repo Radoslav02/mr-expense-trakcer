@@ -11,7 +11,7 @@ export const CategoriesPage = () => {
     <div className="categories-page mx-auto max-w-3xl">
       <PageHeader
         title="Categories"
-        description="Rename, recolor or remove categories. Deleted ones hand their expenses to Other."
+        description="Shared categories are visible to your partner too; private ones are only yours. Deleted ones hand their expenses to Other."
       />
       <CategoryManager onRetry={() => void dispatch(loadCategories())} />
     </div>
