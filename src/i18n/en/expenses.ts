@@ -176,6 +176,25 @@ export const expenses = {
       page: (page: number, pages: number) => `Page ${page} of ${pages}`,
     },
   },
+  money: {
+    income: 'Income',
+    budget: 'Budget',
+    ofAmount: (spent: string, total: string) => `${spent} of ${total}`,
+    incomeSpent: (pct: string) => `${pct} of your income spent`,
+    left: (amount: string) => `${amount} left`,
+    deficit: (amount: string) => `Deficit: ${amount} over your income`,
+    budgetUsed: (pct: string) => `${pct} of your budget used`,
+    budgetClose: (left: string) => `Close to your limit: ${left} left`,
+    budgetReached: 'You’ve reached your budget',
+    budgetOver: (amount: string) => `${amount} over your budget`,
+  },
+  alerts: {
+    budgetClose: (pct: string, left: string) =>
+      `Heads up: ${pct} of this month’s budget is used. ${left} left.`,
+    budgetReached: (budget: string) => `You’ve reached this month’s budget of ${budget}.`,
+    deficit: (amount: string) =>
+      `You’ve spent more than your income this month: ${amount} in deficit.`,
+  },
   validation: {
     titleRequired: 'Give the expense a title.',
     tooLong: (max: number) => `Keep it under ${max} characters.`,

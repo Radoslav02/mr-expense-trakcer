@@ -117,7 +117,8 @@ export const partner: Messages['partner'] = {
     title: 'Po kategorijama',
     description: 'Ko na šta troši, jedno pored drugog',
     emptyTitle: 'Još nema šta da se uporedi',
-    emptyDescription: 'Kad neko od vas doda troškove u ovom periodu, kategorije će se pojaviti ovde.',
+    emptyDescription:
+      'Kad neko od vas doda troškove u ovom periodu, kategorije će se pojaviti ovde.',
   },
   trend: {
     title: (months: number) =>

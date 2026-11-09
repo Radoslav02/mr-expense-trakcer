@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
-import { CircleAlert, CircleCheck, Info, X } from 'lucide-react';
+import { CircleAlert, CircleCheck, Info, TriangleAlert, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useI18n } from '@/i18n';
 import { ToastContext, type ToastApi, type ToastMessage, type ToastTone } from './ToastContext';
@@ -12,6 +12,7 @@ const TONE_ICON = {
   success: <CircleCheck className="text-positive" />,
   error: <CircleAlert className="text-danger" />,
   info: <Info className="text-ink-muted" />,
+  warning: <TriangleAlert className="text-warning" />,
 } as const;
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
@@ -37,6 +38,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       success: (message) => push('success', message),
       error: (message) => push('error', message),
       info: (message) => push('info', message),
+      warning: (message) => push('warning', message),
     }),
     [push],
   );

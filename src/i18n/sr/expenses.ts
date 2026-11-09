@@ -168,6 +168,24 @@ export const expenses: Messages['expenses'] = {
       page: (page: number, pages: number) => `Strana ${page} od ${pages}`,
     },
   },
+  money: {
+    income: 'Prihod',
+    budget: 'Budžet',
+    ofAmount: (spent: string, total: string) => `${spent} od ${total}`,
+    incomeSpent: (pct: string) => `Potrošeno ${pct} prihoda`,
+    left: (amount: string) => `Ostalo ${amount}`,
+    deficit: (amount: string) => `Minus: ${amount} preko prihoda`,
+    budgetUsed: (pct: string) => `Iskorišćeno ${pct} budžeta`,
+    budgetClose: (left: string) => `Blizu si granice: ostalo ${left}`,
+    budgetReached: 'Budžet je dostignut',
+    budgetOver: (amount: string) => `${amount} preko budžeta`,
+  },
+  alerts: {
+    budgetClose: (pct: string, left: string) =>
+      `Pažnja: iskorišćeno je ${pct} budžeta za ovaj mesec. Ostalo: ${left}.`,
+    budgetReached: (budget: string) => `Dostignut je budžet za ovaj mesec (${budget}).`,
+    deficit: (amount: string) => `Ovog meseca je potrošeno više od prihoda: ${amount} u minusu.`,
+  },
   validation: {
     titleRequired: 'Unesi naziv troška.',
     tooLong: (max: number) => `Najviše ${max} karaktera.`,

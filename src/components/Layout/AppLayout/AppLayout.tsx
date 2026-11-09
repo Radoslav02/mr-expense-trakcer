@@ -1,5 +1,8 @@
 import { Outlet } from 'react-router-dom';
+import { useAppSelector } from '@/app/hooks';
+import { useBudgetAlerts } from '@/hooks/useBudgetAlerts';
 import { useUserDataSync } from '@/hooks/useUserDataSync';
+import { selectCurrency } from '@/redux/settings/settingsSelectors';
 import { useI18n } from '@/i18n';
 import { BottomNav } from '../BottomNav';
 import { Header } from '../Header';
@@ -9,6 +12,7 @@ import './AppLayout.css';
 export const AppLayout = () => {
   const { t } = useI18n();
   useUserDataSync();
+  useBudgetAlerts(useAppSelector(selectCurrency));
 
   return (
     <div className="app-layout min-h-dvh">

@@ -11,6 +11,7 @@ import { ExpenseForm } from '@/features/expenses/ExpenseForm';
 import { ExpenseList } from '@/features/expenses/ExpenseList';
 import { ExpenseListSkeleton } from '@/features/expenses/ExpenseListSkeleton';
 import { ExportExpensesModal } from '@/features/expenses/ExportExpensesModal';
+import { MonthMoneyStatus } from '@/features/expenses/MonthMoneyStatus';
 import { RecurringList } from '@/features/expenses/RecurringList';
 import { useCurrencyFormatter } from '@/hooks/useCurrencyFormatter';
 import { useExpenseDialogs } from '@/hooks/useExpenseDialogs';
@@ -24,6 +25,7 @@ import {
   selectFilteredTotal,
 } from '@/redux/expenses/expensesSelectors';
 import { loadExpenses } from '@/redux/expenses/expensesThunks';
+import { currentMonthKey } from '@/utils/dates';
 import { periodLabel } from '@/utils/expenses';
 import './ExpensesPage.css';
 
@@ -94,6 +96,8 @@ export const ExpensesPage = () => {
         }
       />
       <div className="flex min-w-0 flex-col gap-5">
+        {/* Income and budget are monthly: show the chosen month, or this one for weeks/years. */}
+        <MonthMoneyStatus month={filters.period === 'month' ? filters.month : currentMonthKey()} />
         <RecurringList />
         <ExpenseFilters />
         {error && <InlineError message={error} onRetry={() => void dispatch(loadExpenses())} />}
