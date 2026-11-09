@@ -22,6 +22,8 @@ export interface ExpensesPdf {
   totalLabel: string;
   total: string;
   count: string;
+  /** Extra totals under the table, e.g. what each partner paid. */
+  summary?: { label: string; value: string; strong?: boolean }[];
   page: (page: number, pages: number) => string;
 }
 
@@ -114,17 +116,46 @@ export const downloadExpensesPdf = async (pdf: ExpensesPdf): Promise<void> => {
         },
       },
       {
-        columns: [
-          { text: pdf.count, color: MUTED },
+        // Keep the totals and summary on one page.
+        unbreakable: true,
+        stack: [
           {
-            text: [
-              { text: `${pdf.totalLabel}  `, color: MUTED },
-              { text: pdf.total, bold: true, fontSize: 12 },
+            columns: [
+              { text: pdf.count, color: MUTED },
+              {
+                text: [
+                  { text: `${pdf.totalLabel}  `, color: MUTED },
+                  { text: pdf.total, bold: true, fontSize: 12 },
+                ],
+                alignment: 'right',
+              },
             ],
-            alignment: 'right',
+            margin: [0, 10, 0, 0],
           },
+          ...(pdf.summary?.length
+            ? [
+                {
+                  margin: [0, 14, 0, 0] as [number, number, number, number],
+                  table: {
+                    widths: ['*', 'auto'],
+                    body: pdf.summary.map((line): Content[] => [
+                      { text: line.label, color: line.strong ? INK : MUTED, bold: line.strong },
+                      { text: line.value, alignment: 'right', bold: true },
+                    ]),
+                  },
+                  layout: {
+                    hLineWidth: (i: number) => (i === 0 ? 0.6 : 0),
+                    vLineWidth: () => 0,
+                    hLineColor: () => LINE,
+                    paddingTop: () => 4,
+                    paddingBottom: () => 2,
+                    paddingLeft: () => 0,
+                    paddingRight: () => 0,
+                  },
+                } satisfies Content,
+              ]
+            : []),
         ],
-        margin: [0, 10, 0, 0],
       },
     ],
     footer: (page, pages) => ({

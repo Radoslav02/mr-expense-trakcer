@@ -168,3 +168,22 @@ export const selectSharedCategoryCounts = createSelector(
     return counts;
   },
 );
+
+/**
+ * Every shared expense from both of us, for the Together export. The partner's carry the
+ * matching category of mine, so one category list filters both.
+ */
+export const selectTogetherExpenses = createSelector(
+  [selectMySharedExpenses, selectCategories, selectPartnerExpenses, selectPartnerCategories],
+  (mine, myCategories, theirs, theirCategories) => {
+    const toMine = categoryMapper(theirCategories, myCategories, OTHER_CATEGORY_ID);
+    return [
+      ...mine.map((expense) => ({ owner: 'me' as const, expense, categoryId: expense.categoryId })),
+      ...theirs.map((expense) => ({
+        owner: 'partner' as const,
+        expense,
+        categoryId: toMine(expense.categoryId),
+      })),
+    ];
+  },
+);

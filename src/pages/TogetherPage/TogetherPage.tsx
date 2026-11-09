@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { FileDown } from 'lucide-react';
+import { Button } from '@/components/Button';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { InlineError } from '@/components/InlineError';
 import { Loader } from '@/components/Loader';
@@ -11,6 +13,7 @@ import { PartnerConnectCard } from '@/features/partner/PartnerConnectCard';
 import { SharedActivity } from '@/features/partner/SharedActivity';
 import { SharedCosts } from '@/features/partner/SharedCosts';
 import { SpendingSplit } from '@/features/partner/SpendingSplit';
+import { TogetherExportModal } from '@/features/partner/TogetherExportModal';
 import { TrendComparisonChart } from '@/features/partner/TrendComparisonChart';
 import { selectExpensesStatus } from '@/redux/expenses/expensesSelectors';
 import {
@@ -31,6 +34,7 @@ const isPending = (status: string) => status === 'idle' || status === 'loading';
 export const TogetherPage = () => {
   const dispatch = useAppDispatch();
   const [month, setMonth] = useState(currentMonthKey);
+  const [exporting, setExporting] = useState(false);
   const linkStatus = useAppSelector(selectLinkStatus);
   const partnerStatus = useAppSelector(selectPartnerStatus);
   const dataStatus = useAppSelector(selectPartnerDataStatus);
@@ -77,6 +81,11 @@ export const TogetherPage = () => {
           <>
             {connected && <MonthPicker value={month} onChange={setMonth} />}
             {connected && (
+              <Button variant="secondary" icon={<FileDown />} onClick={() => setExporting(true)}>
+                {t.partner.export.button}
+              </Button>
+            )}
+            {connected && (
               <span className="together-page__live inline-flex items-center gap-2 text-xs font-medium text-ink-subtle">
                 <span aria-hidden="true" className="together-page__live-dot" />
                 {copy.live}
@@ -89,6 +98,7 @@ export const TogetherPage = () => {
         {error && <InlineError message={error} onRetry={refresh} />}
         {renderContent()}
       </div>
+      <TogetherExportModal open={exporting} onClose={() => setExporting(false)} />
     </div>
   );
 };
