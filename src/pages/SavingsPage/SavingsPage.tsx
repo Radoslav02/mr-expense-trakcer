@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Lock, PiggyBank, Plus } from 'lucide-react';
+import { ArrowDownLeft, Lock, PiggyBank, Plus } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -20,7 +20,7 @@ import {
   selectSavingsStatus,
   selectSavingsTotals,
 } from '@/redux/savings/savingsSlice';
-import type { Saving } from '@/types/saving';
+import { signedAmount, type Saving, type SavingKind } from '@/types/saving';
 import { roundMoney } from '@/utils/currency';
 import { formatMonthLabel, formatShortDate, monthKeyOf } from '@/utils/dates';
 
@@ -36,9 +36,10 @@ export const SavingsPage = () => {
   const totals = useAppSelector(selectSavingsTotals);
   const connected = useAppSelector(selectLinkStatus) === 'connected';
   const partnerName = useAppSelector(selectPersonNames).partner;
-  const [form, setForm] = useState<{ open: boolean; saving: Saving | null }>({
+  const [form, setForm] = useState<{ open: boolean; saving: Saving | null; kind: SavingKind }>({
     open: false,
     saving: null,
+    kind: 'deposit',
   });
   const [pendingDelete, setPendingDelete] = useState<Saving | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -51,9 +52,9 @@ export const SavingsPage = () => {
         const last = list[list.length - 1];
         if (last?.month === month) {
           last.items.push(saving);
-          last.total = roundMoney(last.total + saving.amount);
+          last.total = roundMoney(last.total + signedAmount(saving));
         } else {
-          list.push({ month, total: saving.amount, items: [saving] });
+          list.push({ month, total: signedAmount(saving), items: [saving] });
         }
         return list;
       }, []),
@@ -67,7 +68,7 @@ export const SavingsPage = () => {
       await dispatch(deleteSavingThunk(pendingDelete)).unwrap();
       toast.success(s.form.deleted);
       setPendingDelete(null);
-      setForm({ open: false, saving: null });
+      setForm({ open: false, saving: null, kind: 'deposit' });
     } catch (message) {
       toast.error(String(message));
     } finally {
@@ -75,7 +76,7 @@ export const SavingsPage = () => {
     }
   };
 
-  const openNew = () => setForm({ open: true, saving: null });
+  const openNew = (kind: SavingKind = 'deposit') => setForm({ open: true, saving: null, kind });
 
   const stats = [
     { label: s.totals.mine, value: totals.mine },
@@ -97,9 +98,19 @@ export const SavingsPage = () => {
         title={s.title}
         description={s.description}
         actions={
-          <Button icon={<Plus />} onClick={openNew}>
-            {s.add}
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              icon={<ArrowDownLeft />}
+              onClick={() => openNew('withdrawal')}
+              disabled={totals.mine <= 0}
+            >
+              {s.takeOut}
+            </Button>
+            <Button icon={<Plus />} onClick={() => openNew()}>
+              {s.add}
+            </Button>
+          </>
         }
       />
       {error && <InlineError message={error} />}
@@ -131,7 +142,7 @@ export const SavingsPage = () => {
                 title={s.empty.title}
                 description={s.empty.description}
                 action={
-                  <Button icon={<Plus />} onClick={openNew}>
+                  <Button icon={<Plus />} onClick={() => openNew()}>
                     {s.add}
                   </Button>
                 }
@@ -153,12 +164,18 @@ export const SavingsPage = () => {
                         <li key={saving.id} className="[&+&]:border-t [&+&]:border-line">
                           <button
                             type="button"
-                            onClick={() => setForm({ open: true, saving })}
+                            onClick={() => setForm({ open: true, saving, kind: saving.kind })}
                             className="flex w-full min-w-0 items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-sunken/60 sm:px-5"
                           >
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-                              <PiggyBank aria-hidden="true" className="h-4 w-4" />
-                            </span>
+                            {saving.kind === 'withdrawal' ? (
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-danger-soft text-danger">
+                                <ArrowDownLeft aria-hidden="true" className="h-4 w-4" />
+                              </span>
+                            ) : (
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
+                                <PiggyBank aria-hidden="true" className="h-4 w-4" />
+                              </span>
+                            )}
                             <span className="min-w-0 flex-1 overflow-hidden">
                               <span className="flex min-w-0 items-center gap-1.5">
                                 <span className="truncate text-[0.9375rem] font-medium text-ink">
@@ -173,15 +190,26 @@ export const SavingsPage = () => {
                               </span>
                               <span className="mt-0.5 flex min-w-0 items-center gap-2 text-[0.8125rem] text-ink-subtle">
                                 <span className="shrink-0">{formatShortDate(saving.date)}</span>
-                                {saving.source === 'leftover' && (
+                                {saving.kind === 'withdrawal' && (
+                                  <span className="shrink-0 rounded bg-danger-soft px-1.5 py-px text-[0.75rem] font-medium text-danger">
+                                    {s.takenOut}
+                                  </span>
+                                )}
+                                {saving.note && <span className="truncate">{saving.note}</span>}
+                                {saving.kind === 'deposit' && saving.source === 'leftover' && (
                                   <span className="truncate rounded bg-accent-soft px-1.5 py-px text-[0.75rem] font-medium text-accent">
                                     {s.leftoverBadge}
                                   </span>
                                 )}
                               </span>
                             </span>
-                            <span className="tabular shrink-0 whitespace-nowrap text-[0.9375rem] font-semibold text-positive">
-                              +{format(saving.amount)}
+                            <span
+                              className={`tabular shrink-0 whitespace-nowrap text-[0.9375rem] font-semibold ${
+                                saving.kind === 'withdrawal' ? 'text-danger' : 'text-positive'
+                              }`}
+                            >
+                              {saving.kind === 'withdrawal' ? '−' : '+'}
+                              {format(saving.amount)}
                             </span>
                           </button>
                         </li>
@@ -198,7 +226,8 @@ export const SavingsPage = () => {
       <SavingForm
         open={form.open}
         saving={form.saving}
-        onClose={() => setForm({ open: false, saving: null })}
+        defaultKind={form.kind}
+        onClose={() => setForm({ open: false, saving: null, kind: 'deposit' })}
         onDelete={setPendingDelete}
       />
       <ConfirmDialog

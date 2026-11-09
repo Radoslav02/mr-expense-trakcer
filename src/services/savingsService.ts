@@ -37,7 +37,9 @@ const toSaving =
     title: readString(data, 'title'),
     amount: readNumber(data, 'amount') ?? 0,
     date: toDateKey(data.date),
+    kind: data.kind === 'withdrawal' ? 'withdrawal' : 'deposit',
     source: data.source === 'leftover' ? 'leftover' : 'custom',
+    ...(readString(data, 'note') ? { note: readString(data, 'note') } : {}),
     ...(isPrivate ? { isPrivate: true } : {}),
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
@@ -83,7 +85,9 @@ const payload = (input: SavingInput) => ({
   title: input.title.trim(),
   amount: input.amount,
   date: dateKeyToTimestamp(input.date),
-  source: input.source,
+  kind: input.kind,
+  source: input.kind === 'withdrawal' ? 'custom' : input.source,
+  note: input.note?.trim() ?? '',
 });
 
 export const saveSaving = async (

@@ -10,7 +10,7 @@ import {
   subscribeToSharedSavings,
 } from '@/services/savingsService';
 import type { AsyncStatus } from '@/types/async';
-import type { Saving, SavingInput } from '@/types/saving';
+import { signedAmount, type Saving, type SavingInput } from '@/types/saving';
 import { roundMoney } from '@/utils/currency';
 
 interface SavingsState {
@@ -105,8 +105,9 @@ export const selectPartnerSavings = (state: RootState) => state.savings.partnerI
 export const selectSavingsStatus = (state: RootState) => state.savings.status;
 export const selectSavingsError = (state: RootState) => state.savings.error;
 
+/** Net balance: money put in minus money taken out. */
 const sum = (savings: readonly Saving[]) =>
-  roundMoney(savings.reduce((total, saving) => total + saving.amount, 0));
+  roundMoney(savings.reduce((total, saving) => total + signedAmount(saving), 0));
 
 export const selectSavingsTotals = createSelector(
   [selectSavings, selectPartnerSavings],

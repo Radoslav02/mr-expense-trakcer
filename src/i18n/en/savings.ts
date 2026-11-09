@@ -6,9 +6,9 @@ export const savings = {
   add: 'Add saving',
   edit: 'Edit saving',
   totals: {
-    mine: 'Saved in total',
+    mine: 'Balance',
     thisYear: 'Saved this year',
-    together: 'Saved together',
+    together: 'Together balance',
     togetherHint: (partner: string) => `Your shared savings and ${partner}’s`,
   },
   empty: {
@@ -18,7 +18,18 @@ export const savings = {
   },
   count: (count: number) => `${count} ${pluralEn(count, 'saving', 'savings')}`,
   leftoverBadge: 'Left from income',
+  takeOut: 'Take out',
+  takenOut: 'Taken out',
   form: {
+    kind: 'Type',
+    deposit: 'Put in',
+    withdrawal: 'Take out',
+    withdrawalTitle: 'Taken from',
+    withdrawalPlaceholder: 'e.g. Savings account',
+    note: 'Why',
+    notePlaceholder: 'e.g. Lost wallet, car repair',
+    balanceHint: (amount: string) => `Current balance: ${amount}`,
+    takenAdded: 'Withdrawal saved.',
     source: 'Amount',
     leftover: 'What’s left this month',
     custom: 'Custom amount',
@@ -37,6 +48,7 @@ export const savings = {
   validation: {
     titleRequired: 'Say where it’s kept.',
     amountPositive: 'Amount must be greater than 0.',
+    overBalance: (amount: string) => `You can take out at most ${amount}.`,
   },
   dialogs: {
     deleteTitle: 'Delete this saving?',

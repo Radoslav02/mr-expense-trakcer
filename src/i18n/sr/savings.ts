@@ -7,9 +7,9 @@ export const savings: Messages['savings'] = {
   add: 'Dodaj uštedu',
   edit: 'Izmeni uštedu',
   totals: {
-    mine: 'Ukupno ušteđeno',
+    mine: 'Stanje',
     thisYear: 'Ušteđeno ove godine',
-    together: 'Ušteđeno zajedno',
+    together: 'Zajedničko stanje',
     togetherHint: (partner: string) => `Tvoje zajedničke uštede i uštede: ${partner}`,
   },
   empty: {
@@ -19,7 +19,18 @@ export const savings: Messages['savings'] = {
   },
   count: (count: number) => `${count} ${pluralSr(count, 'ušteda', 'uštede', 'ušteda')}`,
   leftoverBadge: 'Ostatak plate',
+  takeOut: 'Podigni',
+  takenOut: 'Podignuto',
   form: {
+    kind: 'Vrsta',
+    deposit: 'Uplati',
+    withdrawal: 'Podigni',
+    withdrawalTitle: 'Odakle je podignuto',
+    withdrawalPlaceholder: 'npr. Štedni račun',
+    note: 'Zašto',
+    notePlaceholder: 'npr. Izgubljen novčanik, popravka auta',
+    balanceHint: (amount: string) => `Trenutno stanje: ${amount}`,
+    takenAdded: 'Podizanje je sačuvano.',
     source: 'Iznos',
     leftover: 'Ostatak ovog meseca',
     custom: 'Drugi iznos',
@@ -38,6 +49,7 @@ export const savings: Messages['savings'] = {
   validation: {
     titleRequired: 'Napiši gde se čuva.',
     amountPositive: 'Iznos mora biti veći od 0.',
+    overBalance: (amount: string) => `Možeš da podigneš najviše ${amount}.`,
   },
   dialogs: {
     deleteTitle: 'Obrisati ovu uštedu?',
