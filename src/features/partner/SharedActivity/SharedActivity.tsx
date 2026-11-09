@@ -28,7 +28,8 @@ import { PersonAvatar } from '../PersonAvatar';
 import './SharedActivity.css';
 
 interface SharedActivityProps {
-  month: string;
+  /** A `rangeKey` for the period shown. */
+  range: string;
 }
 
 type OwnerFilter = Person | 'all';
@@ -37,8 +38,8 @@ type Editing = { owner: Person; expense: Expense } | null;
 
 const PAGE_SIZE = 12;
 
-export const SharedActivity = ({ month }: SharedActivityProps) => {
-  const feed = useAppSelector((state) => selectSharedFeed(state, month));
+export const SharedActivity = ({ range }: SharedActivityProps) => {
+  const feed = useAppSelector((state) => selectSharedFeed(state, range));
   const names = useAppSelector(selectPersonNames);
   const { format } = useCurrencyFormatter();
   const { t } = useI18n();

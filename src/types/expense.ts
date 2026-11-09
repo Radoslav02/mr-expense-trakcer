@@ -60,6 +60,14 @@ export type AllOption = typeof ALL;
 /** Which span of time the expense list shows. */
 export type ExpensePeriod = 'week' | 'month' | 'year';
 
+/** A period: which kind, and which week, month or year of that kind is shown. */
+export interface PeriodValue {
+  period: ExpensePeriod;
+  week: string;
+  month: string;
+  year: string;
+}
+
 export interface ExpenseFilters {
   period: ExpensePeriod;
   /** Monday of the shown week (yyyy-MM-dd), when `period` is `week`. */

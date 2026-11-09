@@ -4,7 +4,6 @@ import { Button } from '@/components/Button';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { InlineError } from '@/components/InlineError';
 import { Loader } from '@/components/Loader';
-import { MonthPicker } from '@/components/MonthPicker';
 import { PageHeader } from '@/components/PageHeader';
 import { CategoryManager } from '@/features/categories/CategoryManager';
 import { useI18n } from '@/i18n';
@@ -26,14 +25,21 @@ import {
 } from '@/redux/partner/partnerSelectors';
 import { loadPartner } from '@/redux/partner/partnerThunks';
 import { selectCurrency } from '@/redux/settings/settingsSelectors';
-import { currentMonthKey } from '@/utils/dates';
+import { monthKeyOf } from '@/utils/dates';
+import { currentPeriod, periodBounds, rangeKey } from '@/utils/expenses';
+import type { PeriodValue } from '@/types/expense';
+import { PeriodChoice, PeriodNavigator } from '@/features/expenses/PeriodPicker';
 import './TogetherPage.css';
 
 const isPending = (status: string) => status === 'idle' || status === 'loading';
 
 export const TogetherPage = () => {
   const dispatch = useAppDispatch();
-  const [month, setMonth] = useState(currentMonthKey);
+  const [period, setPeriod] = useState<PeriodValue>(currentPeriod);
+  const bounds = periodBounds(period);
+  const range = rangeKey(bounds);
+  // The trend chart shows the months up to the end of the chosen period.
+  const trendMonth = monthKeyOf(bounds.end);
   const [exporting, setExporting] = useState(false);
   const linkStatus = useAppSelector(selectLinkStatus);
   const partnerStatus = useAppSelector(selectPartnerStatus);
@@ -60,13 +66,13 @@ export const TogetherPage = () => {
             {copy.currencyMismatch(names.partner, partnerCurrency, currency)}
           </p>
         )}
-        <SpendingSplit month={month} loading={loading} />
-        <SharedCosts month={month} loading={loading} />
+        <SpendingSplit range={range} loading={loading} />
+        <SharedCosts range={range} loading={loading} />
         <div className="grid gap-5 lg:grid-cols-2">
-          <CategoryComparison month={month} loading={loading} />
-          <TrendComparisonChart month={month} loading={loading} />
+          <CategoryComparison range={range} loading={loading} />
+          <TrendComparisonChart month={trendMonth} loading={loading} />
         </div>
-        <SharedActivity month={month} />
+        <SharedActivity range={range} />
         <CategoryManager scope="shared" />
       </div>
     );
@@ -79,7 +85,8 @@ export const TogetherPage = () => {
         description={connected ? copy.descriptionConnected(names.partner) : copy.description}
         actions={
           <>
-            {connected && <MonthPicker value={month} onChange={setMonth} />}
+            {connected && <PeriodChoice value={period} onChange={setPeriod} />}
+            {connected && <PeriodNavigator value={period} onChange={setPeriod} />}
             {connected && (
               <Button variant="secondary" icon={<FileDown />} onClick={() => setExporting(true)}>
                 {t.partner.export.button}

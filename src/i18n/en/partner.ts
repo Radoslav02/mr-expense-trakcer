@@ -88,7 +88,7 @@ export const partner = {
   },
   split: {
     label: 'Who spent how much',
-    nothingYet: 'Neither of you has spent anything this month yet.',
+    nothingYet: 'Neither of you has spent anything in this period yet.',
     same: 'You spent exactly the same.',
     youMore: (amount: string, partner: string) => `You spent ${amount} more than ${partner}.`,
     partnerMore: (partner: string, amount: string) => `${partner} spent ${amount} more than you.`,
@@ -98,9 +98,9 @@ export const partner = {
   },
   sharedCosts: {
     title: 'Shared costs',
-    description: 'Things you split this month, like groceries',
+    description: 'Things you split in this period, like groceries',
     empty: (partner: string) =>
-      `Nothing shared this month. Turn on “Split with ${partner}” when adding one.`,
+      `Nothing shared in this period. Turn on “Split with ${partner}” when adding one.`,
     inExpenses: (count: number) => `in ${count} ${pluralEn(count, 'expense', 'expenses')}`,
     yourPart: 'Your part',
     partnerPart: (partner: string) => `${partner}’s part`,
@@ -111,7 +111,7 @@ export const partner = {
     title: 'By category',
     description: 'Who spends what, side by side',
     emptyTitle: 'Nothing to compare yet',
-    emptyDescription: 'Once either of you adds expenses this month, categories line up here.',
+    emptyDescription: 'Once either of you adds expenses in this period, categories line up here.',
   },
   trend: {
     title: (months: number) => `Last ${months} months`,
@@ -121,11 +121,11 @@ export const partner = {
   },
   activity: {
     title: 'Who bought what',
-    description: 'Every expense from both of you this month. Tap one to edit it.',
+    description: 'Every expense from both of you in this period. Tap one to edit it.',
     filterLabel: 'Show expenses from',
     both: 'Both',
     emptyTitle: 'No expenses here',
-    emptyDescription: 'Nothing recorded for this month yet.',
+    emptyDescription: 'Nothing recorded in this period yet.',
     editedByPartner: (partner: string) => `edited by ${partner}`,
     editedByYou: 'edited by you',
     editLabel: (title: string, amount: string, person: string) =>

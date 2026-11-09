@@ -11,15 +11,16 @@ import { PersonLegend } from '../PersonLegend';
 import './CategoryComparison.css';
 
 interface CategoryComparisonProps {
-  month: string;
+  /** A `rangeKey` for the period shown. */
+  range: string;
   loading: boolean;
 }
 
 const barStyle = (value: number, max: number) =>
   ({ '--bar': max > 0 ? value / max : 0 }) as CSSProperties;
 
-export const CategoryComparison = ({ month, loading }: CategoryComparisonProps) => {
-  const rows = useAppSelector((state) => selectCategoryComparison(state, month));
+export const CategoryComparison = ({ range, loading }: CategoryComparisonProps) => {
+  const rows = useAppSelector((state) => selectCategoryComparison(state, range));
   const names = useAppSelector(selectPersonNames);
   const { format } = useCurrencyFormatter();
   const { t } = useI18n();

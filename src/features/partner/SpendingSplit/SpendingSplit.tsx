@@ -10,7 +10,8 @@ import { PersonAvatar } from '../PersonAvatar';
 import './SpendingSplit.css';
 
 interface SpendingSplitProps {
-  month: string;
+  /** A `rangeKey` for the period shown. */
+  range: string;
   loading: boolean;
 }
 
@@ -44,8 +45,8 @@ const PersonTotal = ({ person, name, total, count, loading }: PersonTotalProps) 
   );
 };
 
-export const SpendingSplit = ({ month, loading }: SpendingSplitProps) => {
-  const split = useAppSelector((state) => selectSpendingSplit(state, month));
+export const SpendingSplit = ({ range, loading }: SpendingSplitProps) => {
+  const split = useAppSelector((state) => selectSpendingSplit(state, range));
   const names = useAppSelector(selectPersonNames);
   const { format } = useCurrencyFormatter();
   const { t } = useI18n();

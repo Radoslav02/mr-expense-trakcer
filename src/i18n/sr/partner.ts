@@ -92,21 +92,21 @@ export const partner: Messages['partner'] = {
   },
   split: {
     label: 'Ko koliko troši',
-    nothingYet: 'Ovog meseca niko od vas još ništa nije potrošio.',
+    nothingYet: 'U ovom periodu niko od vas još ništa nije potrošio.',
     same: 'Trošite potpuno isto.',
     youMore: (amount: string, partner: string) =>
-      `Ovog meseca trošiš ${amount} više nego ${partner}.`,
+      `U ovom periodu trošiš ${amount} više nego ${partner}.`,
     partnerMore: (partner: string, amount: string) =>
-      `${partner} ovog meseca troši ${amount} više nego ti.`,
+      `${partner} u ovom periodu troši ${amount} više nego ti.`,
     barLabel: (me: string, meShare: string, partner: string, partnerShare: string) =>
       `${me} ${meShare}, ${partner} ${partnerShare} ukupne potrošnje`,
     together: (amount: string) => `Zajedno ${amount}`,
   },
   sharedCosts: {
     title: 'Zajednički troškovi',
-    description: 'Ono što ovog meseca delite, kao namirnice',
+    description: 'Ono što u ovom periodu delite, kao namirnice',
     empty: () =>
-      'Ovog meseca nema zajedničkih troškova. Kad dodaješ trošak, uključi podelu sa partnerom.',
+      'U ovom periodu nema zajedničkih troškova. Kad dodaješ trošak, uključi podelu sa partnerom.',
     inExpenses: (count: number) => `u ${count} ${pluralSr(count, 'trošku', 'troška', 'troškova')}`,
     yourPart: 'Tvoj deo',
     partnerPart: (partner: string) => `Deo: ${partner}`,
@@ -117,7 +117,7 @@ export const partner: Messages['partner'] = {
     title: 'Po kategorijama',
     description: 'Ko na šta troši, jedno pored drugog',
     emptyTitle: 'Još nema šta da se uporedi',
-    emptyDescription: 'Kad neko od vas doda troškove ovog meseca, kategorije će se pojaviti ovde.',
+    emptyDescription: 'Kad neko od vas doda troškove u ovom periodu, kategorije će se pojaviti ovde.',
   },
   trend: {
     title: (months: number) =>
@@ -128,11 +128,11 @@ export const partner: Messages['partner'] = {
   },
   activity: {
     title: 'Ko je šta kupio',
-    description: 'Svi troškovi vas oboje ovog meseca. Dodirni neki da ga izmeniš.',
+    description: 'Svi troškovi vas oboje u ovom periodu. Dodirni neki da ga izmeniš.',
     filterLabel: 'Prikaži troškove za',
     both: 'Oboje',
     emptyTitle: 'Ovde nema troškova',
-    emptyDescription: 'Za ovaj mesec još ništa nije uneto.',
+    emptyDescription: 'Za ovaj period još ništa nije uneto.',
     editedByPartner: (partner: string) => `izmena: ${partner}`,
     editedByYou: 'tvoja izmena',
     editLabel: (title: string, amount: string, person: string) =>

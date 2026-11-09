@@ -17,7 +17,7 @@ import {
 } from '@/utils/comparison';
 import { lastMonthKeys } from '@/utils/dates';
 import { categoryMapper, personalExpenses, sharedCosts } from '@/utils/split';
-import { expensesInMonth, sumAmounts, totalsByCategory, totalsByMonth } from '@/utils/expenses';
+import { expensesInRange, sumAmounts, totalsByCategory, totalsByMonth } from '@/utils/expenses';
 
 const fallbackCategory = () => ({
   name: getMessages().common.uncategorized,
@@ -25,6 +25,8 @@ const fallbackCategory = () => ({
 });
 
 const selectMonthArg = (_state: RootState, month: string) => month;
+/** A `rangeKey` ("2026-11-01..2026-11-30"): the period the Together tab shows. */
+const selectRangeArg = (_state: RootState, range: string) => range;
 
 export const selectPartnerEmail = (state: RootState) => state.partner.partnerEmail;
 export const selectIncomingInvite = (state: RootState) => state.partner.incoming;
@@ -84,10 +86,10 @@ export const selectCurrencyMismatch = createSelector(
 );
 
 export const selectSpendingSplit = createSelector(
-  [selectMySharedSpending, selectPartnerSpending, selectMonthArg],
-  (mine, theirs, month) => {
-    const myMonth = expensesInMonth(mine, month);
-    const theirMonth = expensesInMonth(theirs, month);
+  [selectMySharedSpending, selectPartnerSpending, selectRangeArg],
+  (mine, theirs, range) => {
+    const myMonth = expensesInRange(mine, range);
+    const theirMonth = expensesInRange(theirs, range);
     return {
       ...splitSpending(sumAmounts(myMonth), sumAmounts(theirMonth)),
       meCount: myMonth.length,
@@ -102,14 +104,14 @@ export const selectCategoryComparison = createSelector(
     selectCategories,
     selectPartnerSpending,
     selectPartnerCategories,
-    selectMonthArg,
+    selectRangeArg,
     selectLanguage,
   ],
-  (mine, myCategories, theirs, theirCategories, month) =>
+  (mine, myCategories, theirs, theirCategories, range) =>
     compareCategories(
-      totalsByCategory(expensesInMonth(mine, month), myCategories, fallbackCategory()),
+      totalsByCategory(expensesInRange(mine, range), myCategories, fallbackCategory()),
       totalsByCategory(
-        expensesInMonth(theirs, month),
+        expensesInRange(theirs, range),
         // A shared category of mine they haven't synced yet: their expense holds its shared key.
         [
           ...theirCategories,
@@ -136,19 +138,19 @@ export const selectSharedFeed = createSelector(
     selectCategories,
     selectPartnerExpenses,
     selectPartnerCategories,
-    selectMonthArg,
+    selectRangeArg,
   ],
-  (mine, myCategories, theirs, theirCategories, month) =>
+  (mine, myCategories, theirs, theirCategories, range) =>
     buildSharedFeed(
-      { expenses: expensesInMonth(mine, month), categories: myCategories },
-      { expenses: expensesInMonth(theirs, month), categories: theirCategories },
+      { expenses: expensesInRange(mine, range), categories: myCategories },
+      { expenses: expensesInRange(theirs, range), categories: theirCategories },
     ),
 );
 
 export const selectSharedCosts = createSelector(
-  [selectMySharedExpenses, selectPartnerExpenses, selectMonthArg],
-  (mine, theirs, month) =>
-    sharedCosts(expensesInMonth(mine, month), expensesInMonth(theirs, month)),
+  [selectMySharedExpenses, selectPartnerExpenses, selectRangeArg],
+  (mine, theirs, range) =>
+    sharedCosts(expensesInRange(mine, range), expensesInRange(theirs, range)),
 );
 
 /**

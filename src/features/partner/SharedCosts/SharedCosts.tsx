@@ -9,7 +9,8 @@ import type { Person } from '@/types/partner';
 import { PersonAvatar } from '../PersonAvatar';
 
 interface SharedCostsProps {
-  month: string;
+  /** A `rangeKey` for the period shown. */
+  range: string;
   loading: boolean;
 }
 
@@ -35,8 +36,8 @@ const PartRow = ({ person, name, label, detail, amount }: PartRowProps) => (
 );
 
 /** Costs you share, like groceries: the total and each person's part. Nobody owes anybody. */
-export const SharedCosts = ({ month, loading }: SharedCostsProps) => {
-  const costs = useAppSelector((state) => selectSharedCosts(state, month));
+export const SharedCosts = ({ range, loading }: SharedCostsProps) => {
+  const costs = useAppSelector((state) => selectSharedCosts(state, range));
   const names = useAppSelector(selectPersonNames);
   const { format } = useCurrencyFormatter();
   const { t } = useI18n();

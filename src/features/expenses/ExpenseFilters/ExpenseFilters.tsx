@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useAppSelector } from '@/app/hooks';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
@@ -9,20 +9,10 @@ import { PAYMENT_METHODS } from '@/constants/expenses';
 import { useExpenseFilters } from '@/hooks/useExpenseFilters';
 import { useI18n } from '@/i18n';
 import { selectSortedCategories } from '@/redux/categories/categoriesSelectors';
-import { ALL, type ExpensePeriod, type PaymentMethod } from '@/types/expense';
+import { ALL, type PaymentMethod, type PeriodValue } from '@/types/expense';
 import { cn } from '@/utils/cn';
-import {
-  currentMonthKey,
-  currentYearKey,
-  shiftMonth,
-  shiftWeek,
-  shiftYear,
-  weekStartKey,
-} from '@/utils/dates';
-import { periodLabel } from '@/utils/expenses';
+import { PeriodChoice, PeriodNavigator } from '../PeriodPicker';
 import './ExpenseFilters.css';
-
-const PERIODS: readonly ExpensePeriod[] = ['week', 'month', 'year'];
 
 export const ExpenseFilters = () => {
   const { filters, setFilter, resetFilters } = useExpenseFilters();
@@ -50,31 +40,12 @@ export const ExpenseFilters = () => {
     [t, f],
   );
 
-  const periodNames: Record<ExpensePeriod, string> = {
-    week: f.thisWeek,
-    month: f.thisMonth,
-    year: f.thisYear,
-  };
-
-  /** Picking a period jumps to the current week, month or year. */
-  const choosePeriod = (period: ExpensePeriod) => {
-    setFilter('period', period);
-    if (period === 'week') setFilter('week', weekStartKey());
-    if (period === 'month') setFilter('month', currentMonthKey());
-    if (period === 'year') setFilter('year', currentYearKey());
-  };
-
-  const isCurrent =
-    filters.period === 'week'
-      ? filters.week >= weekStartKey()
-      : filters.period === 'year'
-        ? filters.year >= currentYearKey()
-        : filters.month >= currentMonthKey();
-
-  const shift = (amount: number) => {
-    if (filters.period === 'week') setFilter('week', shiftWeek(filters.week, amount));
-    else if (filters.period === 'year') setFilter('year', shiftYear(filters.year, amount));
-    else setFilter('month', shiftMonth(filters.month, amount));
+  const period: PeriodValue = filters;
+  const setPeriod = (next: PeriodValue) => {
+    setFilter('period', next.period);
+    setFilter('week', next.week);
+    setFilter('month', next.month);
+    setFilter('year', next.year);
   };
 
   // Search isn't counted: it stays on screen on phones.
@@ -82,66 +53,8 @@ export const ExpenseFilters = () => {
     (filters.categoryId !== ALL ? 1 : 0) + (filters.paymentMethod !== ALL ? 1 : 0);
   const hasActiveFilters = activeCount > 0 || filters.search.trim() !== '';
 
-  const periodNavigator = (
-    <div
-      role="group"
-      aria-label={f.period}
-      className="month-picker inline-flex h-10 min-w-0 items-center rounded-lg border border-line bg-surface"
-    >
-      <Button
-        variant="ghost"
-        size="sm"
-        iconOnly
-        icon={<ChevronLeft />}
-        onClick={() => shift(-1)}
-        className="ml-1"
-      >
-        {f.previousPeriod}
-      </Button>
-      <span
-        aria-live="polite"
-        className="tabular min-w-[8.5rem] flex-1 truncate px-2 text-center text-sm font-medium text-ink"
-      >
-        {periodLabel(filters)}
-      </span>
-      <Button
-        variant="ghost"
-        size="sm"
-        iconOnly
-        icon={<ChevronRight />}
-        onClick={() => shift(1)}
-        disabled={isCurrent}
-        className="mr-1"
-      >
-        {f.nextPeriod}
-      </Button>
-    </div>
-  );
-
-  const periodChoice = (
-    <div
-      role="group"
-      aria-label={f.period}
-      className="grid shrink-0 grid-cols-3 rounded-lg bg-sunken p-0.5"
-    >
-      {PERIODS.map((period) => (
-        <button
-          key={period}
-          type="button"
-          aria-pressed={filters.period === period}
-          onClick={() => choosePeriod(period)}
-          className={cn(
-            'h-9 whitespace-nowrap rounded-md px-3 text-[0.8125rem] font-medium transition-colors',
-            filters.period === period
-              ? 'bg-accent text-accent-ink'
-              : 'text-ink-muted hover:text-ink',
-          )}
-        >
-          {periodNames[period]}
-        </button>
-      ))}
-    </div>
-  );
+  const periodNavigator = <PeriodNavigator value={period} onChange={setPeriod} />;
+  const periodChoice = <PeriodChoice value={period} onChange={setPeriod} />;
 
   const categorySelect = (className?: string) => (
     <Select

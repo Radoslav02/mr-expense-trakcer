@@ -3,6 +3,8 @@ import type { Expense } from '@/types/expense';
 import { ALL } from '@/types/expense';
 import {
   budgetLevel,
+  expensesInRange,
+  rangeKey,
   filterExpenses,
   groupByDay,
   largestExpense,
@@ -69,6 +71,12 @@ describe('expense utils', () => {
     expect(filterExpenses(expenses, { ...base, week: '2026-10-19' })).toHaveLength(0);
     expect(filterExpenses(expenses, { ...base, period: 'year' })).toHaveLength(3);
     expect(filterExpenses(expenses, { ...base, period: 'year', year: '2025' })).toHaveLength(0);
+  });
+
+  it('keeps expenses inside a date range, both ends included', () => {
+    const range = rangeKey({ start: '2026-10-15', end: '2026-11-01' });
+    expect(range).toBe('2026-10-15..2026-11-01');
+    expect(expensesInRange(expenses, range).map((e) => e.id)).toEqual(['b', 'c']);
   });
 
   it('groups by day newest first', () => {
